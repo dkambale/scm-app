@@ -1,0 +1,376 @@
+School Management Application
+
+Goal: Create a React Native app using Expo for a School Management System.
+The app should have authentication, authorization (roles and permissions), and CRUD operations for multiple entities.
+There will be three user personas: Admin, Teacher, and Student.
+
+⚙️ Tech Stack
+
+Frontend: React Native with Expo SDK (latest)
+
+Navigation: React Navigation v7 (stack + tab + drawer where needed)
+
+State Management: Context API or Redux Toolkit
+
+API Calls: Axios with interceptor for JWT token
+
+Storage: SecureStore or AsyncStorage for token persistence
+
+UI Framework: React Native Paper / Native Base (clean & minimal look)
+
+Form Handling: Formik + Yup
+
+Authorization: Role-based access control (RBAC) — restrict screens & actions
+
+Backend (dummy / mock initially): JSON-server or mock API with roles, permissions, and CRUD
+
+Authentication: JWT-based login/logout
+
+Authorization middleware: Use role and permission mapping
+
+👤 User Personas and Roles
+1️⃣ Admin
+
+Can manage everything (CRUD for all entities).
+
+Has access to:
+
+Dashboard (stats: total students, teachers, classes)
+
+Students management
+
+Teachers management
+
+Classes / Timetable
+
+Attendance (view all)
+
+Assignments (create/view for all)
+
+Announcements
+
+Fees management
+
+Role & Permission management
+
+2️⃣ Teacher
+
+Can:
+
+View and manage assigned students
+
+Take attendance
+
+Upload and grade assignments
+
+Post class announcements
+
+View timetable
+
+Communicate with students
+
+3️⃣ Student
+
+Can:
+
+View timetable
+
+View assignments (submit answers/files)
+
+View attendance summary
+
+View announcements
+
+Pay fees (view status)
+
+Message teacher
+
+📂 Core Features and Modules (with CRUD)
+🧑‍🎓 Student Management (Admin/Teacher)
+
+Fields:
+
+id
+
+firstName
+
+lastName
+
+email
+
+classId
+
+rollNumber
+
+dob
+
+address
+
+parentContact
+
+profilePic
+CRUD:
+
+Admin: full CRUD
+
+Teacher: read & update assigned students
+
+Student: read own data only
+
+🧑‍🏫 Teacher Management (Admin)
+
+Fields:
+
+id
+
+firstName
+
+lastName
+
+email
+
+subject
+
+classAssigned
+
+phone
+
+profilePic
+CRUD:
+
+Admin: full CRUD
+
+Teacher: read/update self
+
+Student: no access
+
+🏫 Class & Timetable Management
+
+Fields:
+
+id
+
+className
+
+section
+
+subjects
+
+teacherAssigned
+
+schedule (array of day/time/subject)
+CRUD:
+
+Admin: full CRUD
+
+Teacher: view assigned class timetable
+
+Student: view timetable
+
+📅 Attendance Module
+
+Fields:
+
+id
+
+date
+
+classId
+
+studentId
+
+status (Present/Absent)
+CRUD:
+
+Teacher: create/update attendance
+
+Admin: view all
+
+Student: view own attendance only
+
+📚 Assignment Module
+
+Fields:
+
+id
+
+title
+
+description
+
+classId
+
+teacherId
+
+dueDate
+
+attachmentUrl
+
+submissions (array: studentId, fileUrl, grade, remarks)
+CRUD:
+
+Admin: view all
+
+Teacher: create/update/delete own assignments
+
+Student: view & submit
+
+📢 Announcements Module
+
+Fields:
+
+id
+
+title
+
+message
+
+createdBy
+
+targetAudience (class/all)
+
+date
+CRUD:
+
+Admin: full CRUD
+
+Teacher: create for own classes
+
+Student: read only
+
+💰 Fees Management
+
+Fields:
+
+id
+
+studentId
+
+amount
+
+dueDate
+
+status (Paid/Pending)
+
+receiptUrl
+CRUD:
+
+Admin: full CRUD
+
+Student: read-only + mark payment done (mock)
+
+Teacher: no access
+
+🛡️ Roles & Permissions
+
+Fields:
+
+roleId
+
+roleName
+
+permissions: array (e.g. ['VIEW_STUDENTS', 'EDIT_ATTENDANCE'])
+CRUD:
+
+Admin: full CRUD
+
+Teacher/Student: none
+
+🔐 Authentication & Authorization
+
+Login API: /auth/login → returns JWT + role + permissions
+
+Logout API: /auth/logout
+
+Store token in SecureStore
+
+Axios interceptor to attach token
+
+Screens protected by:
+
+AuthContext for user state
+
+Higher Order Component (withPermission) to restrict access
+
+Navigation should adapt to role:
+
+Admin → AdminDrawer
+
+Teacher → TeacherTabs
+
+Student → StudentTabs
+
+🧭 App Navigation Structure
+Auth Stack:
+  - Login
+  - Register (optional)
+  - Forgot Password
+
+Admin Drawer:
+  - Dashboard
+  - Students
+  - Teachers
+  - Classes
+  - Attendance
+  - Assignments
+  - Fees
+  - Announcements
+  - Roles & Permissions
+  - Profile
+  - Logout
+
+Teacher Tabs:
+  - Dashboard
+  - Attendance
+  - Assignments
+  - Announcements
+  - Profile
+
+Student Tabs:
+  - Dashboard
+  - Timetable
+  - Assignments
+  - Attendance
+  - Fees
+  - Announcements
+  - Profile
+
+🧩 Extra Enhancements
+
+Light/Dark mode toggle
+
+Pull-to-refresh for all lists
+
+Pagination on data tables (limit 10)
+
+Global search (student/teacher/class)
+
+Toast/snackbar notifications
+
+Offline support for viewing cached data
+
+Optional: Firebase push notifications for announcements
+
+📑 Deliverables
+
+Working React Native Expo app with clean folder structure:
+
+/src
+  /screens
+  /components
+  /context
+  /navigation
+  /api
+  /utils
+  /hooks
+
+
+Mock data using JSON-server or static JSON
+
+Role-based routing
+
+CRUD UIs for all entities
+
+Clean UI (React Native Paper)
+
+Commented code for easy backend integration later
