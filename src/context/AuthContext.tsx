@@ -1,11 +1,12 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import { User, Permission } from '../types';
-import { apiService } from '../api/apiService';
+import api, { endpoints } from '../api';
+import { storage } from '../utils/storage';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (userName: string, password: string, accountId: string, type: 'ADMIN' | 'TEACHER' | 'STUDENT') => Promise<void>;
   logout: () => Promise<void>;
   hasPermission: (permission: Permission) => boolean;
 }
@@ -22,8 +23,31 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const checkAuth = async () => {
     try {
-      const currentUser = await apiService.getCurrentUser();
-      setUser(currentUser);
+      const raw = await storage.getItem('SCM-AUTH');
+      if (raw) {
+        try {
+          const parsed = JSON.parse(raw);
+          const data = parsed?.data;
+          if (data) {
+            const mappedUser: User = {
+              id: data.id,
+              email: data.email || data.userName || '',
+              firstName: data.firstName || '',
+              lastName: data.lastName || '',
+              role: (data.type?.toLowerCase?.() || 'student') as any,
+              permissions: data?.role?.permissions || [],
+              profilePic: data.profilePic,
+            };
+            setUser(mappedUser);
+          } else {
+            setUser(null);
+          }
+        } catch {
+          setUser(null);
+        }
+      } else {
+        setUser(null);
+      }
     } catch (error) {
       console.error('Auth check failed:', error);
     } finally {
@@ -31,10 +55,25 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const login = async (email: string, password: string) => {
+  const login = async (userName: string, password: string, accountId: string, type: 'ADMIN' | 'TEACHER' | 'STUDENT') => {
     try {
-      const response = await apiService.login(email, password);
-      setUser(response.user);
+      const response = await api.post(endpoints.auth.login, { userName, password, accountId, type });
+      if (response?.data?.accessToken) {
+        await storage.setItem('SCM-AUTH', JSON.stringify(response.data));
+        const data = response.data?.data || {};
+        const mappedUser: User = {
+          id: data.id,
+          email: data.email || userName,
+          firstName: data.firstName || '',
+          lastName: data.lastName || '',
+          role: (data.type?.toLowerCase?.() || 'student') as any,
+          permissions: data?.role?.permissions || [],
+          profilePic: data.profilePic,
+        };
+        setUser(mappedUser);
+      } else {
+        throw new Error(response?.data?.message || 'Login failed');
+      }
     } catch (error) {
       throw error;
     }
@@ -42,7 +81,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const logout = async () => {
     try {
-      await apiService.logout();
+      await storage.removeItem('SCM-AUTH');
       setUser(null);
     } catch (error) {
       console.error('Logout failed:', error);

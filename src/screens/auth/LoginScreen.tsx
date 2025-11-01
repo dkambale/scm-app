@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import { TextInput, Button, Text, Card, Snackbar } from 'react-native-paper';
+import { TextInput, Button, Text, Card, Snackbar, RadioButton } from 'react-native-paper';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { useAuth } from '../../context/AuthContext';
 
 const loginSchema = Yup.object().shape({
-  email: Yup.string().email('Invalid email').required('Email is required'),
+  userName: Yup.string().required('User Name is required'),
   password: Yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
+  accountId: Yup.string().required('Account ID is required'),
+  type: Yup.mixed<'ADMIN' | 'TEACHER' | 'STUDENT'>().oneOf(['ADMIN', 'TEACHER', 'STUDENT']).required('User Type is required'),
 });
 
 export const LoginScreen: React.FC = () => {
@@ -16,11 +18,11 @@ export const LoginScreen: React.FC = () => {
   const [error, setError] = useState('');
   const [showSnackbar, setShowSnackbar] = useState(false);
 
-  const handleLogin = async (values: { email: string; password: string }) => {
+  const handleLogin = async (values: { userName: string; password: string; accountId: string; type: 'ADMIN' | 'TEACHER' | 'STUDENT' }) => {
     setLoading(true);
     setError('');
     try {
-      await login(values.email, values.password);
+      await login(values.userName, values.password, values.accountId, values.type);
     } catch (err) {
       setError('Invalid email or password');
       setShowSnackbar(true);
@@ -46,25 +48,23 @@ export const LoginScreen: React.FC = () => {
           <Card style={styles.card}>
             <Card.Content>
               <Formik
-                initialValues={{ email: 'admin@school.com', password: 'password123' }}
+                initialValues={{ userName: '', password: '', accountId: '', type: 'ADMIN' as 'ADMIN' | 'TEACHER' | 'STUDENT' }}
                 validationSchema={loginSchema}
                 onSubmit={handleLogin}
               >
                 {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
                   <View>
                     <TextInput
-                      label="Email"
-                      value={values.email}
-                      onChangeText={handleChange('email')}
-                      onBlur={handleBlur('email')}
-                      error={touched.email && !!errors.email}
-                      keyboardType="email-address"
+                      label="User Name"
+                      value={values.userName}
+                      onChangeText={handleChange('userName')}
+                      onBlur={handleBlur('userName')}
                       autoCapitalize="none"
                       style={styles.input}
                       mode="outlined"
                     />
-                    {touched.email && errors.email && (
-                      <Text style={styles.errorText}>{errors.email}</Text>
+                    {touched.userName && errors.userName && (
+                      <Text style={styles.errorText}>{errors.userName}</Text>
                     )}
 
                     <TextInput
@@ -72,7 +72,6 @@ export const LoginScreen: React.FC = () => {
                       value={values.password}
                       onChangeText={handleChange('password')}
                       onBlur={handleBlur('password')}
-                      error={touched.password && !!errors.password}
                       secureTextEntry
                       style={styles.input}
                       mode="outlined"
@@ -80,6 +79,45 @@ export const LoginScreen: React.FC = () => {
                     {touched.password && errors.password && (
                       <Text style={styles.errorText}>{errors.password}</Text>
                     )}
+
+                    <TextInput
+                      label="Account ID"
+                      value={values.accountId}
+                      onChangeText={handleChange('accountId')}
+                      onBlur={handleBlur('accountId')}
+                      autoCapitalize="none"
+                      style={styles.input}
+                      mode="outlined"
+                    />
+                    {touched.accountId && errors.accountId && (
+                      <Text style={styles.errorText}>{errors.accountId}</Text>
+                    )}
+
+                    <View style={{ marginTop: 8, marginBottom: 8 }}>
+                      <Text variant="bodyMedium" style={{ marginBottom: 8 }}>User Type</Text>
+                      <RadioButton.Group
+                        onValueChange={(value) => (handleChange('type')(value))}
+                        value={values.type}
+                      >
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <RadioButton value="ADMIN" />
+                            <Text>Admin</Text>
+                          </View>
+                          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <RadioButton value="TEACHER" />
+                            <Text>Teacher</Text>
+                          </View>
+                          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <RadioButton value="STUDENT" />
+                            <Text>Student</Text>
+                          </View>
+                        </View>
+                      </RadioButton.Group>
+                      {touched.type && errors.type && (
+                        <Text style={styles.errorText}>{errors.type as any}</Text>
+                      )}
+                    </View>
 
                     <Button
                       mode="contained"
@@ -94,23 +132,6 @@ export const LoginScreen: React.FC = () => {
                 )}
               </Formik>
 
-              <View style={styles.demoContainer}>
-                <Text variant="titleSmall" style={styles.demoTitle}>
-                  Demo Accounts:
-                </Text>
-                <Text variant="bodySmall" style={styles.demoText}>
-                  Admin: admin@school.com
-                </Text>
-                <Text variant="bodySmall" style={styles.demoText}>
-                  Teacher: teacher@school.com
-                </Text>
-                <Text variant="bodySmall" style={styles.demoText}>
-                  Student: student@school.com
-                </Text>
-                <Text variant="bodySmall" style={styles.demoText}>
-                  Password: password123
-                </Text>
-              </View>
             </Card.Content>
           </Card>
         </View>

@@ -5,6 +5,7 @@ import { apiService } from '../../api/apiService';
 import { Class } from '../../types';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 import { useAuth } from '../../context/AuthContext';
+import { storage } from '../../utils/storage';
 
 export const TimetableScreen: React.FC = () => {
   const { user } = useAuth();
@@ -17,12 +18,24 @@ export const TimetableScreen: React.FC = () => {
 
   const loadTimetable = async () => {
     try {
-      const students = await apiService.getStudents();
-      const currentStudent = students.find((s) => s.email === user?.email);
-
-      if (currentStudent) {
-        const classInfo = await apiService.getClass(currentStudent.classId);
-        setClassData(classInfo);
+      const raw = await storage.getItem('SCM-AUTH');
+      const auth = raw ? JSON.parse(raw) : null;
+      const accountId = auth?.data?.accountId;
+      const classId = auth?.data?.classId;
+      if (!accountId || !classId) {
+        setClassData(null);
+        return;
+      }
+      const dto = await apiService.getTimetableBy(accountId, classId);
+      // Try to map backend response to Class shape when possible
+      const maybeClass: any = dto;
+      if (maybeClass?.schedule) {
+        setClassData(maybeClass as Class);
+      } else if (Array.isArray(dto)) {
+        const schedule = dto;
+        setClassData({ id: String(classId), className: '', section: '', subjects: [], teacherAssigned: '', schedule } as any);
+      } else {
+        setClassData(null);
       }
     } catch (error) {
       console.error('Failed to load timetable:', error);

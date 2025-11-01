@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
-import { Card, Text, Button, FAB, Searchbar, Chip } from 'react-native-paper';
+import { Card, Text, Button, FAB, Searchbar, Chip, Portal, Dialog, TextInput } from 'react-native-paper';
 import { apiService } from '../../api/apiService';
 import { Teacher } from '../../types';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
+import { storage } from '../../utils/storage';
 
 export const TeachersScreen: React.FC = () => {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
@@ -11,6 +12,9 @@ export const TeachersScreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showDialog, setShowDialog] = useState(false);
+  const [form, setForm] = useState<Partial<Teacher>>({ firstName: '', lastName: '', email: '', subject: '', phone: '' });
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   useEffect(() => {
     loadTeachers();
@@ -33,7 +37,9 @@ export const TeachersScreen: React.FC = () => {
 
   const loadTeachers = async () => {
     try {
-      const data = await apiService.getTeachers();
+      const raw = await storage.getItem('SCM-AUTH');
+      const accountId = raw ? (JSON.parse(raw)?.data?.accountId ?? undefined) : undefined;
+      const data = await apiService.getTeachers(accountId);
       setTeachers(data);
       setFilteredTeachers(data);
     } catch (error) {
@@ -55,6 +61,32 @@ export const TeachersScreen: React.FC = () => {
       loadTeachers();
     } catch (error) {
       console.error('Failed to delete teacher:', error);
+    }
+  };
+
+  const openCreate = () => {
+    setEditingId(null);
+    setForm({ firstName: '', lastName: '', email: '', subject: '', phone: '' });
+    setShowDialog(true);
+  };
+
+  const openEdit = (t: Teacher) => {
+    setEditingId(t.id);
+    setForm({ ...t });
+    setShowDialog(true);
+  };
+
+  const submitForm = async () => {
+    try {
+      if (editingId) {
+        await apiService.updateTeacher(editingId, form);
+      } else {
+        await apiService.createTeacher(form);
+      }
+      setShowDialog(false);
+      await loadTeachers();
+    } catch (error) {
+      console.error('Failed to save teacher:', error);
     }
   };
 
@@ -95,7 +127,7 @@ export const TeachersScreen: React.FC = () => {
               </View>
 
               <View style={styles.actions}>
-                <Button mode="outlined" onPress={() => console.log('Edit', teacher.id)}>
+                <Button mode="outlined" onPress={() => openEdit(teacher)}>
                   Edit
                 </Button>
                 <Button mode="text" textColor="red" onPress={() => handleDelete(teacher.id)}>
@@ -116,8 +148,56 @@ export const TeachersScreen: React.FC = () => {
       <FAB
         icon="plus"
         style={styles.fab}
-        onPress={() => console.log('Add teacher')}
+        onPress={openCreate}
       />
+
+      <Portal>
+        <Dialog visible={showDialog} onDismiss={() => setShowDialog(false)}>
+          <Dialog.Title>{editingId ? 'Edit Teacher' : 'Add Teacher'}</Dialog.Title>
+          <Dialog.Content>
+            <TextInput
+              label="First Name"
+              value={form.firstName || ''}
+              onChangeText={(v) => setForm((f) => ({ ...f, firstName: v }))}
+              style={styles.input}
+              mode="outlined"
+            />
+            <TextInput
+              label="Last Name"
+              value={form.lastName || ''}
+              onChangeText={(v) => setForm((f) => ({ ...f, lastName: v }))}
+              style={styles.input}
+              mode="outlined"
+            />
+            <TextInput
+              label="Email"
+              value={form.email || ''}
+              onChangeText={(v) => setForm((f) => ({ ...f, email: v }))}
+              autoCapitalize="none"
+              style={styles.input}
+              mode="outlined"
+            />
+            <TextInput
+              label="Subject"
+              value={form.subject || ''}
+              onChangeText={(v) => setForm((f) => ({ ...f, subject: v }))}
+              style={styles.input}
+              mode="outlined"
+            />
+            <TextInput
+              label="Phone"
+              value={form.phone || ''}
+              onChangeText={(v) => setForm((f) => ({ ...f, phone: v }))}
+              style={styles.input}
+              mode="outlined"
+            />
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setShowDialog(false)}>Cancel</Button>
+            <Button onPress={submitForm}>Save</Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </View>
   );
 };
@@ -163,5 +243,9 @@ const styles = StyleSheet.create({
   emptyContainer: {
     alignItems: 'center',
     marginTop: 40,
+  },
+  input: {
+    marginTop: 8,
+    marginBottom: 8,
   },
 });

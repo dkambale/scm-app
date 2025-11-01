@@ -102,3 +102,16 @@ npx eas submit --platform android
 - Builds are processed on Expo's cloud servers (takes 5-15 minutes)
 - You'll receive email notifications when builds complete
 
+## Backend Environment Configuration
+
+Set the backend base URL using an Expo public env var so it works in dev and production builds:
+
+- EXPO_PUBLIC_API_BASE_URL
+
+Examples:
+
+- Local development: `EXPO_PUBLIC_API_BASE_URL=http://localhost:3000`
+- Production: `EXPO_PUBLIC_API_BASE_URL=https://api.yourdomain.com`
+
+You can export this in your shell before running `npm start`, or configure EAS build profile secrets/environment for cloud builds.
+

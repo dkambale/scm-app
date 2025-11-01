@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
-import { Card, Text, Button, FAB, Searchbar, Chip } from 'react-native-paper';
+import { Card, Text, Button, FAB, Searchbar, Chip, Portal, Dialog } from 'react-native-paper';
 import { apiService } from '../../api/apiService';
 import { Student } from '../../types';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
+import { storage } from '../../utils/storage';
 
 export const StudentsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [students, setStudents] = useState<Student[]>([]);
@@ -11,6 +12,9 @@ export const StudentsScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showDialog, setShowDialog] = useState(false);
+  const [form, setForm] = useState<Partial<Student>>({ firstName: '', lastName: '', email: '', rollNumber: '' as any });
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   useEffect(() => {
     loadStudents();
@@ -33,7 +37,9 @@ export const StudentsScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
 
   const loadStudents = async () => {
     try {
-      const data = await apiService.getStudents();
+      const raw = await storage.getItem('SCM-AUTH');
+      const accountId = raw ? (JSON.parse(raw)?.data?.accountId ?? undefined) : undefined;
+      const data = await apiService.getStudents(accountId);
       setStudents(data);
       setFilteredStudents(data);
     } catch (error) {
@@ -55,6 +61,34 @@ export const StudentsScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
       loadStudents();
     } catch (error) {
       console.error('Failed to delete student:', error);
+    }
+  };
+
+  const openCreate = () => {
+    setEditingId(null);
+    setForm({ firstName: '', lastName: '', email: '', rollNumber: '' as any });
+    setShowDialog(true);
+  };
+
+  const openEdit = (s: Student) => {
+    setEditingId(s.id);
+    setForm({ ...s });
+    setShowDialog(true);
+  };
+
+  const submitForm = async () => {
+    try {
+      const raw = await storage.getItem('SCM-AUTH');
+      const accountId = raw ? (JSON.parse(raw)?.data?.accountId ?? undefined) : undefined;
+      if (editingId) {
+        await apiService.updateStudent(editingId, form);
+      } else {
+        await apiService.createStudent({ ...form, accountId });
+      }
+      setShowDialog(false);
+      await loadStudents();
+    } catch (error) {
+      console.error('Failed to save student:', error);
     }
   };
 
@@ -96,7 +130,7 @@ export const StudentsScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
               </View>
 
               <View style={styles.actions}>
-                <Button mode="outlined" onPress={() => console.log('Edit', student.id)}>
+                <Button mode="outlined" onPress={() => openEdit(student)}>
                   Edit
                 </Button>
                 <Button mode="text" textColor="red" onPress={() => handleDelete(student.id)}>
@@ -117,8 +151,49 @@ export const StudentsScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
       <FAB
         icon="plus"
         style={styles.fab}
-        onPress={() => console.log('Add student')}
+        onPress={openCreate}
       />
+
+      <Portal>
+        <Dialog visible={showDialog} onDismiss={() => setShowDialog(false)}>
+          <Dialog.Title>{editingId ? 'Edit Student' : 'Add Student'}</Dialog.Title>
+          <Dialog.Content>
+            <TextInput
+              label="First Name"
+              value={form.firstName || ''}
+              onChangeText={(v) => setForm((f) => ({ ...f, firstName: v }))}
+              style={styles.input}
+              mode="outlined"
+            />
+            <TextInput
+              label="Last Name"
+              value={form.lastName || ''}
+              onChangeText={(v) => setForm((f) => ({ ...f, lastName: v }))}
+              style={styles.input}
+              mode="outlined"
+            />
+            <TextInput
+              label="Email"
+              value={form.email || ''}
+              onChangeText={(v) => setForm((f) => ({ ...f, email: v }))}
+              autoCapitalize="none"
+              style={styles.input}
+              mode="outlined"
+            />
+            <TextInput
+              label="Roll Number"
+              value={(form.rollNumber as any) || ''}
+              onChangeText={(v) => setForm((f) => ({ ...f, rollNumber: v as any }))}
+              style={styles.input}
+              mode="outlined"
+            />
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setShowDialog(false)}>Cancel</Button>
+            <Button onPress={submitForm}>Save</Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </View>
   );
 };
@@ -153,6 +228,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     gap: 8,
+  },
+  input: {
+    marginTop: 8,
+    marginBottom: 8,
   },
   fab: {
     position: 'absolute',
