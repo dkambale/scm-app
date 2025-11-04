@@ -13,6 +13,14 @@ const endpoints = {
     getAllByType: 'api/users/getAllBy',
     delete: 'api/users/delete'
   },
+  subjects: {
+    base: 'api/subjects',
+    getAll: 'api/subjects/getAll',
+    getById: 'api/subjects/getById',
+    create: 'api/subjects/create',
+    update: 'api/subjects/update',
+    delete: 'api/subjects/delete'
+  },
   roles: {
     base: 'api/roles',
     getAll: 'api/roles/getAll',
@@ -58,7 +66,8 @@ const endpoints = {
   assignments: {
     base: 'api/assignments',
     submit: 'api/assignments/submit',
-    delete: 'api/assignments/delete'
+    delete: 'api/assignments/delete',
+    create: 'api/assignments/save',
   },
   lms: {
     course: {

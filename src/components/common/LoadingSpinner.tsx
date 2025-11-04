@@ -1,11 +1,10 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { ActivityIndicator } from 'react-native-paper';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
 
 export const LoadingSpinner: React.FC = () => {
   return (
     <View style={styles.container}>
-      <ActivityIndicator size="large" color="#6200ee" />
+      <ActivityIndicator size="large" />
     </View>
   );
 };
