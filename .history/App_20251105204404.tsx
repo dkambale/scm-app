@@ -15,7 +15,7 @@ export default function App() {
     <GluestackUIProvider config={config}>
     <PaperProvider>
       <ReduxProvider store={store}>
-        <AuthProvider>npm install lucide-react-native
+        <AuthProvider>
           <SCDProvider>
             <RootNavigation />
           </SCDProvider>

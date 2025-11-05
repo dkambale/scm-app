@@ -7,9 +7,6 @@ import store from "./src/store/store";
 const Root = () => (
   <ReduxProvider store={store}>
     <App />
-
-
-    
   </ReduxProvider>
 );
 

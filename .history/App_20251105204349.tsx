@@ -8,20 +8,18 @@ import { RootNavigation } from "./src/navigation/RootNavigation";
 import { SCDProvider } from "./src/context/SCDProvider";
 import { Provider as ReduxProvider } from "react-redux";
 import store from "./src/store/store";
-import './i18n';
-import { GluestackUIProvider, config } from '@gluestack-ui/themed';
+import './i18n'
 export default function App() {
   return (
-    <GluestackUIProvider config={config}>
+    <GluestackUIProvider config={config>
     <PaperProvider>
       <ReduxProvider store={store}>
-        <AuthProvider>npm install lucide-react-native
+        <AuthProvider>
           <SCDProvider>
             <RootNavigation />
           </SCDProvider>
         </AuthProvider>
       </ReduxProvider>
     </PaperProvider>
-    </GluestackUIProvider>
   );
 }
