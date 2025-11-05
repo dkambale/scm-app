@@ -115,6 +115,6 @@ Examples:
 
 You can export this in your shell before running `npm start`, or configure EAS build profile secrets/environment for cloud builds.
 
-here have an scm app screen 
+
 
 
