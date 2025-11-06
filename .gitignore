@@ -41,3 +41,7 @@ ios/Pods/
 *.aab
 *.ip
 *.ipa
+
+
+# history
+.history/   
