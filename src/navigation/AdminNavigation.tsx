@@ -18,7 +18,9 @@ import AddAssignmentScreen from "../screens/admin/assignments/AddAssignment";
 import { AttendancesScreen } from "../screens/admin/AttendancesScreen";
 import AttendanceEditScreen from "../screens/admin/attendance/AddAttendance";
 
-// import {}
+import { TimetablesScreen } from "../screens/admin/TimetablesScreen";
+import AddEditTimetable from "../screens/admin/timetables/AddEditTimetable";
+
 import { IconButton, Dialog, Portal, Button } from "react-native-paper";
 import i18n from "../../i18n";
 import { Text, View } from "react-native";
@@ -85,6 +87,8 @@ export function AdminNavigation() {
       <Drawer.Screen name="Announcements" component={AnnouncementsScreen} />
       <Drawer.Screen name="Profile" component={ProfileScreen} />
 
+      <Drawer.Screen name="Timetables" component={TimetablesScreen} />
+      <Drawer.Screen name="AddEditTimetable" component={AddEditTimetable} />
       {/* Student Add/Edit Screens */}
       <Drawer.Screen
         name="AddStudent"

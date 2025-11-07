@@ -1,7 +1,6 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StudentDashboardScreen } from '../screens/student/StudentDashboardScreen';
-import { TimetableScreen } from '../screens/student/TimetableScreen';
 import { AssignmentsScreen } from '../screens/admin/AssignmentsScreen';
 import { AttendancesScreen } from '../screens/admin/AttendancesScreen';
 import { FeesScreen } from '../screens/student/FeesScreen';
@@ -40,13 +39,7 @@ export const StudentNavigation: React.FC = () => {
           tabBarIcon: ({ color }) => <span>📅</span>,
         }}
       />
-      <Tab.Screen
-        name="Assignments"
-        component={AssignmentsScreen}
-        options={{
-          tabBarIcon: ({ color }) => <span>📚</span>,
-        }}
-      />
+   
       <Tab.Screen
         name="Fees"
         component={FeesScreen}
