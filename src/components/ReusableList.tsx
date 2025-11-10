@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import { Searchbar, Button, Text, ActivityIndicator, IconButton, Portal, Dialog, List } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
+import { useHasPermission } from '../navigation/permissionUtils';
 
 type FilterOption = { label: string; value: string };
 
@@ -29,10 +31,16 @@ type Props<T> = {
   onFetch: (params: FetchParams) => Promise<FetchResult<T>>;
   renderItem: (item: T) => React.ReactElement;
   headerRight?: React.ReactNode;
+  // optional view route (name of navigation route) to navigate to for viewing an item
+  viewUrl?: string;
+  // property name on item to use as id when navigating (default: 'id')
+  viewKey?: string;
+  // optional permission check required to show the view icon. If omitted, icon is shown when viewUrl is provided.
+  viewPerm?: any;
 };
 
 export function ReusableList<T>(props: Props<T>) {
-  const { pageSize = 10, filterDefs = [], onFetch, renderItem, headerRight } = props;
+  const { pageSize = 10, filterDefs = [], onFetch, renderItem, headerRight, viewUrl, viewKey = 'id', viewPerm } = props;
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -43,23 +51,36 @@ export function ReusableList<T>(props: Props<T>) {
 
   const totalPages = useMemo(() => Math.max(1, Math.ceil(total / pageSize)), [total, pageSize]);
 
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const res = await onFetch({ page, size: pageSize, search, filters });
-      setItems(res.items);
-      setTotal(res.total);
-    } catch (e) {
-      setItems([]);
-      setTotal(0);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const filtersKey = useMemo(() => JSON.stringify(filters), [filters]);
 
   useEffect(() => {
-    fetchData();
-  }, [page, pageSize, search, JSON.stringify(filters)]);
+    let mounted = true;
+    const run = async () => {
+      setLoading(true);
+      try {
+        const parsedFilters = filtersKey ? JSON.parse(filtersKey) : {};
+        const res = await onFetch({ page, size: pageSize, search, filters: parsedFilters });
+        if (!mounted) return;
+        setItems(res.items);
+        setTotal(res.total);
+      } catch {
+        if (!mounted) return;
+        setItems([]);
+        setTotal(0);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+    run();
+    return () => {
+      mounted = false;
+    };
+  }, [page, pageSize, search, filtersKey, onFetch]);
+
+  // navigation and permission check for view icon
+  const navigation = useNavigation();
+  // call hook unconditionally (hook rules) - pass empty string when no perm specified
+  const canView = useHasPermission(viewPerm ?? "");
 
   const applyFilter = (key: string, value: string | undefined) => {
     setPage(0);
@@ -91,10 +112,28 @@ export function ReusableList<T>(props: Props<T>) {
           <ActivityIndicator />
         </View>
       ) : (
-        <FlatList
+          <FlatList
           data={items}
           keyExtractor={(_, idx) => String(idx)}
-          renderItem={({ item }) => renderItem(item)}
+          renderItem={({ item }) => (
+            <View style={styles.listRow}>
+              <View style={styles.listRowContent}>{renderItem(item)}</View>
+              {viewUrl && (viewPerm ? canView : true) && (
+                <IconButton
+                  icon="eye"
+                  size={20}
+                  onPress={() => {
+                    try {
+                      const id = (item as any)[viewKey];
+                      (navigation as any).navigate(viewUrl as any, { id });
+                    } catch {
+                      // ignore navigation errors
+                    }
+                  }}
+                />
+              )}
+            </View>
+          )}
           contentContainerStyle={{ paddingBottom: 80 }}
           ListEmptyComponent={<Text style={styles.empty}>No records found</Text>}
         />
@@ -178,6 +217,15 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#666',
     marginTop: 24,
+  },
+  listRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  listRowContent: {
+    flex: 1,
   },
 });
 
