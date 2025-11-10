@@ -28,6 +28,7 @@ import { useNavigation } from "@react-navigation/native";
 import api from "../../api";
 import { storage } from "../../utils/storage";
 import { LoadingSpinner } from "./LoadingSpinner";
+import { useHasPermission, permFrom } from "../../navigation/permissionUtils";
 
 interface Column {
   key: string;
@@ -117,6 +118,22 @@ export const ReusableDataGrid: React.FC<ReusableDataGridProps> = ({
   const isTeacher = user?.type === "TEACHER";
   const isAdmin = user?.type === "ADMIN";
   const teacherSchoolId = user?.schoolId ?? null;
+
+  // Permission checks based on feature/entity name
+  // If entityName is not provided, pass a token that won't match anything.
+  const noMatchToken = "__NO_FEATURE__";
+  const canAdd = useHasPermission(
+    entityName ? permFrom(entityName, "add") : noMatchToken
+  );
+  const canEdit = useHasPermission(
+    entityName ? permFrom(entityName, "edit") : noMatchToken
+  );
+  const canView = useHasPermission(
+    entityName ? permFrom(entityName, "view") : noMatchToken
+  );
+  const canDelete = useHasPermission(
+    entityName ? permFrom(entityName, "delete") : noMatchToken
+  );
 
   const fetchData = useCallback(async () => {
     if (!fetchUrl) {
@@ -264,7 +281,7 @@ export const ReusableDataGrid: React.FC<ReusableDataGridProps> = ({
     // We watch fetchData itself (stable via useCallback) and filter/pagination state
     // so UI actions that only update paginationModel will trigger a fresh fetch.
     fetchData();
-  }, [gridFilters, paginationModel.page, paginationModel.pageSize]);
+  }, [gridFilters, paginationModel.page, paginationModel.pageSize, ]);
 
   const handleFiltersChange = (newFilters: any) => {
     setGridFilters(newFilters);
@@ -348,45 +365,55 @@ export const ReusableDataGrid: React.FC<ReusableDataGridProps> = ({
             <View style={styles.headerActions}>
               {Platform.OS === "android" ? (
                 <>
-                  <IconButton
-                    icon="dots-vertical"
-                    onPress={() => setActionsModalId(idKey)}
-                  />
-                </>
-              ) : (
-                <Menu
-                  visible={!!menuVisibleFor[idKey]}
-                  onDismiss={() => closeMenu(idKey)}
-                  anchor={
+                  {(canEdit || canView || (deleteUrl && canDelete)) && (
                     <IconButton
                       icon="dots-vertical"
-                      onPress={() => openMenu(idKey)}
-                    />
-                  }
-                >
-                  <Menu.Item
-                    onPress={() => {
-                      closeMenu(idKey);
-                      handleEdit(item);
-                    }}
-                    title="Edit"
-                  />
-                  <Menu.Item
-                    onPress={() => {
-                      closeMenu(idKey); /* manage visibility */
-                    }}
-                    title="View"
-                  />
-                  {deleteUrl && (
-                    <Menu.Item
-                      onPress={() => {
-                        closeMenu(idKey);
-                        showDeleteDialog(item.id || item._id);
-                      }}
-                      title="Delete"
+                      onPress={() => setActionsModalId(idKey)}
                     />
                   )}
-                </Menu>
+                </>
+              ) : (
+                <>
+                  {(canEdit || canView || (deleteUrl && canDelete)) && (
+                    <Menu
+                      visible={!!menuVisibleFor[idKey]}
+                      onDismiss={() => closeMenu(idKey)}
+                      anchor={
+                        <IconButton
+                          icon="dots-vertical"
+                          onPress={() => openMenu(idKey)}
+                        />
+                      }
+                    >
+                      {canEdit && (
+                        <Menu.Item
+                          onPress={() => {
+                            closeMenu(idKey);
+                            handleEdit(item);
+                          }}
+                          title="Edit"
+                        />
+                      )}
+                      {canView && (
+                        <Menu.Item
+                          onPress={() => {
+                            closeMenu(idKey); /* manage visibility */
+                          }}
+                          title="View"
+                        />
+                      )}
+                      {deleteUrl && canDelete && (
+                        <Menu.Item
+                          onPress={() => {
+                            closeMenu(idKey);
+                            showDeleteDialog(item.id || item._id);
+                          }}
+                          title="Delete"
+                        />
+                      )}
+                    </Menu>
+                  )}
+                </>
               )}
             </View>
           </View>
@@ -537,7 +564,7 @@ export const ReusableDataGrid: React.FC<ReusableDataGridProps> = ({
       )}
 
       {/* FAB (Floating Action Button) for Add Action */}
-      {addActionUrl && (
+      {addActionUrl && canAdd && (
         <FAB
           style={[styles.fab, { backgroundColor: theme.colors.primary }]}
           icon="plus"
