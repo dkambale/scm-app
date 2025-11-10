@@ -13,7 +13,7 @@ import {
 } from "./permissionUtils";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import AddEditTimetable from "../screens/admin/timetables/AddEditTimetable";
-import TimetableViewComponent from "../screens/admin/timetables/TimetableView";
+import TimetableView from "../screens/admin/timetables/TimetableView";
 import { AddEditStudent } from "../screens/admin/students/AddEditStudent";
 import StudentViewComponent from "../screens/admin/students/StudentView";
 import { AddEditTeacher } from "../screens/admin/teachers/AddEditTeacher";
@@ -124,7 +124,15 @@ export const RootNavigation: React.FC = () => {
           name="TimetableView"
           component={({ route }: any) => {
             const id = route?.params?.id ?? route?.params?.timetableId ?? "";
-            return <TimetableViewComponent id={String(id)} />;
+            return <TimetableView id={String(id)} />;
+          }}
+        />
+        {/* Backward-compatible alias used in some parts of the app */}
+        <Stack.Screen
+          name="ViewTimetable"
+          component={({ route }: any) => {
+            const id = route?.params?.id ?? route?.params?.timetableId ?? "";
+            return <TimetableView id={String(id)} />;
           }}
         />
 

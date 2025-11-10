@@ -21,7 +21,7 @@ import AttendanceEditScreen from "../screens/admin/attendance/AddAttendance";
 
 import { TimetablesScreen } from "../screens/admin/TimetablesScreen";
 import AddEditTimetable from "../screens/admin/timetables/AddEditTimetable";
-import TimetableViewComponent from "../screens/admin/timetables/TimetableView";
+import ViewTimetable from "../screens/admin/timetables/TimetableView";
 
 import { IconButton, Dialog, Portal, Button } from "react-native-paper";
 import i18n from "../../i18n";
@@ -140,7 +140,7 @@ export function AdminNavigation() {
       {(() => {
         const TimetableViewScreen = ({ route }: any) => {
           const id = route?.params?.id ?? route?.params?.timetableId ?? "";
-          return <TimetableViewComponent id={String(id)} />;
+          return <ViewTimetable id={String(id)} />;
         };
         return (
           <Drawer.Screen

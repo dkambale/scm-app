@@ -41,7 +41,9 @@ export const TimetableList: React.FC = () => {
         isPostRequest={true}
         addActionUrl="AddEditTimetable"
         editUrl="AddEditTimetable"
+        viewUrl="ViewTimetable"
         deleteUrl="/api/users/delete"
+        
         entityName="Timetable"
         searchPlaceholder="Search timetables..."
         transformData={transformTimetableData}

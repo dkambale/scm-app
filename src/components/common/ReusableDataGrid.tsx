@@ -42,6 +42,7 @@ interface ReusableDataGridProps {
   columns: Column[];
   addActionUrl?: string;
   editUrl?: string;
+    viewUrl?: string;
   deleteUrl?: string;
   entityName?: string;
   searchPlaceholder?: string;
@@ -61,6 +62,8 @@ export const ReusableDataGrid: React.FC<ReusableDataGridProps> = ({
   columns,
   addActionUrl,
   editUrl,
+    viewUrl,
+
   deleteUrl,
   entityName,
   searchPlaceholder = "Search...",
@@ -319,6 +322,18 @@ export const ReusableDataGrid: React.FC<ReusableDataGridProps> = ({
     }
   };
 
+  const handleView = (item: any) => {
+    if (!viewUrl) return;
+    const rootNav = (navigation as any).getParent
+      ? (navigation as any).getParent()
+      : navigation;
+    if (rootNav && (rootNav as any).navigate) {
+      (rootNav as any).navigate(viewUrl as any, { id: item.id });
+    } else {
+      (navigation as any).navigate(viewUrl as any, { id: item.id });
+    }
+  };
+
   const showDeleteDialog = (id: string) => {
     setDeleteItemId(id);
     setDeleteDialogVisible(true);
@@ -417,6 +432,7 @@ export const ReusableDataGrid: React.FC<ReusableDataGridProps> = ({
                         <Menu.Item
                           onPress={() => {
                             closeMenu(idKey); /* manage visibility */
+                            handleView(item);
                           }}
                           title="View"
                         />
@@ -680,6 +696,7 @@ export const ReusableDataGrid: React.FC<ReusableDataGridProps> = ({
                       onPress={() => {
                         setActionsModalId(null);
                         // view action - currently closes modal
+                        if (sel) handleView(sel);
                       }}
                     >
                       View
