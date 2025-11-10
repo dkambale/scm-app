@@ -6,12 +6,23 @@ import entityRegistry from "./entityRegistry";
 import { LoadingSpinner } from "../components/common/LoadingSpinner";
 import LanguageSelector from "../components/common/LanguageSelector";
 import { createDrawerNavigator } from "@react-navigation/drawer";
-import { useHasPermission } from "./permissionUtils";
+import {
+  useHasPermission,
+  permFrom,
+  makeProtectedScreen,
+} from "./permissionUtils";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import AddEditTimetable from "../screens/admin/timetables/AddEditTimetable";
+import TimetableViewComponent from "../screens/admin/timetables/TimetableView";
+import { AddEditStudent } from "../screens/admin/students/AddEditStudent";
+import StudentViewComponent from "../screens/admin/students/StudentView";
+import { AddEditTeacher } from "../screens/admin/teachers/AddEditTeacher";
 
 export const RootNavigation: React.FC = () => {
   const { user, loading } = useAuth();
 
   const Drawer = createDrawerNavigator();
+  const Stack = createNativeStackNavigator();
 
   // Build top-level drawer entries directly from the entity registry.
   // For each supported entity we call the permission hook explicitly
@@ -77,24 +88,83 @@ export const RootNavigation: React.FC = () => {
   }
   console.log("User Role:", user.role);
 
-  return (
+  const DrawerHost: React.FC = () => (
     <>
       <LanguageSelector />
-      <NavigationContainer>
-        <Drawer.Navigator
-          initialRouteName={
-            visibleEntries.length ? visibleEntries[0].id : undefined
-          }
-        >
-          {visibleEntries.map((entry: { id: string; component: any }) => (
-            <Drawer.Screen
-              key={entry.id}
-              name={entry.id}
-              component={entry.component}
-            />
-          ))}
-        </Drawer.Navigator>
-      </NavigationContainer>
+      <Drawer.Navigator
+        initialRouteName={
+          visibleEntries.length ? visibleEntries[0].id : undefined
+        }
+      >
+        {visibleEntries.map((entry: { id: string; component: any }) => (
+          <Drawer.Screen
+            key={entry.id}
+            name={entry.id}
+            component={entry.component}
+          />
+        ))}
+      </Drawer.Navigator>
     </>
+  );
+
+  return (
+    <NavigationContainer>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="MainDrawer" component={DrawerHost} />
+
+        {/* Global hidden screens (Add/Edit/View) so navigation.navigate(...) always resolves */}
+        <Stack.Screen
+          name="AddEditTimetable"
+          component={makeProtectedScreen(
+            AddEditTimetable,
+            permFrom("TIMETABLE", "add")
+          )}
+        />
+        <Stack.Screen
+          name="TimetableView"
+          component={({ route }: any) => {
+            const id = route?.params?.id ?? route?.params?.timetableId ?? "";
+            return <TimetableViewComponent id={String(id)} />;
+          }}
+        />
+
+        <Stack.Screen
+          name="AddStudent"
+          component={makeProtectedScreen(
+            AddEditStudent,
+            permFrom("STUDENT", "add")
+          )}
+        />
+        <Stack.Screen
+          name="EditStudent"
+          component={makeProtectedScreen(
+            AddEditStudent,
+            permFrom("STUDENT", "edit")
+          )}
+        />
+        <Stack.Screen
+          name="StudentView"
+          component={({ route }: any) => {
+            const id = route?.params?.id ?? route?.params?.studentId ?? "";
+            return <StudentViewComponent id={String(id)} />;
+          }}
+        />
+
+        <Stack.Screen
+          name="AddTeacher"
+          component={makeProtectedScreen(
+            AddEditTeacher,
+            permFrom("TEACHER", "add")
+          )}
+        />
+        <Stack.Screen
+          name="EditTeacher"
+          component={makeProtectedScreen(
+            AddEditTeacher,
+            permFrom("TEACHER", "edit")
+          )}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 };

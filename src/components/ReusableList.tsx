@@ -1,8 +1,17 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { View, StyleSheet, FlatList } from 'react-native';
-import { Searchbar, Button, Text, ActivityIndicator, IconButton, Portal, Dialog, List } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
-import { useHasPermission } from '../navigation/permissionUtils';
+import React, { useEffect, useMemo, useState } from "react";
+import { View, StyleSheet, FlatList } from "react-native";
+import {
+  Searchbar,
+  Button,
+  Text,
+  ActivityIndicator,
+  IconButton,
+  Portal,
+  Dialog,
+  List,
+} from "react-native-paper";
+import { useNavigation } from "@react-navigation/native";
+import { useHasPermission } from "../navigation/permissionUtils";
 
 type FilterOption = { label: string; value: string };
 
@@ -40,16 +49,30 @@ type Props<T> = {
 };
 
 export function ReusableList<T>(props: Props<T>) {
-  const { pageSize = 10, filterDefs = [], onFetch, renderItem, headerRight, viewUrl, viewKey = 'id', viewPerm } = props;
-  const [search, setSearch] = useState('');
+  const {
+    pageSize = 10,
+    filterDefs = [],
+    onFetch,
+    renderItem,
+    headerRight,
+    viewUrl,
+    viewKey = "id",
+    viewPerm,
+  } = props;
+  const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState<T[]>([]);
   const [total, setTotal] = useState(0);
-  const [filters, setFilters] = useState<Record<string, string | undefined>>({});
+  const [filters, setFilters] = useState<Record<string, string | undefined>>(
+    {}
+  );
   const [showFilters, setShowFilters] = useState(false);
 
-  const totalPages = useMemo(() => Math.max(1, Math.ceil(total / pageSize)), [total, pageSize]);
+  const totalPages = useMemo(
+    () => Math.max(1, Math.ceil(total / pageSize)),
+    [total, pageSize]
+  );
 
   const filtersKey = useMemo(() => JSON.stringify(filters), [filters]);
 
@@ -59,7 +82,12 @@ export function ReusableList<T>(props: Props<T>) {
       setLoading(true);
       try {
         const parsedFilters = filtersKey ? JSON.parse(filtersKey) : {};
-        const res = await onFetch({ page, size: pageSize, search, filters: parsedFilters });
+        const res = await onFetch({
+          page,
+          size: pageSize,
+          search,
+          filters: parsedFilters,
+        });
         if (!mounted) return;
         setItems(res.items);
         setTotal(res.total);
@@ -75,7 +103,7 @@ export function ReusableList<T>(props: Props<T>) {
     return () => {
       mounted = false;
     };
-  }, [page, pageSize, search, filtersKey, onFetch]);
+  }, [page, pageSize, search, filtersKey]);
 
   // navigation and permission check for view icon
   const navigation = useNavigation();
@@ -100,7 +128,11 @@ export function ReusableList<T>(props: Props<T>) {
           style={styles.search}
         />
         {!!filterDefs.length && (
-          <Button mode="outlined" style={styles.filterBtn} onPress={() => setShowFilters(true)}>
+          <Button
+            mode="outlined"
+            style={styles.filterBtn}
+            onPress={() => setShowFilters(true)}
+          >
             Filters
           </Button>
         )}
@@ -108,11 +140,11 @@ export function ReusableList<T>(props: Props<T>) {
       </View>
 
       {loading ? (
-        <View style={styles.loader}> 
+        <View style={styles.loader}>
           <ActivityIndicator />
         </View>
       ) : (
-          <FlatList
+        <FlatList
           data={items}
           keyExtractor={(_, idx) => String(idx)}
           renderItem={({ item }) => (
@@ -135,14 +167,26 @@ export function ReusableList<T>(props: Props<T>) {
             </View>
           )}
           contentContainerStyle={{ paddingBottom: 80 }}
-          ListEmptyComponent={<Text style={styles.empty}>No records found</Text>}
+          ListEmptyComponent={
+            <Text style={styles.empty}>No records found</Text>
+          }
         />
       )}
 
       <View style={styles.pager}>
-        <IconButton icon="chevron-left" disabled={page <= 0 || loading} onPress={() => setPage((p) => Math.max(0, p - 1))} />
-        <Text style={styles.pageText}>{page + 1} / {totalPages}</Text>
-        <IconButton icon="chevron-right" disabled={loading || page + 1 >= totalPages} onPress={() => setPage((p) => p + 1)} />
+        <IconButton
+          icon="chevron-left"
+          disabled={page <= 0 || loading}
+          onPress={() => setPage((p) => Math.max(0, p - 1))}
+        />
+        <Text style={styles.pageText}>
+          {page + 1} / {totalPages}
+        </Text>
+        <IconButton
+          icon="chevron-right"
+          disabled={loading || page + 1 >= totalPages}
+          onPress={() => setPage((p) => p + 1)}
+        />
       </View>
 
       <Portal>
@@ -157,7 +201,11 @@ export function ReusableList<T>(props: Props<T>) {
                     <List.Item
                       key={opt.value}
                       title={opt.label}
-                      right={() => (filters[fd.key] === opt.value ? <List.Icon icon="check" /> : null)}
+                      right={() =>
+                        filters[fd.key] === opt.value ? (
+                          <List.Icon icon="check" />
+                        ) : null
+                      }
                       onPress={() => applyFilter(fd.key, opt.value)}
                     />
                   ))}
@@ -183,8 +231,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 16,
     paddingTop: 8,
     gap: 8,
@@ -192,35 +240,34 @@ const styles = StyleSheet.create({
   search: {
     flex: 1,
   },
-  filterBtn: {
-  },
+  filterBtn: {},
   loader: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   pager: {
-    position: 'absolute',
+    position: "absolute",
     left: 0,
     right: 0,
     bottom: 0,
     padding: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.95)'
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.95)",
   },
   pageText: {
     marginHorizontal: 8,
   },
   empty: {
-    textAlign: 'center',
-    color: '#666',
+    textAlign: "center",
+    color: "#666",
     marginTop: 24,
   },
   listRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 12,
     paddingVertical: 6,
   },
@@ -230,5 +277,3 @@ const styles = StyleSheet.create({
 });
 
 export default ReusableList;
-
-

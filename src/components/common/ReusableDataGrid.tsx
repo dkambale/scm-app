@@ -281,7 +281,7 @@ export const ReusableDataGrid: React.FC<ReusableDataGridProps> = ({
     // We watch fetchData itself (stable via useCallback) and filter/pagination state
     // so UI actions that only update paginationModel will trigger a fresh fetch.
     fetchData();
-  }, [gridFilters, paginationModel.page, paginationModel.pageSize, ]);
+  }, [gridFilters, paginationModel.page, paginationModel.pageSize]);
 
   const handleFiltersChange = (newFilters: any) => {
     setGridFilters(newFilters);
@@ -295,10 +295,29 @@ export const ReusableDataGrid: React.FC<ReusableDataGridProps> = ({
     fetchData().finally(() => setRefreshing(false));
   };
 
-  const handleAdd = () =>
-    addActionUrl && navigation.navigate(addActionUrl as never);
-  const handleEdit = (item: any) =>
-    editUrl && (navigation as any).navigate(editUrl, { id: item.id });
+  const handleAdd = () => {
+    if (!addActionUrl) return;
+    // Try to navigate on the root navigator (parent) so hidden global screens are resolved
+    const rootNav = (navigation as any).getParent
+      ? (navigation as any).getParent()
+      : navigation;
+    if (rootNav && (rootNav as any).navigate) {
+      (rootNav as any).navigate(addActionUrl as any);
+    } else {
+      (navigation as any).navigate(addActionUrl as any);
+    }
+  };
+  const handleEdit = (item: any) => {
+    if (!editUrl) return;
+    const rootNav = (navigation as any).getParent
+      ? (navigation as any).getParent()
+      : navigation;
+    if (rootNav && (rootNav as any).navigate) {
+      (rootNav as any).navigate(editUrl as any, { id: item.id });
+    } else {
+      (navigation as any).navigate(editUrl as any, { id: item.id });
+    }
+  };
 
   const showDeleteDialog = (id: string) => {
     setDeleteItemId(id);

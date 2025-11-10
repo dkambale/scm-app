@@ -21,6 +21,7 @@ import AttendanceEditScreen from "../screens/admin/attendance/AddAttendance";
 
 import { TimetablesScreen } from "../screens/admin/TimetablesScreen";
 import AddEditTimetable from "../screens/admin/timetables/AddEditTimetable";
+import TimetableViewComponent from "../screens/admin/timetables/TimetableView";
 
 import { IconButton, Dialog, Portal, Button } from "react-native-paper";
 import i18n from "../../i18n";
@@ -81,7 +82,6 @@ export function AdminNavigation() {
   const canViewStudents = useHasPermission(permFrom("STUDENT", "view"));
   const canViewTeachers = useHasPermission(permFrom("TEACHER", "view"));
   const canViewTimetables = useHasPermission(permFrom("TIMETABLE", "view"));
-  const canAddTimetable = useHasPermission(permFrom("TIMETABLE", "add"));
   return (
     <Drawer.Navigator initialRouteName="Dashboard">
       <Drawer.Screen name="Dashboard" component={AdminDashboardScreen} />
@@ -123,15 +123,33 @@ export function AdminNavigation() {
           )}
         />
       )}
-      {canAddTimetable && (
-        <Drawer.Screen
-          name="AddEditTimetable"
-          component={makeProtectedScreen(
-            AddEditTimetable,
-            permFrom("TIMETABLE", "add")
-          )}
-        />
-      )}
+
+      {/* Always register Add/Edit/View routes for timetables but keep them hidden from the drawer
+          so navigation to them never fails even if the user doesn't have the drawer entry. The
+          visible buttons (FAB / menu) are still gated by permission in the grid. */}
+      <Drawer.Screen
+        name="AddEditTimetable"
+        component={makeProtectedScreen(
+          AddEditTimetable,
+          permFrom("TIMETABLE", "add")
+        )}
+        options={{ drawerLabel: () => null, title: "Add/Edit Timetable" }}
+      />
+
+      {/* Wrapper for Timetable view route (hidden) */}
+      {(() => {
+        const TimetableViewScreen = ({ route }: any) => {
+          const id = route?.params?.id ?? route?.params?.timetableId ?? "";
+          return <TimetableViewComponent id={String(id)} />;
+        };
+        return (
+          <Drawer.Screen
+            name="TimetableView"
+            component={TimetableViewScreen}
+            options={{ drawerLabel: () => null, title: "View Timetable" }}
+          />
+        );
+      })()}
       {/* Student Add/Edit Screens */}
       <Drawer.Screen
         name="AddStudent"
