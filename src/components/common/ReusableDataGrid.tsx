@@ -339,7 +339,7 @@ export const ReusableDataGrid: React.FC<ReusableDataGridProps> = ({
                 >
                   {item.id || item._id || ""}
                 </Chip>
-                <Text style={{ marginLeft: 8, color: "#6b6b6b" }}>
+                <Text style={{ marginLeft: 8, color: "#333333" }}>
                   {item.visibility || ""}
                 </Text>
               </View>
@@ -394,10 +394,10 @@ export const ReusableDataGrid: React.FC<ReusableDataGridProps> = ({
           {/* compact rows: show first 3 columns, expand to show rest */}
           {columns.slice(1, 4).map((col) => (
             <View key={col.key} style={styles.dataRow}>
-              <Text variant="labelSmall" style={{ color: "#6b6b6b" }}>
+              <Text variant="labelSmall" style={{ color: "#333333" }}>
                 {col.header}
               </Text>
-              <Text variant="bodyMedium" style={{ color: "#111111" }}>
+              <Text variant="bodyMedium" style={{ color: "#000000" }}>
                 {item[col.key] ?? "—"}
               </Text>
             </View>
@@ -406,10 +406,10 @@ export const ReusableDataGrid: React.FC<ReusableDataGridProps> = ({
           {isExpanded &&
             columns.slice(4).map((col) => (
               <View key={col.key} style={styles.dataRow}>
-                <Text variant="labelSmall" style={{ color: "#6b6b6b" }}>
+                <Text variant="labelSmall" style={{ color: "#333333" }}>
                   {col.header}
                 </Text>
-                <Text variant="bodyMedium" style={{ color: "#111111" }}>
+                <Text variant="bodyMedium" style={{ color: "#000000" }}>
                   {item[col.key] ?? "—"}
                 </Text>
               </View>
@@ -480,10 +480,7 @@ export const ReusableDataGrid: React.FC<ReusableDataGridProps> = ({
           }
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Text
-                variant="titleMedium"
-                style={{ color: theme.colors.onBackground }}
-              >
+              <Text variant="titleMedium" style={{ color: "#111111" }}>
                 No {entityName || "items"} found.
               </Text>
               <Button
@@ -516,10 +513,7 @@ export const ReusableDataGrid: React.FC<ReusableDataGridProps> = ({
                     >
                       Previous
                     </Button>
-                    <Text
-                      variant="bodyMedium"
-                      style={{ color: theme.colors.onSurfaceVariant }}
-                    >
+                    <Text variant="bodyMedium" style={{ color: "#333333" }}>
                       Page {paginationModel.page + 1} of{" "}
                       {Math.ceil(rowCount / paginationModel.pageSize)}
                     </Text>
@@ -565,10 +559,7 @@ export const ReusableDataGrid: React.FC<ReusableDataGridProps> = ({
           iconColor={isFirstPage ? "#cccccc" : theme.colors.primary}
         />
         <View style={styles.pagerCenter} pointerEvents="none">
-          <Text
-            variant="bodyMedium"
-            style={{ color: theme.colors.onSurfaceVariant }}
-          >
+          <Text variant="bodyMedium" style={{ color: "#333333" }}>
             Page {paginationModel.page + 1} of{" "}
             {Math.max(1, Math.ceil(rowCount / paginationModel.pageSize))}
           </Text>

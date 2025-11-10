@@ -8,7 +8,7 @@ const API_AUTH_KEY = "SCM-AUTH";
 // On Android emulator 'localhost' refers to the device. Use 10.0.2.2 to reach
 // the host machine when running on Android emulator. For physical devices
 // and web, prefer setting EXPO_PUBLIC_API_BASE_URL to your machine LAN IP.
-let baseURL = process.env.EXPO_PUBLIC_API_BASE_URL || "http://localhost:3000";
+let baseURL = process.env.EXPO_PUBLIC_API_BASE_URL ;
 try {
   if (Platform.OS === "android" && baseURL.includes("localhost")) {
     baseURL = baseURL.replace("localhost", "10.0.2.2");

@@ -10,6 +10,7 @@ import { ProfileScreen } from "../screens/common/ProfileScreen";
 
 import { AddEditStudent } from "../screens/admin/students/AddEditStudent";
 import { AddEditTeacher } from "../screens/admin/teachers/AddEditTeacher";
+import StudentViewComponent from "../screens/admin/students/StudentView";
 
 import { AssignmentsScreen } from "../screens/admin/AssignmentsScreen";
 import EditAssignmentScreen from "../screens/admin/assignments/EditAssignment";
@@ -24,6 +25,11 @@ import AddEditTimetable from "../screens/admin/timetables/AddEditTimetable";
 import { IconButton, Dialog, Portal, Button } from "react-native-paper";
 import i18n from "../../i18n";
 import { Text, View } from "react-native";
+import {
+  makeProtectedScreen,
+  permFrom,
+  useHasPermission,
+} from "./permissionUtils";
 
 const Drawer = createDrawerNavigator();
 
@@ -71,11 +77,32 @@ export function AdminNavigation() {
       </View>
     );
   };
+  // permission checks (used to hide/show drawer items)
+  const canViewStudents = useHasPermission(permFrom("STUDENT", "view"));
+  const canViewTeachers = useHasPermission(permFrom("TEACHER", "view"));
+  const canViewTimetables = useHasPermission(permFrom("TIMETABLE", "view"));
+  const canAddTimetable = useHasPermission(permFrom("TIMETABLE", "add"));
   return (
     <Drawer.Navigator initialRouteName="Dashboard">
       <Drawer.Screen name="Dashboard" component={AdminDashboardScreen} />
-      <Drawer.Screen name="Students" component={StudentsScreen} />
-      <Drawer.Screen name="Teachers" component={TeachersScreen} />
+      {canViewStudents && (
+        <Drawer.Screen
+          name="Students"
+          component={makeProtectedScreen(
+            StudentsScreen,
+            permFrom("STUDENT", "view")
+          )}
+        />
+      )}
+      {canViewTeachers && (
+        <Drawer.Screen
+          name="Teachers"
+          component={makeProtectedScreen(
+            TeachersScreen,
+            permFrom("TEACHER", "view")
+          )}
+        />
+      )}
       <Drawer.Screen
         name="Classes"
         component={ClassesScreen}
@@ -87,8 +114,24 @@ export function AdminNavigation() {
       <Drawer.Screen name="Announcements" component={AnnouncementsScreen} />
       <Drawer.Screen name="Profile" component={ProfileScreen} />
 
-      <Drawer.Screen name="Timetables" component={TimetablesScreen} />
-      <Drawer.Screen name="AddEditTimetable" component={AddEditTimetable} />
+      {canViewTimetables && (
+        <Drawer.Screen
+          name="Timetables"
+          component={makeProtectedScreen(
+            TimetablesScreen,
+            permFrom("TIMETABLE", "view")
+          )}
+        />
+      )}
+      {canAddTimetable && (
+        <Drawer.Screen
+          name="AddEditTimetable"
+          component={makeProtectedScreen(
+            AddEditTimetable,
+            permFrom("TIMETABLE", "add")
+          )}
+        />
+      )}
       {/* Student Add/Edit Screens */}
       <Drawer.Screen
         name="AddStudent"
@@ -100,6 +143,22 @@ export function AdminNavigation() {
         component={AddEditStudent}
         options={{ drawerLabel: () => null, title: "Edit Student" }} // Hide from drawer
       />
+
+      {/* Student View Screen (hidden from drawer) */}
+      {/* Wrapper converts navigation route params into the StudentView props */}
+      {(() => {
+        const StudentViewScreen = ({ route }: any) => {
+          const id = route?.params?.id ?? route?.params?.studentId ?? "";
+          return <StudentViewComponent id={String(id)} />;
+        };
+        return (
+          <Drawer.Screen
+            name="StudentView"
+            component={StudentViewScreen}
+            options={{ drawerLabel: () => null, title: "View Student" }}
+          />
+        );
+      })()}
 
       {/* Teacher Add/Edit Screens */}
       <Drawer.Screen

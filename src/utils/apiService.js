@@ -19,8 +19,10 @@ const getAuthData = async () => {
 };
 
 // Axios client configuration
+let baseURL = process.env.EXPO_PUBLIC_API_BASE_URL ;
+
 const apiClient = axios.create({
-  baseURL: "https://scm-production-8ceb.up.railway.app",
+  baseURL:baseURL,
   headers: { "Content-Type": "application/json" },
 });
 

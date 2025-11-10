@@ -7,7 +7,15 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import { Button, Menu, List } from "react-native-paper";
+import {
+  Button,
+  Menu,
+  List,
+  Text,
+  useTheme,
+  Surface,
+  IconButton,
+} from "react-native-paper";
 import { useSCDData } from "../../context/SCDProvider";
 
 interface Props {
@@ -43,14 +51,15 @@ const ListGridFilters: React.FC<Props> = ({
     filters.divisionId ?? null
   );
   const { schools = [], classes = [], divisions = [] } = useSCDData() || {};
+  const theme = useTheme();
   // Menu visibility
   const [schoolMenuVisible, setSchoolMenuVisible] = useState(false);
   const [classMenuVisible, setClassMenuVisible] = useState(false);
   const [divisionMenuVisible, setDivisionMenuVisible] = useState(false);
   // Android modal fallback state
-  const [androidPicker, setAndroidPicker] = useState<
-    null | { type: "school" | "class" | "division" }
-  >(null);
+  const [androidPicker, setAndroidPicker] = useState<null | {
+    type: "school" | "class" | "division";
+  }>(null);
 
   useEffect(() => {
     setSelectedSchool(filters.schoolId ?? null);
@@ -92,7 +101,13 @@ const ListGridFilters: React.FC<Props> = ({
   };
 
   return (
-    <View style={styles.container}>
+    <Surface style={[styles.container, { backgroundColor: "#ffffffff" }]}>
+      <View style={styles.headerRow}>
+        <Text variant="titleSmall" style={{ color: "#111", fontWeight: "700" }}>
+          Filters
+        </Text>
+        <IconButton icon="filter-variant" size={20} onPress={() => {}} />
+      </View>
       <View style={styles.row}>
         {showSchool && (
           <>
@@ -100,12 +115,18 @@ const ListGridFilters: React.FC<Props> = ({
               <Button
                 mode="outlined"
                 onPress={() => setAndroidPicker({ type: "school" })}
-                style={styles.menuButton}
+                style={[
+                  styles.menuButton,
+                  { borderColor: theme.colors.outline },
+                ]}
+                contentStyle={styles.menuButtonContent}
+                labelStyle={{ color: "#000" }}
                 disabled={loading}
               >
                 {selectedSchool
-                  ? (schools.find((s: any) => String(s.id) === String(selectedSchool))
-                      ?.name ?? String(selectedSchool))
+                  ? schools.find(
+                      (s: any) => String(s.id) === String(selectedSchool)
+                    )?.name ?? String(selectedSchool)
                   : "All Schools"}
               </Button>
             ) : (
@@ -116,12 +137,18 @@ const ListGridFilters: React.FC<Props> = ({
                   <Button
                     mode="outlined"
                     onPress={() => setSchoolMenuVisible(true)}
-                    style={styles.menuButton}
+                    style={[
+                      styles.menuButton,
+                      { borderColor: theme.colors.outline },
+                    ]}
+                    contentStyle={styles.menuButtonContent}
+                    labelStyle={{ color: "#000" }}
                     disabled={loading}
                   >
                     {selectedSchool
-                      ? schools.find((s) => String(s.id) === String(selectedSchool))
-                          ?.name ?? String(selectedSchool)
+                      ? schools.find(
+                          (s: any) => String(s.id) === String(selectedSchool)
+                        )?.name ?? String(selectedSchool)
                       : "All Schools"}
                   </Button>
                 }
@@ -149,12 +176,18 @@ const ListGridFilters: React.FC<Props> = ({
               <Button
                 mode="outlined"
                 onPress={() => setAndroidPicker({ type: "class" })}
-                style={styles.menuButton}
+                style={[
+                  styles.menuButton,
+                  { borderColor: theme.colors.outline },
+                ]}
+                contentStyle={styles.menuButtonContent}
+                labelStyle={{ color: "#000" }}
                 disabled={loading || !classes.length}
               >
                 {selectedClass
-                  ? (classes.find((c: any) => String(c.id) === String(selectedClass))
-                      ?.name ?? String(selectedClass))
+                  ? classes.find(
+                      (c: any) => String(c.id) === String(selectedClass)
+                    )?.name ?? String(selectedClass)
                   : "All Classes"}
               </Button>
             ) : (
@@ -165,12 +198,18 @@ const ListGridFilters: React.FC<Props> = ({
                   <Button
                     mode="outlined"
                     onPress={() => setClassMenuVisible(true)}
-                    style={styles.menuButton}
+                    style={[
+                      styles.menuButton,
+                      { borderColor: theme.colors.outline },
+                    ]}
+                    contentStyle={styles.menuButtonContent}
+                    labelStyle={{ color: "#000" }}
                     disabled={loading || !classes.length}
                   >
                     {selectedClass
-                      ? classes.find((c) => String(c.id) === String(selectedClass))
-                          ?.name ?? String(selectedClass)
+                      ? classes.find(
+                          (c: any) => String(c.id) === String(selectedClass)
+                        )?.name ?? String(selectedClass)
                       : "All Classes"}
                   </Button>
                 }
@@ -198,12 +237,18 @@ const ListGridFilters: React.FC<Props> = ({
               <Button
                 mode="outlined"
                 onPress={() => setAndroidPicker({ type: "division" })}
-                style={styles.menuButton}
+                style={[
+                  styles.menuButton,
+                  { borderColor: theme.colors.outline },
+                ]}
+                contentStyle={styles.menuButtonContent}
+                labelStyle={{ color: "#000" }}
                 disabled={loading || !divisions.length}
               >
                 {selectedDivision
-                  ? (divisions.find((d: any) => String(d.id) === String(selectedDivision))
-                      )?.name ?? String(selectedDivision)
+                  ? divisions.find(
+                      (d: any) => String(d.id) === String(selectedDivision)
+                    )?.name ?? String(selectedDivision)
                   : "All Divisions"}
               </Button>
             ) : (
@@ -214,12 +259,18 @@ const ListGridFilters: React.FC<Props> = ({
                   <Button
                     mode="outlined"
                     onPress={() => setDivisionMenuVisible(true)}
-                    style={styles.menuButton}
+                    style={[
+                      styles.menuButton,
+                      { borderColor: theme.colors.outline },
+                    ]}
+                    contentStyle={styles.menuButtonContent}
+                    labelStyle={{ color: "#000" }}
                     disabled={loading || !divisions.length}
                   >
                     {selectedDivision
-                      ? (divisions.find((d: any) => String(d.id) === String(selectedDivision))
-                          )?.name ?? String(selectedDivision)
+                      ? divisions.find(
+                          (d: any) => String(d.id) === String(selectedDivision)
+                        )?.name ?? String(selectedDivision)
                       : "All Divisions"}
                   </Button>
                 }
@@ -246,6 +297,7 @@ const ListGridFilters: React.FC<Props> = ({
           onPress={clearAll}
           disabled={loading}
           style={styles.clearBtn}
+          labelStyle={{ color: theme.colors.primary }}
         >
           Clear
         </Button>
@@ -258,8 +310,18 @@ const ListGridFilters: React.FC<Props> = ({
             transparent={true}
             onRequestClose={() => setAndroidPicker(null)}
           >
-            <View style={styles.androidModalOverlay}>
-              <View style={styles.androidModalContent}>
+            <View
+              style={[
+                styles.androidModalOverlay,
+                { backgroundColor: "rgba(0,0,0,0.5)" },
+              ]}
+            >
+              <View
+                style={[
+                  styles.androidModalContent,
+                  { backgroundColor: theme.colors.surface },
+                ]}
+              >
                 <ScrollView>
                   <TouchableOpacity
                     onPress={() => {
@@ -273,8 +335,11 @@ const ListGridFilters: React.FC<Props> = ({
                     <List.Item title="All" />
                   </TouchableOpacity>
 
-                  {(androidPicker.type === "school" ? schools :
-                    androidPicker.type === "class" ? classes : divisions
+                  {(androidPicker.type === "school"
+                    ? schools
+                    : androidPicker.type === "class"
+                    ? classes
+                    : divisions
                   ).map((it: any) => (
                     <TouchableOpacity
                       key={it.id}
@@ -292,15 +357,13 @@ const ListGridFilters: React.FC<Props> = ({
                     </TouchableOpacity>
                   ))}
                 </ScrollView>
-                <Button onPress={() => setAndroidPicker(null)}>
-                  Close
-                </Button>
+                <Button onPress={() => setAndroidPicker(null)}>Close</Button>
               </View>
             </View>
           </Modal>
         )}
       </View>
-    </View>
+    </Surface>
   );
 };
 
@@ -316,6 +379,17 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: 8 as any,
   },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 8,
+  },
+  menuButtonContent: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    minHeight: 42,
+  },
   menuButton: {
     marginRight: 8,
     borderRadius: 8,
@@ -325,7 +399,7 @@ const styles = StyleSheet.create({
   },
   androidModalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.4)",
+    backgroundColor: "rgba(222, 122, 122, 0.4)",
     justifyContent: "center",
     padding: 20,
   },

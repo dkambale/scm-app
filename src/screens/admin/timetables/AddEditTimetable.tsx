@@ -333,14 +333,24 @@ const AddEditTimetable: React.FC = () => {
                               <Card.Content>
                                 <View style={styles.rowBetween}>
                                   <TouchableOpacity
-                                    style={[styles.input, { justifyContent: 'center' }]}
+                                    style={[
+                                      styles.input,
+                                      { justifyContent: "center" },
+                                    ]}
                                     onPress={() => {
-                                      setPickerIndices({ dayIndex, slotIndex: -1 });
+                                      setPickerIndices({
+                                        dayIndex,
+                                        slotIndex: -1,
+                                      });
                                       setDayModalVisible(true);
                                     }}
                                   >
-                                    <Text style={{ color: day.dayName ? '#000' : '#888' }}>
-                                      {day.dayName || 'Select day'}
+                                    <Text
+                                      style={{
+                                        color: day.dayName ? "#000" : "#888",
+                                      }}
+                                    >
+                                      {day.dayName || "Select day"}
                                     </Text>
                                   </TouchableOpacity>
                                   <IconButton
@@ -364,43 +374,97 @@ const AddEditTimetable: React.FC = () => {
                                             <Card.Content>
                                               <View style={styles.rowBetween}>
                                                 <TouchableOpacity
-                                                  style={[styles.input, { flex: 1, justifyContent: 'center' }]}
+                                                  style={[
+                                                    styles.input,
+                                                    {
+                                                      flex: 1,
+                                                      justifyContent: "center",
+                                                    },
+                                                  ]}
                                                   onPress={() => {
-                                                    setPickerIndices({ dayIndex, slotIndex });
+                                                    setPickerIndices({
+                                                      dayIndex,
+                                                      slotIndex,
+                                                    });
                                                     setTypeModalVisible(true);
                                                   }}
                                                 >
-                                                  <Text style={{ color: slot.type ? '#000' : '#888' }}>
-                                                    {slot.type || 'Select type'}
+                                                  <Text
+                                                    style={{
+                                                      color: slot.type
+                                                        ? "#000"
+                                                        : "#888",
+                                                    }}
+                                                  >
+                                                    {slot.type || "Select type"}
                                                   </Text>
                                                 </TouchableOpacity>
                                                 <IconButton
                                                   icon="delete"
-                                                  onPress={() => removeTsd(slotIndex)}
+                                                  onPress={() =>
+                                                    removeTsd(slotIndex)
+                                                  }
                                                 />
                                               </View>
 
                                               <View style={styles.row}>
                                                 <TouchableOpacity
-                                                  style={[styles.input, { flex: 1, justifyContent: 'center' }]}
+                                                  style={[
+                                                    styles.input,
+                                                    {
+                                                      flex: 1,
+                                                      justifyContent: "center",
+                                                    },
+                                                  ]}
                                                   onPress={() => {
-                                                    setPickerIndices({ dayIndex, slotIndex });
-                                                    setSubjectModalVisible(true);
+                                                    setPickerIndices({
+                                                      dayIndex,
+                                                      slotIndex,
+                                                    });
+                                                    setSubjectModalVisible(
+                                                      true
+                                                    );
                                                   }}
                                                 >
-                                                  <Text style={{ color: slot.subjectName ? '#000' : '#888' }}>
-                                                    {slot.subjectName || 'Select subject'}
+                                                  <Text
+                                                    style={{
+                                                      color: slot.subjectName
+                                                        ? "#000"
+                                                        : "#888",
+                                                    }}
+                                                  >
+                                                    {slot.subjectName ||
+                                                      "Select subject"}
                                                   </Text>
                                                 </TouchableOpacity>
                                                 <TouchableOpacity
-                                                  style={[styles.input, { flex: 1, marginLeft: 8, justifyContent: 'center' }]}
+                                                  style={[
+                                                    styles.input,
+                                                    {
+                                                      flex: 1,
+                                                      marginLeft: 8,
+                                                      justifyContent: "center",
+                                                    },
+                                                  ]}
                                                   onPress={() => {
-                                                    setPickerIndices({ dayIndex, slotIndex });
-                                                    setTeacherModalVisible(true);
+                                                    setPickerIndices({
+                                                      dayIndex,
+                                                      slotIndex,
+                                                    });
+                                                    setTeacherModalVisible(
+                                                      true
+                                                    );
                                                   }}
                                                 >
-                                                  <Text style={{ color: slot.teacherName ? '#000' : '#888' }}>
-                                                    {slot.teacherName || 'Select teacher'}
+                                                  <Text
+                                                    style={{
+                                                      color: slot.teacherName
+                                                        ? "#000"
+                                                        : "#888",
+                                                    }}
+                                                  >
+                                                    {slot.teacherName ||
+                                                      "Select teacher"}
                                                   </Text>
                                                 </TouchableOpacity>
                                               </View>

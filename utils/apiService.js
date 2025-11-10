@@ -31,12 +31,14 @@ const getAuthData = async () => {
   }
 };
 
-// --- ⚙️ Axios Client Configuration ---
+// --- ⚙️ Axios Client Configuration --- 
+let baseURL = process.env.EXPO_PUBLIC_API_BASE_URL ;
+
 const apiClient = axios.create({
   // Note: import.meta.env is a Vite-specific feature. In React Native, 
   // you might use a similar setup via react-native-dotenv or a manual config file.
   // Replace with your RN environment variable setup.
-  baseURL: 'https://scm-production-8ceb.up.railway.app', 
+  baseURL: baseURL, 
   headers: {
     'Content-Type': 'application/json'
   }
