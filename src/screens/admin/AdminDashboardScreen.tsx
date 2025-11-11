@@ -1,119 +1,121 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
-import { Card, Text } from 'react-native-paper';
+import { View, StyleSheet, ScrollView, Dimensions } from 'react-native';
+import { Card, Text, ActivityIndicator, Title, Paragraph } from 'react-native-paper';
 import { apiService } from '../../api/apiService';
-import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 
-export const AdminDashboardScreen: React.FC = () => {
-  const [stats, setStats] = useState({
-    totalStudents: 0,
-    totalTeachers: 0,
-    totalClasses: 0,
-    pendingFees: 0,
-  });
+type Stats = {
+  totalStudents?: number;
+  totalTeachers?: number;
+  totalCourses?: number;
+};
+
+type MonthlyItem = {
+  month: string;
+  enrollments: number;
+};
+
+const AdminDashboardScreen: React.FC = () => {
+  const [stats, setStats] = useState<Stats>({});
+  const [monthlyData, setMonthlyData] = useState<MonthlyItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadStats();
-  }, []);
 
-  const loadStats = async () => {
-    try {
-      const [students, teachers, classes, fees] = await Promise.all([
-        apiService.getStudents(),
-        apiService.getTeachers(),
-        apiService.getClasses(),
-        apiService.getFees(),
-      ]);
+  const screenWidth = Dimensions.get('window').width;
+  const isWide = screenWidth >= 700;
 
-      setStats({
-        totalStudents: students.length,
-        totalTeachers: teachers.length,
-        totalClasses: classes.length,
-        pendingFees: fees.filter((f) => f.status === 'Pending').length,
-      });
-    } catch (error) {
-      console.error('Failed to load stats:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // simple bar chart rendering: scale bars by max value
+  const maxEnroll = Math.max(1, ...(monthlyData.map((m) => m.enrollments ?? 0)));
 
-  if (loading) return <LoadingSpinner />;
+  if (loading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator animating size={36} />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.center}>
+        <Text>{error}</Text>
+      </View>
+    );
+  }
 
   return (
-    <ScrollView style={styles.container}>
-      <Text variant="headlineMedium" style={styles.title}>
-        Dashboard
-      </Text>
-
-      <View style={styles.grid}>
-        <Card style={styles.card}>
+    <ScrollView contentContainerStyle={styles.container}>
+      <View style={[styles.row, !isWide && styles.wrap]}> 
+        <Card style={[styles.statCard, isWide ? styles.halfWidth : styles.fullWidth]}>
           <Card.Content>
-            <Text variant="headlineLarge" style={styles.number}>
-              {stats.totalStudents}
-            </Text>
-            <Text variant="titleMedium">Total Students</Text>
+            <Title>Total Students</Title>
+            <Paragraph style={styles.statValue}>{stats.totalStudents ?? 0}</Paragraph>
           </Card.Content>
         </Card>
 
-        <Card style={styles.card}>
+        <Card style={[styles.statCard, isWide ? styles.halfWidth : styles.fullWidth]}>
           <Card.Content>
-            <Text variant="headlineLarge" style={styles.number}>
-              {stats.totalTeachers}
-            </Text>
-            <Text variant="titleMedium">Total Teachers</Text>
+            <Title>Total Teachers</Title>
+            <Paragraph style={styles.statValue}>{stats.totalTeachers ?? 0}</Paragraph>
           </Card.Content>
         </Card>
 
-        <Card style={styles.card}>
+        <Card style={[styles.statCard, isWide ? styles.halfWidth : styles.fullWidth]}>
           <Card.Content>
-            <Text variant="headlineLarge" style={styles.number}>
-              {stats.totalClasses}
-            </Text>
-            <Text variant="titleMedium">Total Classes</Text>
-          </Card.Content>
-        </Card>
-
-        <Card style={styles.card}>
-          <Card.Content>
-            <Text variant="headlineLarge" style={[styles.number, styles.pending]}>
-              {stats.pendingFees}
-            </Text>
-            <Text variant="titleMedium">Pending Fees</Text>
+            <Title>Total Courses</Title>
+            <Paragraph style={styles.statValue}>{stats.totalCourses ?? 0}</Paragraph>
           </Card.Content>
         </Card>
       </View>
+
+      <Card style={styles.chartCard}>
+        <Card.Content>
+          <Title style={{ marginBottom: 8 }}>Monthly New Enrollments</Title>
+          {monthlyData.length === 0 ? (
+            <Text>No chart data available</Text>
+          ) : (
+            <View>
+              {monthlyData.map((item) => {
+                const value = item.enrollments ?? 0;
+                const widthPct = Math.round((value / maxEnroll) * 100);
+                return (
+                  <View key={item.month} style={styles.barRow}>
+                    <Text style={styles.barLabel}>{item.month}</Text>
+                    <View style={styles.barWrap}>
+                      <View style={[styles.barFill, { width: `${widthPct}%` }]} />
+                      <Text style={styles.barValue}>{value}</Text>
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          )}
+        </Card.Content>
+      </Card>
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: '#f5f5f5',
+    padding: 12,
+    paddingBottom: 48,
+    backgroundColor: '#fff',
   },
-  title: {
-    marginBottom: 24,
-    fontWeight: 'bold',
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  card: {
-    width: '48%',
-    marginBottom: 16,
-    elevation: 4,
-  },
-  number: {
-    fontWeight: 'bold',
-    color: '#6200ee',
-    marginBottom: 8,
-  },
-  pending: {
-    color: '#ff6f00',
-  },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 },
+  row: { flexDirection: 'row', justifyContent: 'space-between' },
+  wrap: { flexDirection: 'column' },
+  statCard: { marginBottom: 12, borderRadius: 8 },
+  halfWidth: { flex: 1, minWidth: 140, marginRight: 6 },
+  fullWidth: { width: '100%' },
+  statValue: { fontSize: 28, fontWeight: '800', marginTop: 6 },
+  chartCard: { borderRadius: 8, paddingBottom: 6 },
+  barRow: { flexDirection: 'row', alignItems: 'center', marginVertical: 8 },
+  barLabel: { width: 80, color: '#333' },
+  barWrap: { flex: 1, height: 28, backgroundColor: '#f3f6ff', borderRadius: 6, justifyContent: 'center' },
+  barFill: { position: 'absolute', left: 0, top: 0, bottom: 0, backgroundColor: '#8884d8', borderRadius: 6 },
+  barValue: { marginLeft: 8, marginRight: 8, zIndex: 2, alignSelf: 'center', color: '#111', fontWeight: '700' },
 });
+
+export default AdminDashboardScreen;
+ 

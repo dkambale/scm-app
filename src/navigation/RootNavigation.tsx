@@ -28,6 +28,7 @@ export const RootNavigation: React.FC = () => {
   // For each supported entity we call the permission hook explicitly
   // (to respect the Rules of Hooks) and then show only those entries
   // for which the user has a 'view' permission.
+  const canViewADMIN_DASHBOARD = true ;
   const canViewSTUDENT = useHasPermission({
     entity: "STUDENT",
     action: "view",
@@ -74,7 +75,7 @@ export const RootNavigation: React.FC = () => {
   if (canViewFEE_MANAGEMENT) visibleEntries.push(entityRegistry.FEE_MANAGEMENT);
   if (canViewANNOUNCEMENT) visibleEntries.push(entityRegistry.ANNOUNCEMENT);
   if (canViewPROFILE) visibleEntries.push(entityRegistry.PROFILE);
-
+  if (canViewADMIN_DASHBOARD) visibleEntries.push(entityRegistry.ADMIN_DASHBOARD);
   if (loading) {
     return <LoadingSpinner />;
   }
@@ -113,6 +114,7 @@ export const RootNavigation: React.FC = () => {
         <Stack.Screen name="MainDrawer" component={DrawerHost} />
 
         {/* Global hidden screens (Add/Edit/View) so navigation.navigate(...) always resolves */}
+
         <Stack.Screen
           name="AddEditTimetable"
           component={makeProtectedScreen(

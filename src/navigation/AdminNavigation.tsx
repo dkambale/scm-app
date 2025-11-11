@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { createDrawerNavigator } from "@react-navigation/drawer";
-import { AdminDashboardScreen } from "../screens/admin/AdminDashboardScreen";
+import AdminDashboardScreen from "../screens/admin/AdminDashboardScreen";
 import { StudentsScreen } from "../screens/admin/StudentsScreen";
 import { TeachersScreen } from "../screens/admin/TeachersScreen";
 import { ClassesScreen } from "../screens/admin/ClassesScreen";

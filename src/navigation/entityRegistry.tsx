@@ -8,6 +8,7 @@ import { FeesScreen as AdminFeesScreen } from "../screens/admin/FeesScreen";
 import { AnnouncementsScreen } from "../screens/common/AnnouncementsScreen";
 import { ProfileScreen } from "../screens/common/ProfileScreen";
 import { FeesScreen as StudentFeesScreen } from "../screens/student/FeesScreen";
+import AdminDashboardScreen from "../screens/admin/AdminDashboardScreen";
 
 // Map permission entity names to a screen component and a friendly title.
 const entityRegistry: Record<
@@ -44,6 +45,11 @@ const entityRegistry: Record<
     component: AnnouncementsScreen,
   },
   PROFILE: { id: "PROFILE", title: "Profile", component: ProfileScreen },
+  ADMIN_DASHBOARD: {
+    id: "ADMIN_DASHBOARD",
+    title: "Admin Dashboard",
+    component: AdminDashboardScreen,
+  },
 };
 
 export default entityRegistry;
