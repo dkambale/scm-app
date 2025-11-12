@@ -29,6 +29,7 @@ export type Permission =
   | 'PAY_FEES'
   | 'VIEW_ROLES'
   | 'EDIT_ROLES';
+import { ImageStyle, TextStyle, ViewStyle } from 'react-native';
 
 export interface User {
   id: string;
@@ -134,4 +135,87 @@ export interface Role {
 export interface AuthResponse {
   token: string;
   user: User;
+}
+
+
+
+export type RNStyle = ViewStyle | TextStyle | ImageStyle;
+
+export interface TimetableEntry {
+  id: string;
+  time: string;
+  subject: string;
+  class: string;
+  room: string;
+}
+
+export interface Notification {
+  id: number;
+  title: string;
+  message: string;
+  entityType: string;
+}
+
+export interface Birthday {
+  id: string;
+  name: string;
+  role: 'student' | 'teacher';
+}
+
+export interface ChartDataSet {
+  labels: string[];
+  datasets: Array<{
+    data: number[];
+    color: (opacity: number) => string;
+  }>;
+  legend?: string[];
+}
+
+export interface PieChartData {
+    name: string;
+    population: number;
+    color: string;
+    legendFontColor: string;
+    legendFontSize: number;
+}
+
+export interface AssignmentChartProps {
+  // Assuming a chart component expects processed data
+  categories: string[];
+  series: Array<{
+    name: string;
+    data: number[];
+    color: string;
+  }>;
+  loading: boolean;
+  error: string | null;
+}
+
+export interface ExamStudentResult {
+    id: string;
+    subjectId: string;
+    subjectName: string;
+    marksObtained: number | null;
+    totalMarks: number | null;
+    grade: string | null;
+    remarks: string | null;
+    passed: boolean | undefined;
+    
+    // Summary Fields (duplicated across all rows in the API response)
+    examName: string;
+    studentName: string;
+    className: string;
+    divisionName: string;
+    schoolName: string;
+}
+
+export interface ExamSummary {
+    examName: string;
+    studentName: string;
+    className: string;
+    divisionName: string;
+    schoolName: string;
+    totalMax: number;
+    totalObtained: number;
+    percentage: string;
 }

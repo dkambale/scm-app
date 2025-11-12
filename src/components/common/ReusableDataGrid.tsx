@@ -408,7 +408,7 @@ export const ReusableDataGrid: React.FC<ReusableDataGridProps> = ({
                 </>
               ) : (
                 <>
-                  {(canEdit || canView || (deleteUrl && canDelete)) && (
+                  {(editUrl || viewUrl || (deleteUrl && canDelete)) && (canEdit || canView || (deleteUrl && canDelete)) && (
                     <Menu
                       visible={!!menuVisibleFor[idKey]}
                       onDismiss={() => closeMenu(idKey)}
@@ -419,7 +419,7 @@ export const ReusableDataGrid: React.FC<ReusableDataGridProps> = ({
                         />
                       }
                     >
-                      {canEdit && (
+                      { editUrl && canEdit && (
                         <Menu.Item
                           onPress={() => {
                             closeMenu(idKey);
@@ -428,7 +428,7 @@ export const ReusableDataGrid: React.FC<ReusableDataGridProps> = ({
                           title="Edit"
                         />
                       )}
-                      {canView && (
+                      {viewUrl && canView && (
                         <Menu.Item
                           onPress={() => {
                             closeMenu(idKey); /* manage visibility */

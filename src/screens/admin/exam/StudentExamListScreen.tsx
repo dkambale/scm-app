@@ -5,27 +5,23 @@ import { storage } from '../../../utils/storage';
 import { userDetails } from "../../../utils/apiService";
 
 const columnsConfig = [
-  { key: 'rollNo', header: 'Roll No' },
-  { key: 'userName', header: 'User Name' },
-  { key: 'firstName', header: 'First Name' },
-  { key: 'lastName', header: 'Last Name' },
-  { key: 'email', header: 'Email' },
-  { key: 'mobile', header: 'Mobile' },
+  { key: 'examName', header: 'Exam Name' },
+  { key: 'status', header: 'status' },
+  { key: 'maxMarksOverall', header: 'Max Marks Overall' },
+  { key: 'examType', header: 'Type' },
+  { key: 'academicYear', header: 'academic Year' },
   { key: 'schoolName', header: 'School' },
   { key: 'className', header: 'Class' },
   { key: 'divisionName', header: 'Division' },
 ];
 
-const transformStudentData = (student: any) => ({
-  ...student,
-  rollno: student.rollNo || student.id,
-  name: `${student.firstName || ''} ${student.lastName || ''}`.trim() || student.userName,
-  schoolName: student.school?.name || 'N/A',
-  className: student.class?.name || 'N/A',
-  divisionName: student.division?.name || 'N/A',
+const transformExamData = (exam: any) => ({
+  ...exam,
+  examName: exam.examName,
+  
 });
 
-export const StudentList: React.FC = () => {
+export const ExamList: React.FC = () => {
   const [fetchUrl, setFetchUrl] = useState('');
 
   useEffect(() => {
@@ -33,7 +29,7 @@ export const StudentList: React.FC = () => {
       const accountId = await userDetails.getAccountId();
       // const accountId = raw ? JSON.parse(raw)?.data?.accountId : undefined;
       if (accountId) {
-        setFetchUrl(`/api/users/getAllBy/${accountId}?type=STUDENT`);
+        setFetchUrl(`/api/exams/getAllBy/${accountId}`);
       }
     };
     initialize();
@@ -46,16 +42,16 @@ export const StudentList: React.FC = () => {
   return (
     <View style={styles.container}>
       <ReusableDataGrid
-        title="Students"
+        title="Exams"
         fetchUrl={fetchUrl}
         columns={columnsConfig}
         isPostRequest={true}
-        // addActionUrl="AddStudent"
-        // editUrl="EditStudent"
-        // deleteUrl="/api/users/delete"
-        entityName="Student"
-        searchPlaceholder="Search students..."
-        transformData={transformStudentData}
+    
+        
+        
+        entityName="Exam"
+        searchPlaceholder="Search exams..."
+        transformData={transformExamData}
         
       />
     </View>
@@ -68,4 +64,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default StudentList;
+export default ExamList;

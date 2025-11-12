@@ -112,11 +112,15 @@ const SCDSelector = ({
     if (
       isTeacher &&
       teacherSchoolId != null &&
-      values?.schoolId !== teacherSchoolId
+      values?.schoolId !== teacherSchoolId 
     ) {
-      setFieldValue("schoolId", teacherSchoolId);
-      setFieldValue("classId", "");
-      setFieldValue("divisionId", "");
+      // try to resolve the school name from loaded schools
+      const schoolObj = (schools || []).find((s) => String(s.id) === String(teacherSchoolId));
+      const schoolLabel = schoolObj?.name || schoolObj?.branchName || schoolObj?.schoolName || "";
+      setFieldValue("schoolId", teacherSchoolId, schoolLabel);
+      // clear dependent selections and their labels
+      setFieldValue("classId", "", "");
+      setFieldValue("divisionId", "", "");
     }
   }, [isTeacher, teacherSchoolId]);
 
@@ -258,9 +262,12 @@ const SCDSelector = ({
         options={schools}
         onSelect={(item) => {
           const id = item?.id ?? item?.schoolbranchId ?? item?.schoolId ?? null;
-          setFieldValue("schoolId", id);
-          setFieldValue("classId", "");
-          setFieldValue("divisionId", "");
+          const label = item?.name ?? item?.branchName ?? item?.schoolName ?? String(id ?? "");
+          // pass name as third arg so adapters can populate schoolName
+          setFieldValue("schoolId", id, label);
+          // clear dependent selections and their labels
+          setFieldValue("classId", "", "");
+          setFieldValue("divisionId", "", "");
         }}
         selectedId={values?.schoolId}
       />
@@ -271,7 +278,8 @@ const SCDSelector = ({
         options={filteredClasses}
         onSelect={(item) => {
           const id = item?.id ?? item?.schoolClassId ?? item?.classId ?? null;
-          setFieldValue("classId", id);
+          const label = item?.name ?? item?.className ?? item?.schoolClassName ?? String(id ?? "");
+          setFieldValue("classId", id, label);
         }}
         selectedId={values?.classId}
       />
@@ -282,7 +290,8 @@ const SCDSelector = ({
         options={filteredDivisions}
         onSelect={(item) => {
           const id = item?.id ?? item?.divisionId ?? null;
-          setFieldValue("divisionId", id);
+          const label = item?.name ?? item?.divisionName ?? String(id ?? "");
+          setFieldValue("divisionId", id, label);
         }}
         selectedId={values?.divisionId}
       />

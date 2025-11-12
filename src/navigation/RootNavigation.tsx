@@ -11,11 +11,16 @@ import {
   permFrom,
   makeProtectedScreen,
 } from "./permissionUtils";
+
+import AttendanceEdit from "../screens/admin/attendance/AddAttendance";
+
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import AddEditTimetable from "../screens/admin/timetables/AddEditTimetable";
 import TimetableView from "../screens/admin/timetables/TimetableView";
+
 import { AddEditStudent } from "../screens/admin/students/AddEditStudent";
 import StudentViewComponent from "../screens/admin/students/StudentView";
+
 import { AddEditTeacher } from "../screens/admin/teachers/AddEditTeacher";
 
 export const RootNavigation: React.FC = () => {
@@ -28,7 +33,7 @@ export const RootNavigation: React.FC = () => {
   // For each supported entity we call the permission hook explicitly
   // (to respect the Rules of Hooks) and then show only those entries
   // for which the user has a 'view' permission.
-  const canViewADMIN_DASHBOARD = true ;
+  const canViewTEACHER_DASHBOARD = true ;
   const canViewSTUDENT = useHasPermission({
     entity: "STUDENT",
     action: "view",
@@ -63,8 +68,12 @@ export const RootNavigation: React.FC = () => {
     entity: "USER_PROFILE",
     action: "view",
   });
-
+  const canViewEXAM = useHasPermission({  
+    entity: "EXAM",
+    action: "view",
+  });
   const visibleEntries = [] as { id: string; component: any }[];
+  if (canViewTEACHER_DASHBOARD) visibleEntries.push(entityRegistry.TEACHER_DASHBOARD);
   if (canViewSTUDENT) visibleEntries.push(entityRegistry.STUDENT);
   if (canViewTEACHER) visibleEntries.push(entityRegistry.TEACHER);
   if (canViewCLASS) visibleEntries.push(entityRegistry.CLASS);
@@ -74,8 +83,8 @@ export const RootNavigation: React.FC = () => {
   if (canViewFEE) visibleEntries.push(entityRegistry.FEE);
   if (canViewFEE_MANAGEMENT) visibleEntries.push(entityRegistry.FEE_MANAGEMENT);
   if (canViewANNOUNCEMENT) visibleEntries.push(entityRegistry.ANNOUNCEMENT);
+  if (canViewEXAM) visibleEntries.push(entityRegistry.EXAM);
   if (canViewPROFILE) visibleEntries.push(entityRegistry.PROFILE);
-  if (canViewADMIN_DASHBOARD) visibleEntries.push(entityRegistry.ADMIN_DASHBOARD);
   if (loading) {
     return <LoadingSpinner />;
   }
@@ -137,7 +146,20 @@ export const RootNavigation: React.FC = () => {
             return <TimetableView id={String(id)} />;
           }}
         />
-
+        <Stack.Screen
+        name="AddAttendance"
+        component={makeProtectedScreen(
+          AttendanceEdit,
+          permFrom("ATTENDANCE", "add")
+        )}
+      />
+      <Stack.Screen
+        name="EditAttendance"
+        component={makeProtectedScreen(
+          AttendanceEdit,
+          permFrom("ATTENDANCE", "edit")
+        )}
+      />
         <Stack.Screen
           name="AddStudent"
           component={makeProtectedScreen(
@@ -172,6 +194,14 @@ export const RootNavigation: React.FC = () => {
           component={makeProtectedScreen(
             AddEditTeacher,
             permFrom("TEACHER", "edit")
+          )}
+        />
+
+        <Stack.Screen
+          name="EditAssignment" 
+          component={makeProtectedScreen(
+            AttendanceEdit,
+            permFrom("ASSIGNMENT", "edit")
           )}
         />
       </Stack.Navigator>

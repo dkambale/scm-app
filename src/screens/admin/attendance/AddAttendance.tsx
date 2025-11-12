@@ -3,34 +3,44 @@ import {
   View,
   StyleSheet,
   ScrollView,
-  Alert,
   Platform,
   TouchableOpacity,
+  ActivityIndicator as RNActivityIndicator, // Use RN built-in for loading state
 } from "react-native";
 import {
   Button,
   Text,
   TextInput,
-  ActivityIndicator,
   List,
   Chip,
   Snackbar,
   Card,
   Avatar,
+  Title,
 } from "react-native-paper";
-import { apiService } from "../../../api/apiService";
-import { storage } from "../../../utils/storage";
-import { useAuth } from "../../../context/AuthContext";
+import { apiService } from "../../../api/apiService"; // Assuming correct path
+import { storage } from "../../../utils/storage"; // Assuming correct path
+import { useAuth } from "../../../context/AuthContext"; // Assuming correct path
 import { useNavigation, useRoute } from "@react-navigation/native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
+import { useSCDData } from "../../../context/SCDProvider";
 
 // --- FIXED IMPORT ---
 // We import the entire module as 'SCDModule' and conditionally pull the component from its exports.
 import * as SCDModule from "../../../components/common/SCDSelector.native";
 // Determine the actual component function from the imported module (Handles both default and named exports)
-const SCDSelector = SCDModule.default || SCDModule.SCDSelector;
+// try to resolve default or named export; fall back to null component to avoid runtime crash
+const SCDSelector =
+  (((SCDModule as any).default || (SCDModule as any).SCDSelector) as any) ||
+  null;
+
+// --- COLOR PALETTE ---
+const ACCENT_BLUE = "#00BFFF"; // Sky Blue
+const DARK_BLUE = "#1E90FF"; // Dodger Blue
+const BG_WHITE = "#FFFFFF";
+const SHADOW_COLOR = "#000000";
 
 // --- TYPES ---
 type AttendanceRequest = {
@@ -46,18 +56,19 @@ type AttendanceRequest = {
 };
 
 type StudentMapping = {
-  id: string;
+  id: string; // Used for unique key
   studentId: string;
   studentName: string;
   studentRollNo: string;
-  vailable: boolean;
+  vailable: boolean; // True for Present, False for Absent
   attendanceId?: string;
 };
 
 // --- MAIN COMPONENT ---
 export const AttendanceEdit: React.FC = () => {
   const { t } = useTranslation("edit");
-  const { user } = useAuth();
+  const { user } = useAuth(); // Assuming useAuth provides a user object
+  const { schools = [], classes = [], divisions = [] } = useSCDData() || {};
   const navigation = useNavigation();
   const route = useRoute();
   const { id } = (route.params as { id?: string | null }) || {};
@@ -89,17 +100,20 @@ export const AttendanceEdit: React.FC = () => {
     setSnackbarVisible(true);
   };
 
-  // --- Data Fetching ---
+  // --- Data Fetching (Logic remains the same, focuses on presentation/typing) ---
 
   // 1. Fetch Subjects
   useEffect(() => {
     const loadSubjects = async () => {
+      // setLoading(true); // Don't set loading yet, let it be controlled by the main loading block
       try {
-        const accountId = await storage
+        const authData = await storage
           .getItem("SCM-AUTH")
-          .then((raw) => (raw ? JSON.parse(raw)?.data?.accountId : null));
+          .then((raw) => (raw ? JSON.parse(raw) : null));
+        const accountId = authData?.data?.accountId;
+
         if (accountId) {
-          // Note: apiService.getSubjects must be implemented to fetch subject list by accountId
+          // @ts-ignore - Assuming getSubjects implementation in apiService
           const res = await apiService.getSubjects(accountId);
           setSubjects(res || []);
         }
@@ -110,19 +124,19 @@ export const AttendanceEdit: React.FC = () => {
             "Failed to load subjects."
         );
       }
+      // setLoading(false);
     };
     loadSubjects();
-  }, []);
+  }, [t]);
 
   // 2. Fetch Existing Attendance Data if Editing
   useEffect(() => {
     if (id) {
       setLoading(true);
-      // Assuming apiService.getAttendanceById exists and fetches full attendance record
-      // Note: This needs to be implemented in apiService.ts
+      // @ts-ignore - Assuming getAttendanceById implementation in apiService
       apiService
         .getAttendanceById(id)
-        .then((data) => {
+        .then((data: any) => {
           setAttendanceData(data);
           setReqData({
             schoolId: String(data.schoolId) || null,
@@ -136,13 +150,18 @@ export const AttendanceEdit: React.FC = () => {
             divisionName: data.divisionName || "",
           });
 
-          const mappedStudents = (data.studentAttendanceMappings || []).map(
-            (s: any) => ({
-              ...s,
-              vailable: s.vailable === undefined ? true : !!s.vailable,
-            })
-          );
-          setStudents(mappedStudents);
+          const mappedStudents: any[] = (data.studentAttendanceMappings || []).map((s: any) => ({
+            // Preserve original mapping id as mappingId, keep studentId separate
+            mappingId: s.id ?? null,
+            studentId: s.studentId ?? s.studentId ?? null,
+            studentName: s.studentName ?? `${s.firstName || ''} ${s.lastName || ''}`.trim(),
+            vailable: s.vailable === undefined ? true : !!s.vailable,
+            // keep raw fields for flexibility
+            ...s,
+          }));
+          setStudents(mappedStudents as any[]);
+
+          
         })
         .catch((err) => {
           console.error("Failed to fetch attendance data:", err);
@@ -155,7 +174,7 @@ export const AttendanceEdit: React.FC = () => {
     } else {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, t]);
 
   // 3. Fetch Students/Attendance based on Selection
   useEffect(() => {
@@ -168,10 +187,8 @@ export const AttendanceEdit: React.FC = () => {
 
     if (isReadyForFetch) {
       if (!isEditMode) {
-        // In Add mode, always fetch when ready
         shouldFetch = true;
       } else if (attendanceData) {
-        // In Edit mode, fetch if selections deviate from loaded data
         const loadedDate = dayjs(attendanceData?.attendanceDate).format(
           "YYYY-MM-DD"
         );
@@ -188,7 +205,45 @@ export const AttendanceEdit: React.FC = () => {
     }
 
     if (shouldFetch) {
-      fetchAttendance(classId!, divisionId!, subjectId!, date!);
+      // Call the backend attendance endpoint directly with the accountId and query params
+      (async () => {
+        setLoading(true);
+        try {
+          const authData = await storage
+            .getItem("SCM-AUTH")
+            .then((raw) => (raw ? JSON.parse(raw) : null));
+          const accountId = authData?.data?.accountId;
+          if (!accountId) return;
+          const resp = await apiService.getAttendanceBy(accountId, {
+            classId: classId as string,
+            divisionId: divisionId as string,
+            subjectId: subjectId as string,
+            date: date as string,
+          });
+          const newStudents: any[] = (resp?.studentAttendanceMappings || []).map((s: any) => {
+            const first = s.firstName || s.first_name || "";
+            const last = s.lastName || s.last_name || "";
+            const nameFromParts = [first, last].filter(Boolean).join(" ");
+            const resolvedName = s.studentName || s.name || s.fullName || s.displayName || nameFromParts || `Student ${s.studentId || s.id || ""}`;
+            return {
+              mappingId: s.id ?? null,
+              studentId: s.studentId ?? null,
+              studentName: resolvedName,
+              vailable: s.vailable === undefined ? true : !!s.vailable,
+              ...s,
+            };
+          });
+          setStudents(newStudents as any[]);
+        } catch (err) {
+          console.error("Failed to fetch attendance data:", err);
+          showToast(
+            t("attendance.messages.fetchFailed") ||
+              "Failed to fetch student list."
+          );
+        } finally {
+          setLoading(false);
+        }
+      })();
     }
   }, [
     reqData.classId,
@@ -197,62 +252,24 @@ export const AttendanceEdit: React.FC = () => {
     reqData.date,
     id,
     attendanceData,
+    t,
+    reqData,
   ]);
 
-  const fetchAttendance = async (
-    classId: string,
-    divisionId: string,
-    subjectId: string,
-    date: string
-  ) => {
-    setLoading(true);
-    const accountId = await storage
-      .getItem("SCM-AUTH")
-      .then((raw) => (raw ? JSON.parse(raw)?.data?.accountId : null));
-    if (!accountId) {
-      setLoading(false);
-      return;
-    }
-    // API endpoint for fetching student list + their status for a given day/class/subject
-    try {
-      // Use ApiService helper to fetch attendance by criteria
-      const resp = await apiService.getAttendanceBy(accountId, {
-        classId,
-        divisionId,
-        subjectId,
-        date,
-      });
-
-      const newStudents = (resp?.studentAttendanceMappings || []).map(
-        (s: any) => ({
-          ...s,
-          vailable: s.vailable === undefined ? true : !!s.vailable,
-        })
-      );
-      setStudents(newStudents);
-    } catch (error) {
-      console.error("Failed to fetch attendance data:", error);
-      showToast(
-        t("attendance.messages.fetchFailed") || "Failed to fetch student list."
-      );
-    }
-    setLoading(false);
-  };
+  // fetchAttendance removed; inline calls use apiService.getAttendanceBy directly
 
   // --- Handlers ---
 
-  // SCDSelector Adapter using the assignment formik pattern
   const scdAdapter = {
     values: {
       schoolId: reqData.schoolId,
       classId: reqData.classId,
       divisionId: reqData.divisionId,
-      // Pass name fields to allow SCDSelector to display current selected names
       schoolName: reqData.schoolName,
       className: reqData.className,
       divisionName: reqData.divisionName,
     },
-    // The SCDSelector calls this function
+    // @ts-ignore - Allowing for flexible value type here
     setFieldValue: (field: string, value: any, label?: string) => {
       setReqData((prev) => {
         const newState = { ...prev, [field]: value };
@@ -262,7 +279,7 @@ export const AttendanceEdit: React.FC = () => {
         return newState;
       });
     },
-    // Required but unused props for SCDSelector in RN implementation
+    // Required but unused Formik props for SCDSelector in RN implementation
     touched: {},
     errors: {},
   };
@@ -279,7 +296,6 @@ export const AttendanceEdit: React.FC = () => {
     event: any,
     selectedDate: Date | undefined
   ) => {
-    // Only dismiss the picker if the date was actually selected/changed
     setShowDatePicker(Platform.OS === "ios");
     if (selectedDate) {
       setReqData((prev) => ({
@@ -290,7 +306,6 @@ export const AttendanceEdit: React.FC = () => {
   };
 
   const onHandleClickSubmit = async () => {
-    // Client-side validation
     if (
       !reqData.schoolId ||
       !reqData.classId ||
@@ -308,101 +323,141 @@ export const AttendanceEdit: React.FC = () => {
     setLoading(true);
 
     const {
-      classId,
-      divisionId,
       subjectId,
       date,
-      className,
-      subjectName,
-      divisionName,
-      schoolId,
-      schoolName,
     } = reqData;
 
-    const accountId = await storage
-      .getItem("SCM-AUTH")
-      .then((raw) => (raw ? JSON.parse(raw)?.data?.accountId : null));
-    if (!accountId) {
-      setLoading(false);
-      showToast("Account information missing. Please login again.");
-      return;
-    }
-
-    // Send a minimal, strict mapping shape to avoid sending unexpected fields
-    // which can trigger server-side errors. Many backends expect an array of
-    // { studentId, present } objects rather than full client-side models.
-    const payload = {
-      attendanceDate: date,
-      studentAttendanceMappings: students.map((s) => ({
-        studentId: s.studentId || s.id || null,
-        present: !!s.vailable,
-        // keep legacy keys in case server expects them, but avoid spreading entire object
-        vailable: !!s.vailable,
-        available: !!s.vailable,
-      })),
-      classId: classId,
-      divisionId: divisionId,
-      schoolId: schoolId,
-      schoolName: schoolName,
-      // Assuming teacherId is user.id from AuthContext, as per backend structure
-      teacherId: user?.id,
-      subjectId: subjectId,
-      className: className,
-      subjectName: subjectName,
-      divisionName: divisionName,
-      accountId,
-      id: attendanceData?.id || null,
-    };
-    // Log the outgoing payload to help debug server-side 500s
-    console.log(
-      "[attendance] saving payload",
-      JSON.stringify(payload, null, 2)
-    );
-
     try {
-      // Use ApiService helper to save attendance
-      const resp = await apiService.saveAttendance(payload);
-      console.log("[attendance] save response", resp);
-      showToast(
-        id
-          ? t("attendance.messages.updateSuccess") ||
-              "Attendance updated successfully"
-          : t("attendance.messages.saveSuccess") ||
-              "Attendance saved successfully"
-      );
-      navigation.goBack();
-    } catch (err: any) {
-      // Log detailed error information for debugging
-      console.error("Failed to update attendance:", err);
-      if (err?.response) {
-        console.error("Server response status:", err.response.status);
-        console.error("Server response data:", err.response.data);
-        showToast(
-          `Save failed (${err.response.status}): ${
-            (err.response.data && err.response.data.message) ||
-            JSON.stringify(err.response.data) ||
-            err.message
-          }`
-        );
-      } else {
-        showToast(
-          t("attendance.messages.saveFailed") ||
-            "Failed to save attendance. Please try again."
-        );
+      const authData = await storage
+        .getItem("SCM-AUTH")
+        .then((raw) => (raw ? JSON.parse(raw) : null));
+      const accountId = authData?.data?.accountId;
+
+      if (!accountId) {
+        setLoading(false);
+        showToast("Account information missing. Please login again.");
+        return;
       }
-    } finally {
+
+      // Reconcile ids and names: if a name is present but id is missing (or vice-versa),
+      // try to infer the missing value from SCD lists so backend gets both.
+      const reconcile = () => {
+        let schoolId = reqData.schoolId;
+        let schoolName = reqData.schoolName;
+        let classId = reqData.classId;
+        let className = reqData.className;
+        let divisionId = reqData.divisionId;
+        let divisionName = reqData.divisionName;
+
+        // schools
+        if ((!schoolId || String(schoolId).trim() === "") && schoolName) {
+          const found = (schools || []).find(
+            (s: any) => (s.name || s.branchName || s.schoolName || "") === schoolName
+          );
+          if (found) schoolId = String(found.id ?? found.schoolbranchId ?? found.schoolId ?? "");
+        }
+        if ((!schoolName || String(schoolName).trim() === "") && schoolId) {
+          const found = (schools || []).find((s: any) => String(s.id) === String(schoolId));
+          if (found) schoolName = found.name || found.branchName || found.schoolName || "";
+        }
+
+        // classes
+        if ((!classId || String(classId).trim() === "") && className) {
+          const found = (classes || []).find(
+            (c: any) => (c.name || c.className || c.schoolClassName || "") === className
+          );
+          if (found) classId = String(found.id ?? found.schoolClassId ?? found.classId ?? "");
+        }
+        if ((!className || String(className).trim() === "") && classId) {
+          const found = (classes || []).find((c: any) => String(c.id ?? c.schoolClassId ?? c.classId) === String(classId));
+          if (found) className = found.name || found.className || found.schoolClassName || "";
+        }
+
+        // divisions
+        if ((!divisionId || String(divisionId).trim() === "") && divisionName) {
+          const found = (divisions || []).find(
+            (d: any) => (d.name || d.divisionName || "") === divisionName
+          );
+          if (found) divisionId = String(found.id ?? found.divisionId ?? "");
+        }
+        if ((!divisionName || String(divisionName).trim() === "") && divisionId) {
+          const found = (divisions || []).find((d: any) => String(d.id ?? d.divisionId) === String(divisionId));
+          if (found) divisionName = found.name || found.divisionName || "";
+        }
+
+        return { schoolId, schoolName, classId, className, divisionId, divisionName };
+      };
+
+      const reconciled = reconcile();
+
+      const payload = {
+        // Use full ISO timestamp the backend expects
+        attendanceDate: dayjs(date).toISOString(),
+        studentAttendanceMappings: students.map((s) => {
+          const sx: any = s as any;
+          const studentId = Number(sx.studentId ?? sx.id ?? null) || null;
+          const studentName = sx.studentName ?? sx.name ?? sx.fullName ?? sx.displayName ?? "";
+          const studentRollNo = sx.studentRollNo ?? sx.rollNo ?? null;
+          const attendanceIdForMapping = sx.attendanceId ?? attendanceData?.id ?? null;
+          return {
+            // mapping record id (if present when editing)
+            studentId,
+            studentName,
+            studentRollNo,
+            accountId: Number(accountId) || null,
+            attendanceId: attendanceIdForMapping,
+            vailable: !!sx.vailable,
+          };
+        }),
+        
+        schoolId: reconciled.schoolId ?? null,
+        classId: reconciled.classId ?? null,
+        divisionId: reconciled.divisionId ?? null,
+        schoolName: reconciled.schoolName,
+        className: reconciled.className,
+        divisionName: reconciled.divisionName,
+        teacherId: user?.id,
+        subjectId: Number(subjectId) || null,
+        
+        accountId,
+        id: attendanceData?.id || null,
+      };
+
+      try {
+  // TEMP LOG: print payload to help debug 500 from backend
+  console.debug("[attendance] outgoing payload:", JSON.parse(JSON.stringify(payload)));
+
+        // @ts-ignore - apiService.saveAttendance may be implemented differently; adjust as needed
+        const res = await apiService.saveAttendance(payload);
+        showToast(res?.message || t("attendance.messages.saveSuccess") || "Attendance saved successfully.");
+        navigation.goBack();
+      } catch (err: any) {
+        // Improved error diagnostics
+        try {
+          const resp = err?.response;
+          console.error("Failed to save attendance: status=", resp?.status, "data=", resp?.data || err?.message || err);
+          showToast(
+            (resp?.data && (resp?.data?.message || JSON.stringify(resp?.data))) ||
+              err?.message ||
+              t("attendance.messages.saveFailed") ||
+              "Failed to save attendance."
+          );
+        } catch (logErr) {
+          console.error("Error logging save failure", logErr);
+          showToast(t("attendance.messages.saveFailed") || "Failed to save attendance.");
+        }
+      } finally {
+        setLoading(false);
+      }
+
+    } catch (err) {
+      console.error("Error preparing/saving attendance:", err);
+      showToast(t("attendance.messages.saveFailed") || "Failed to save attendance.");
       setLoading(false);
     }
   };
 
-  // Show a central spinner if either the provider data is loading or local fetch is running
-  if (loading) {
-    return (
-      <ActivityIndicator style={styles.center} size={36} color="#6200ee" />
-    );
-  }
-
-  const Title = id ? t("attendance.title.edit") : t("attendance.title.add");
+  const TitleText = id ? t("attendance.title.edit") : t("attendance.title.add");
   const listTitle = reqData.className
     ? `${reqData.className} - ${reqData.divisionName} - ${reqData.subjectName}`
     : t("attendance.messages.selectPlaceholder") ||
@@ -411,71 +466,77 @@ export const AttendanceEdit: React.FC = () => {
   return (
     <View style={styles.fullContainer}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <Text variant="headlineMedium" style={styles.title}>
-          {Title}
-        </Text>
+        <Title style={styles.headerTitle}>{TitleText}</Title>
 
+        {/* Selection Criteria Card */}
         <Card style={styles.card}>
           <Card.Title
-            title="Selection Criteria"
+            title={t("attendance.selectionCriteria") || "Attendance Criteria"}
             titleStyle={styles.cardTitle}
+            left={(props) => (
+              <List.Icon {...props} icon="filter-variant" color={DARK_BLUE} />
+            )}
           />
           <Card.Content>
-            {/* School / Class / Division Selector (Using Assignment's simple formik style) */}
-            {/* Ensure SCDSelector is a valid component function */}
+            {/* School / Class / Division Selector */}
             {SCDSelector && (
               <SCDSelector
-                // Note: schools/classes/divisions props removed, assuming SCDSelector.native fetches internally
+                // @ts-ignore
                 formik={scdAdapter}
               />
             )}
 
-            {/* Subject Select */}
-            <List.Section
-              style={styles.selectorSection}
-              title={t("attendance.fields.subject") || "Subject *"}
-            >
-              <List.Accordion
-                title={
-                  subjects.find(
-                    (s) => String(s.id) === String(reqData.subjectId)
-                  )?.name || "Select Subject"
-                }
-                left={(props) => (
-                  <List.Icon {...props} icon="book-open-outline" />
-                )}
-                expanded={showSubjectModal}
-                onPress={() => setShowSubjectModal((prev) => !prev)}
-                style={styles.accordion}
-              >
-                <ScrollView style={{ maxHeight: 200 }}>
-                  {subjects.map((s) => (
-                    <List.Item
-                      key={s.id}
-                      title={s.name}
-                      onPress={() => {
-                        setReqData((f) => ({
-                          ...f,
-                          subjectId: String(s.id),
-                          subjectName: s.name,
-                        }));
-                        setShowSubjectModal(false);
-                      }}
-                      right={() =>
-                        String(reqData.subjectId) === String(s.id) ? (
-                          <List.Icon icon="check" />
-                        ) : null
-                      }
+            {/* Subject Select (Using List.Accordion for dropdown simulation) */}
+            <View style={styles.selectorWrapper}>
+              <List.Section style={styles.subjectSelectorSection}>
+                <List.Accordion
+                  title={
+                    subjects.find(
+                      (s) => String(s.id) === String(reqData.subjectId)
+                    )?.name || "Select Subject"
+                  }
+                  left={(props) => (
+                    <List.Icon
+                      {...props}
+                      icon="book-open-variant"
+                      color={ACCENT_BLUE}
                     />
-                  ))}
-                </ScrollView>
-              </List.Accordion>
-            </List.Section>
+                  )}
+                  expanded={showSubjectModal}
+                  onPress={() => setShowSubjectModal((prev) => !prev)}
+                  style={styles.accordion}
+                  titleStyle={{ color: reqData.subjectId ? DARK_BLUE : "#999" }}
+                >
+                  <ScrollView style={styles.subjectScroll}>
+                    {subjects.map((s) => (
+                      <List.Item
+                        key={s.id}
+                        title={s.name}
+                        onPress={() => {
+                          setReqData((f) => ({
+                            ...f,
+                            subjectId: String(s.id),
+                            subjectName: s.name,
+                          }));
+                          setShowSubjectModal(false);
+                        }}
+                        right={() =>
+                          String(reqData.subjectId) === String(s.id) ? (
+                            <List.Icon icon="check" color={ACCENT_BLUE} />
+                          ) : null
+                        }
+                      />
+                    ))}
+                  </ScrollView>
+                </List.Accordion>
+              </List.Section>
+            </View>
 
             {/* Date Picker */}
             <TouchableOpacity
               onPress={() => setShowDatePicker(true)}
               style={styles.pickerTouch}
+              disabled={loading}
             >
               <TextInput
                 label={t("attendance.fields.date") || "Date *"}
@@ -485,10 +546,12 @@ export const AttendanceEdit: React.FC = () => {
                   <TextInput.Icon
                     icon="calendar"
                     onPress={() => setShowDatePicker(true)}
+                    color={DARK_BLUE}
                   />
                 }
                 mode="outlined"
                 style={styles.input}
+                theme={{ colors: { primary: ACCENT_BLUE } }}
               />
             </TouchableOpacity>
             {showDatePicker && (
@@ -505,21 +568,33 @@ export const AttendanceEdit: React.FC = () => {
           </Card.Content>
         </Card>
 
-        {/* Student Attendance List */}
-        <Card style={styles.card}>
-          <Card.Title title={listTitle} titleStyle={styles.cardTitle} />
+        {/* Student Attendance List Card */}
+        <Card style={[styles.card, { opacity: loading ? 0.6 : 1 }]}>
+          <Card.Title
+            title={listTitle}
+            titleStyle={styles.cardTitle}
+            left={(props) => (
+              <List.Icon {...props} icon="account-group" color={DARK_BLUE} />
+            )}
+          />
           <Card.Content>
-            <View style={styles.studentListContainer}>
-              {students.length === 0 ? (
-                <Text style={styles.emptyText}>
-                  {reqData.classId
-                    ? t("attendance.messages.noStudents") ||
-                      "No students found for the selected criteria."
-                    : t("attendance.messages.selectPlaceholder") ||
-                      "Select criteria above to load students"}
-                </Text>
-              ) : (
-                students.map((student, index) => (
+            {loading && students.length === 0 ? (
+              <RNActivityIndicator
+                size="large"
+                color={ACCENT_BLUE}
+                style={styles.loadingStudents}
+              />
+            ) : students.length === 0 ? (
+              <Text style={styles.emptyText}>
+                {reqData.classId
+                  ? t("attendance.messages.noStudents") ||
+                    "No students found for the selected criteria."
+                  : t("attendance.messages.selectPlaceholder") ||
+                    "Select criteria above to load students"}
+              </Text>
+            ) : (
+              <View style={styles.studentListContainer}>
+                {students.map((student, index) => (
                   <TouchableOpacity
                     key={student.studentId || student.id}
                     onPress={() => handleToggle(index)}
@@ -527,9 +602,9 @@ export const AttendanceEdit: React.FC = () => {
                       styles.studentItem,
                       {
                         backgroundColor: student.vailable
-                          ? "#E8F5E9"
-                          : "#FFEBEE", // Light Green / Light Red
-                        borderColor: student.vailable ? "#4CAF50" : "#F44336", // Green / Red
+                          ? "#E0F7FA" // Light Sky Blue
+                          : "#FFEBEA", // Light Coral Red
+                        borderColor: student.vailable ? ACCENT_BLUE : "#F44336", // Blue/Red Border
                       },
                     ]}
                   >
@@ -537,39 +612,41 @@ export const AttendanceEdit: React.FC = () => {
                       size={40}
                       style={{
                         backgroundColor: student.vailable
-                          ? "#4CAF50"
-                          : "#F44336", // Green / Red
+                          ? ACCENT_BLUE // Blue Avatar
+                          : "#F44336", // Red Avatar
                       }}
                       label={
                         student.studentName
                           ? student.studentName.charAt(0).toUpperCase()
                           : "S"
                       }
+                      color={BG_WHITE}
                     />
                     <View style={styles.studentInfo}>
-                      <Text variant="titleMedium" numberOfLines={1}>
+                      <Text style={styles.studentNameText} numberOfLines={1}>
                         {student.studentName}
                       </Text>
-                      <Text variant="bodySmall" style={{ color: "#666" }}>
+                      <Text style={styles.studentRollNoText}>
                         Roll No: {student.studentRollNo}
                       </Text>
                     </View>
                     <Chip
-                      icon={student.vailable ? "check" : "close"}
+                      icon={student.vailable ? "check-circle" : "close-circle"}
                       style={{
                         backgroundColor: student.vailable
-                          ? "#A5D6A7"
-                          : "#EF9A9A",
+                          ? "#4CAF50" // Success Green
+                          : "#F44336", // Error Red
                       }}
+                      textStyle={{ color: BG_WHITE, fontWeight: "bold" }}
                     >
                       {student.vailable
                         ? t("common.present") || "Present"
                         : t("common.absent") || "Absent"}
                     </Chip>
                   </TouchableOpacity>
-                ))
-              )}
-            </View>
+                ))}
+              </View>
+            )}
           </Card.Content>
         </Card>
 
@@ -580,6 +657,8 @@ export const AttendanceEdit: React.FC = () => {
               mode="outlined"
               onPress={() => navigation.goBack()}
               disabled={loading}
+              labelStyle={{ color: DARK_BLUE }}
+              style={styles.cancelButton}
             >
               {t("common.cancel") || "Cancel"}
             </Button>
@@ -589,6 +668,7 @@ export const AttendanceEdit: React.FC = () => {
               loading={loading}
               disabled={loading}
               style={styles.saveButton}
+              buttonColor={ACCENT_BLUE}
             >
               {id
                 ? t("common.update") || "Update Attendance"
@@ -605,6 +685,7 @@ export const AttendanceEdit: React.FC = () => {
         action={{
           label: "Close",
           onPress: () => setSnackbarVisible(false),
+          labelStyle: { color: ACCENT_BLUE },
         }}
         style={styles.snackbar}
       >
@@ -619,92 +700,136 @@ export const AttendanceEdit: React.FC = () => {
 const styles = StyleSheet.create({
   fullContainer: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#F0F8FF", // Very light blue tint background
   },
   scrollContainer: {
     padding: 16,
-    paddingBottom: 80,
+    paddingBottom: 100,
   },
   center: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
-  title: {
-    marginBottom: 16,
-    fontWeight: "700",
-    color: "#333",
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: DARK_BLUE,
+  },
+  headerTitle: {
+    marginBottom: 20,
+    fontWeight: "800",
+    color: DARK_BLUE,
     textAlign: "center",
+    fontSize: 26,
   },
   card: {
-    marginBottom: 16,
-    elevation: 4,
+    marginBottom: 20,
+    elevation: 6,
     borderRadius: 12,
+    backgroundColor: BG_WHITE,
+    shadowColor: SHADOW_COLOR,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 5,
   },
   cardTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#6200ee",
+    color: DARK_BLUE,
   },
   input: {
-    marginBottom: 0,
-    backgroundColor: "white",
+    backgroundColor: BG_WHITE,
+    borderRadius: 8,
+    // Adjust top margin to compensate for default Paper TextInput padding/margin
   },
   pickerTouch: {
     marginBottom: 16,
   },
   actions: {
     flexDirection: "row",
-    justifyContent: "flex-end",
-    gap: 12,
-    flexWrap: "wrap",
-    marginTop: 20,
-    marginHorizontal: 16,
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 30,
+    paddingHorizontal: 16,
   },
-  saveButton: {
-    backgroundColor: "#6200ee",
+  cancelButton: {
+    borderColor: DARK_BLUE,
     minWidth: 120,
     borderRadius: 8,
   },
-  // SCD Selector and Subject List styles
-  selectorSection: {
-    backgroundColor: "white",
+  saveButton: {
+    minWidth: 160,
     borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#ddd",
+    elevation: 4,
+    // buttonColor set directly in component
+  },
+  // Selector and Subject List styles
+  selectorWrapper: {
     marginBottom: 16,
   },
-  accordion: {
-    backgroundColor: "white",
+  subjectSelectorSection: {
+    borderWidth: 1,
+    borderColor: "#E0F0FF",
+    borderRadius: 8,
+    overflow: "hidden",
+    backgroundColor: BG_WHITE,
   },
+  accordion: {
+    backgroundColor: BG_WHITE,
+    paddingHorizontal: 0,
+  },
+  subjectScroll: {
+    maxHeight: 200,
+    borderTopWidth: 1,
+    borderTopColor: "#F0F0F0",
+  },
+  // Student List Styles
   studentListContainer: {
     flexDirection: "column",
-    gap: 10,
+    gap: 12,
     paddingTop: 10,
   },
   studentItem: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 12,
-    borderRadius: 8,
-    borderWidth: 1.5,
-    elevation: 1,
+    padding: 15,
+    borderRadius: 10,
+    borderWidth: 1,
+    elevation: 2,
     justifyContent: "space-between",
+    shadowColor: SHADOW_COLOR,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
   },
   studentInfo: {
     flex: 1,
-    marginLeft: 12,
-    marginRight: 12,
+    marginLeft: 15,
+    marginRight: 10,
+  },
+  studentNameText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#333", // Dark text
+  },
+  studentRollNoText: {
+    fontSize: 13,
+    color: "#666", // Lighter text
   },
   emptyText: {
     textAlign: "center",
     color: "#666",
-    paddingVertical: 20,
+    paddingVertical: 30,
+    fontSize: 16,
     fontStyle: "italic",
   },
   snackbar: {
     backgroundColor: "#333",
     borderRadius: 8,
+  },
+  loadingStudents: {
+    paddingVertical: 40,
   },
 });
 

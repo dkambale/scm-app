@@ -17,6 +17,7 @@ import {
   IconButton,
 } from "react-native-paper";
 import { useSCDData } from "../../context/SCDProvider";
+import { userDetails } from "../../api";
 
 interface Props {
   filters?: Record<string, any>;
@@ -52,6 +53,12 @@ const ListGridFilters: React.FC<Props> = ({
   );
   const { schools = [], classes = [], divisions = [] } = useSCDData() || {};
   const theme = useTheme();
+  const [filteredClasses, setFilteredClasses] = useState<any[]>([]);
+  const [filteredDivisions, setFilteredDivisions] = useState<any[]>([]);
+  const [localDisableSCDFilter, setLocalDisableSCDFilter] =
+    useState<boolean>(disableSCDFilter);
+  const [localUserType, setLocalUserType] = useState<string | null>(null);
+  const [localUser, setLocalUser] = useState<any>(null);
   // Menu visibility
   const [schoolMenuVisible, setSchoolMenuVisible] = useState(false);
   const [classMenuVisible, setClassMenuVisible] = useState(false);
@@ -67,8 +74,97 @@ const ListGridFilters: React.FC<Props> = ({
     setSelectedDivision(filters.divisionId ?? null);
   }, [filters.schoolId, filters.classId, filters.divisionId]);
 
-  const emitChange = (newValues: Record<string, any>) => {
-    const payload = { ...(filters || {}), ...newValues };
+  // Load persisted user and apply role-specific defaults/limitations
+  useEffect(() => {
+    let mounted = true;
+    const init = async () => {
+      try {
+        const uType = await userDetails.getUserType();
+        const u = await userDetails.getUser();
+        if (!mounted) return;
+        setLocalUserType(uType || null);
+        setLocalUser(u || null);
+
+        // TEACHER: restrict to allocatedClasses (preselect first allocated class)
+        if (uType === "TEACHER" && u?.allocatedClasses?.length) {
+          // Map allocatedClasses to class-like objects for menus
+          const mapped = u.allocatedClasses.map((ac: any) => ({
+            id: String(ac.classId ?? ac.id ?? ""),
+            name: ac.className ?? `Class ${ac.classId ?? ac.id}`,
+            divisionId: ac.divisionId ?? null,
+          }));
+          setFilteredClasses(mapped);
+          // If division info present, map divisions too
+          const mappedDivs = mapped
+            .filter((m: any) => m.divisionId)
+            .map((m: any) => ({
+              id: String(m.divisionId),
+              name: String(m.divisionId),
+            }));
+          setFilteredDivisions(mappedDivs);
+
+          // Preselect first allocated class/division and emit change
+          const first = mapped[0];
+          if (first) {
+            setSelectedClass(first.id);
+            if (first.divisionId) setSelectedDivision(String(first.divisionId));
+            // set the selectedSchool from user but hide the school control
+            if (u?.schoolId) setSelectedSchool(String(u.schoolId));
+            // Use user's schoolId in the emitted payload
+            emitChange({
+              schoolId: u?.schoolId ?? "",
+              classId: first.id ?? "",
+              divisionId: first.divisionId ?? "",
+            });
+          }
+          // For teachers: allow class/division selection from allocatedClasses but hide school selector
+          setLocalDisableSCDFilter(false);
+        }
+
+        // STUDENT: preselect school/class/division and disable filters
+        if (uType === "STUDENT" && u) {
+          const sId = u.schoolId ?? "";
+          const cId = u.classId ?? "";
+          const dId = u.divisionId ?? "";
+          setSelectedSchool(sId ? String(sId) : null);
+          setSelectedClass(cId ? String(cId) : null);
+          setSelectedDivision(dId ? String(dId) : null);
+          // Emit payload immediately with user's SCD
+          emitChange({ schoolId: sId, classId: cId, divisionId: dId });
+          setLocalDisableSCDFilter(true);
+        }
+      } catch {
+        // ignore
+      }
+    };
+
+    init();
+    return () => {
+      mounted = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const emitChange = async (newValues: Record<string, any>) => {
+    // prefer cached localUser/localUserType to avoid repeated reads
+    const userType = localUserType ?? (await userDetails.getUserType());
+    const user = localUser ?? (await userDetails.getUser());
+
+    let payload = { ...(filters || {}), ...newValues };
+
+    if (userType === "STUDENT") {
+      payload = {
+        schoolId: user?.schoolId ?? payload.schoolId ?? "",
+        classId: user?.classId ?? payload.classId ?? "",
+        divisionId: user?.divisionId ?? payload.divisionId ?? "",
+      };
+    }
+
+    if (userType === "TEACHER") {
+      // enforce teacher's school from their profile and allow class/div selection among allocatedClasses
+      payload.schoolId = user?.schoolId ?? payload.schoolId ?? "";
+    }
+
     onFiltersChange(payload);
   };
 
@@ -94,11 +190,32 @@ const ListGridFilters: React.FC<Props> = ({
   };
 
   const clearAll = () => {
+    if (localUserType === "TEACHER" && localUser?.schoolId) {
+      // For teachers keep their school visible programmatically
+      setSelectedSchool(String(localUser.schoolId));
+      setSelectedClass(null);
+      setSelectedDivision(null);
+      emitChange({
+        schoolId: String(localUser.schoolId),
+        classId: "",
+        divisionId: "",
+      });
+      return;
+    }
+
     setSelectedSchool(null);
     setSelectedClass(null);
     setSelectedDivision(null);
     emitChange({ schoolId: "", classId: "", divisionId: "" });
   };
+
+  // Effective flags
+  const effectiveShowSchool = showSchool && localUserType !== "TEACHER";
+
+  // If the current user is a STUDENT, hide the filters entirely per requirement
+  if (localUserType === "STUDENT") {
+    return null;
+  }
 
   return (
     <Surface style={[styles.container, { backgroundColor: "#ffffffff" }]}>
@@ -109,7 +226,7 @@ const ListGridFilters: React.FC<Props> = ({
         <IconButton icon="filter-variant" size={20} onPress={() => {}} />
       </View>
       <View style={styles.row}>
-        {showSchool && (
+        {effectiveShowSchool && (
           <>
             {Platform.OS === "android" ? (
               <Button
@@ -157,7 +274,7 @@ const ListGridFilters: React.FC<Props> = ({
                   onPress={() => onSelectSchool(null)}
                   title="All Schools"
                 />
-                {!disableSCDFilter &&
+                {!localDisableSCDFilter &&
                   schools.map((s: any) => (
                     <Menu.Item
                       key={s.id}
@@ -182,10 +299,12 @@ const ListGridFilters: React.FC<Props> = ({
                 ]}
                 contentStyle={styles.menuButtonContent}
                 labelStyle={{ color: "#000" }}
-                disabled={loading || !classes.length}
+                disabled={
+                  loading || !(filteredClasses.length || classes.length)
+                }
               >
                 {selectedClass
-                  ? classes.find(
+                  ? (filteredClasses.length ? filteredClasses : classes).find(
                       (c: any) => String(c.id) === String(selectedClass)
                     )?.name ?? String(selectedClass)
                   : "All Classes"}
@@ -204,10 +323,15 @@ const ListGridFilters: React.FC<Props> = ({
                     ]}
                     contentStyle={styles.menuButtonContent}
                     labelStyle={{ color: "#000" }}
-                    disabled={loading || !classes.length}
+                    disabled={
+                      loading || !(filteredClasses.length || classes.length)
+                    }
                   >
                     {selectedClass
-                      ? classes.find(
+                      ? (filteredClasses.length
+                          ? filteredClasses
+                          : classes
+                        ).find(
                           (c: any) => String(c.id) === String(selectedClass)
                         )?.name ?? String(selectedClass)
                       : "All Classes"}
@@ -218,14 +342,17 @@ const ListGridFilters: React.FC<Props> = ({
                   onPress={() => onSelectClass(null)}
                   title="All Classes"
                 />
-                {!disableSCDFilter &&
-                  classes.map((c: any) => (
-                    <Menu.Item
-                      key={c.id}
-                      onPress={() => onSelectClass(String(c.id))}
-                      title={c.name}
-                    />
-                  ))}
+                {!localDisableSCDFilter &&
+                  // if filteredClasses exist (teacher), use them else use global classes
+                  (filteredClasses.length ? filteredClasses : classes).map(
+                    (c: any) => (
+                      <Menu.Item
+                        key={c.id}
+                        onPress={() => onSelectClass(String(c.id))}
+                        title={c.name}
+                      />
+                    )
+                  )}
               </Menu>
             )}
           </>
@@ -243,10 +370,15 @@ const ListGridFilters: React.FC<Props> = ({
                 ]}
                 contentStyle={styles.menuButtonContent}
                 labelStyle={{ color: "#000" }}
-                disabled={loading || !divisions.length}
+                disabled={
+                  loading || !(filteredDivisions.length || divisions.length)
+                }
               >
                 {selectedDivision
-                  ? divisions.find(
+                  ? (filteredDivisions.length
+                      ? filteredDivisions
+                      : divisions
+                    ).find(
                       (d: any) => String(d.id) === String(selectedDivision)
                     )?.name ?? String(selectedDivision)
                   : "All Divisions"}
@@ -265,10 +397,15 @@ const ListGridFilters: React.FC<Props> = ({
                     ]}
                     contentStyle={styles.menuButtonContent}
                     labelStyle={{ color: "#000" }}
-                    disabled={loading || !divisions.length}
+                    disabled={
+                      loading || !(filteredDivisions.length || divisions.length)
+                    }
                   >
                     {selectedDivision
-                      ? divisions.find(
+                      ? (filteredDivisions.length
+                          ? filteredDivisions
+                          : divisions
+                        ).find(
                           (d: any) => String(d.id) === String(selectedDivision)
                         )?.name ?? String(selectedDivision)
                       : "All Divisions"}
@@ -279,8 +416,12 @@ const ListGridFilters: React.FC<Props> = ({
                   onPress={() => onSelectDivision(null)}
                   title="All Divisions"
                 />
-                {!disableSCDFilter &&
-                  divisions.map((d: any) => (
+                {!localDisableSCDFilter &&
+                  // show filtered divisions if present (teacher) else global
+                  (filteredDivisions.length
+                    ? filteredDivisions
+                    : divisions
+                  ).map((d: any) => (
                     <Menu.Item
                       key={d.id}
                       onPress={() => onSelectDivision(String(d.id))}
@@ -338,7 +479,11 @@ const ListGridFilters: React.FC<Props> = ({
                   {(androidPicker.type === "school"
                     ? schools
                     : androidPicker.type === "class"
-                    ? classes
+                    ? filteredClasses.length
+                      ? filteredClasses
+                      : classes
+                    : filteredDivisions.length
+                    ? filteredDivisions
                     : divisions
                   ).map((it: any) => (
                     <TouchableOpacity

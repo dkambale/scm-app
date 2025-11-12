@@ -8,8 +8,10 @@ import { FeesScreen as AdminFeesScreen } from "../screens/admin/FeesScreen";
 import { AnnouncementsScreen } from "../screens/common/AnnouncementsScreen";
 import { ProfileScreen } from "../screens/common/ProfileScreen";
 import { FeesScreen as StudentFeesScreen } from "../screens/student/FeesScreen";
-import AdminDashboardScreen from "../screens/admin/AdminDashboardScreen";
-
+import TeacherDashboardScreen from "../screens/teacher/TeacherDashboardScreen";
+import StudentExamResultScreen from "../screens/admin/exam/StudentExamResult";
+import StudentExamListScreen from "../screens/admin/exam/StudentExamListScreen";
+// import TeacherTimetableCard from
 // Map permission entity names to a screen component and a friendly title.
 const entityRegistry: Record<
   string,
@@ -45,10 +47,15 @@ const entityRegistry: Record<
     component: AnnouncementsScreen,
   },
   PROFILE: { id: "PROFILE", title: "Profile", component: ProfileScreen },
-  ADMIN_DASHBOARD: {
-    id: "ADMIN_DASHBOARD",
+  TEACHER_DASHBOARD: {
+    id: "TEACHER_DASHBOARD",
     title: "Admin Dashboard",
-    component: AdminDashboardScreen,
+    component: TeacherDashboardScreen,
+  },
+  EXAM : {
+    id: "EXAM",
+    title: "Examinations",
+    component: StudentExamListScreen, // Placeholder for Examination Screen
   },
 };
 
