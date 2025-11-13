@@ -150,18 +150,20 @@ export const AttendanceEdit: React.FC = () => {
             divisionName: data.divisionName || "",
           });
 
-          const mappedStudents: any[] = (data.studentAttendanceMappings || []).map((s: any) => ({
+          const mappedStudents: any[] = (
+            data.studentAttendanceMappings || []
+          ).map((s: any) => ({
             // Preserve original mapping id as mappingId, keep studentId separate
             mappingId: s.id ?? null,
             studentId: s.studentId ?? s.studentId ?? null,
-            studentName: s.studentName ?? `${s.firstName || ''} ${s.lastName || ''}`.trim(),
+            studentName:
+              s.studentName ??
+              `${s.firstName || ""} ${s.lastName || ""}`.trim(),
             vailable: s.vailable === undefined ? true : !!s.vailable,
             // keep raw fields for flexibility
             ...s,
           }));
           setStudents(mappedStudents as any[]);
-
-          
         })
         .catch((err) => {
           console.error("Failed to fetch attendance data:", err);
@@ -220,11 +222,19 @@ export const AttendanceEdit: React.FC = () => {
             subjectId: subjectId as string,
             date: date as string,
           });
-          const newStudents: any[] = (resp?.studentAttendanceMappings || []).map((s: any) => {
+          const newStudents: any[] = (
+            resp?.studentAttendanceMappings || []
+          ).map((s: any) => {
             const first = s.firstName || s.first_name || "";
             const last = s.lastName || s.last_name || "";
             const nameFromParts = [first, last].filter(Boolean).join(" ");
-            const resolvedName = s.studentName || s.name || s.fullName || s.displayName || nameFromParts || `Student ${s.studentId || s.id || ""}`;
+            const resolvedName =
+              s.studentName ||
+              s.name ||
+              s.fullName ||
+              s.displayName ||
+              nameFromParts ||
+              `Student ${s.studentId || s.id || ""}`;
             return {
               mappingId: s.id ?? null,
               studentId: s.studentId ?? null,
@@ -322,10 +332,7 @@ export const AttendanceEdit: React.FC = () => {
 
     setLoading(true);
 
-    const {
-      subjectId,
-      date,
-    } = reqData;
+    const { subjectId, date } = reqData;
 
     try {
       const authData = await storage
@@ -352,25 +359,42 @@ export const AttendanceEdit: React.FC = () => {
         // schools
         if ((!schoolId || String(schoolId).trim() === "") && schoolName) {
           const found = (schools || []).find(
-            (s: any) => (s.name || s.branchName || s.schoolName || "") === schoolName
+            (s: any) =>
+              (s.name || s.branchName || s.schoolName || "") === schoolName
           );
-          if (found) schoolId = String(found.id ?? found.schoolbranchId ?? found.schoolId ?? "");
+          if (found)
+            schoolId = String(
+              found.id ?? found.schoolbranchId ?? found.schoolId ?? ""
+            );
         }
         if ((!schoolName || String(schoolName).trim() === "") && schoolId) {
-          const found = (schools || []).find((s: any) => String(s.id) === String(schoolId));
-          if (found) schoolName = found.name || found.branchName || found.schoolName || "";
+          const found = (schools || []).find(
+            (s: any) => String(s.id) === String(schoolId)
+          );
+          if (found)
+            schoolName =
+              found.name || found.branchName || found.schoolName || "";
         }
 
         // classes
         if ((!classId || String(classId).trim() === "") && className) {
           const found = (classes || []).find(
-            (c: any) => (c.name || c.className || c.schoolClassName || "") === className
+            (c: any) =>
+              (c.name || c.className || c.schoolClassName || "") === className
           );
-          if (found) classId = String(found.id ?? found.schoolClassId ?? found.classId ?? "");
+          if (found)
+            classId = String(
+              found.id ?? found.schoolClassId ?? found.classId ?? ""
+            );
         }
         if ((!className || String(className).trim() === "") && classId) {
-          const found = (classes || []).find((c: any) => String(c.id ?? c.schoolClassId ?? c.classId) === String(classId));
-          if (found) className = found.name || found.className || found.schoolClassName || "";
+          const found = (classes || []).find(
+            (c: any) =>
+              String(c.id ?? c.schoolClassId ?? c.classId) === String(classId)
+          );
+          if (found)
+            className =
+              found.name || found.className || found.schoolClassName || "";
         }
 
         // divisions
@@ -380,12 +404,24 @@ export const AttendanceEdit: React.FC = () => {
           );
           if (found) divisionId = String(found.id ?? found.divisionId ?? "");
         }
-        if ((!divisionName || String(divisionName).trim() === "") && divisionId) {
-          const found = (divisions || []).find((d: any) => String(d.id ?? d.divisionId) === String(divisionId));
+        if (
+          (!divisionName || String(divisionName).trim() === "") &&
+          divisionId
+        ) {
+          const found = (divisions || []).find(
+            (d: any) => String(d.id ?? d.divisionId) === String(divisionId)
+          );
           if (found) divisionName = found.name || found.divisionName || "";
         }
 
-        return { schoolId, schoolName, classId, className, divisionId, divisionName };
+        return {
+          schoolId,
+          schoolName,
+          classId,
+          className,
+          divisionId,
+          divisionName,
+        };
       };
 
       const reconciled = reconcile();
@@ -396,9 +432,11 @@ export const AttendanceEdit: React.FC = () => {
         studentAttendanceMappings: students.map((s) => {
           const sx: any = s as any;
           const studentId = Number(sx.studentId ?? sx.id ?? null) || null;
-          const studentName = sx.studentName ?? sx.name ?? sx.fullName ?? sx.displayName ?? "";
+          const studentName =
+            sx.studentName ?? sx.name ?? sx.fullName ?? sx.displayName ?? "";
           const studentRollNo = sx.studentRollNo ?? sx.rollNo ?? null;
-          const attendanceIdForMapping = sx.attendanceId ?? attendanceData?.id ?? null;
+          const attendanceIdForMapping =
+            sx.attendanceId ?? attendanceData?.id ?? null;
           return {
             // mapping record id (if present when editing)
             studentId,
@@ -409,7 +447,7 @@ export const AttendanceEdit: React.FC = () => {
             vailable: !!sx.vailable,
           };
         }),
-        
+
         schoolId: reconciled.schoolId ?? null,
         classId: reconciled.classId ?? null,
         divisionId: reconciled.divisionId ?? null,
@@ -418,41 +456,57 @@ export const AttendanceEdit: React.FC = () => {
         divisionName: reconciled.divisionName,
         teacherId: user?.id,
         subjectId: Number(subjectId) || null,
-        
+
         accountId,
         id: attendanceData?.id || null,
       };
 
       try {
-  // TEMP LOG: print payload to help debug 500 from backend
-  console.debug("[attendance] outgoing payload:", JSON.parse(JSON.stringify(payload)));
+        // TEMP LOG: print payload to help debug 500 from backend
+        console.debug(
+          "[attendance] outgoing payload:",
+          JSON.parse(JSON.stringify(payload))
+        );
 
         // @ts-ignore - apiService.saveAttendance may be implemented differently; adjust as needed
         const res = await apiService.saveAttendance(payload);
-        showToast(res?.message || t("attendance.messages.saveSuccess") || "Attendance saved successfully.");
+        showToast(
+          res?.message ||
+            t("attendance.messages.saveSuccess") ||
+            "Attendance saved successfully."
+        );
         navigation.goBack();
       } catch (err: any) {
         // Improved error diagnostics
         try {
           const resp = err?.response;
-          console.error("Failed to save attendance: status=", resp?.status, "data=", resp?.data || err?.message || err);
+          console.error(
+            "Failed to save attendance: status=",
+            resp?.status,
+            "data=",
+            resp?.data || err?.message || err
+          );
           showToast(
-            (resp?.data && (resp?.data?.message || JSON.stringify(resp?.data))) ||
+            (resp?.data &&
+              (resp?.data?.message || JSON.stringify(resp?.data))) ||
               err?.message ||
               t("attendance.messages.saveFailed") ||
               "Failed to save attendance."
           );
         } catch (logErr) {
           console.error("Error logging save failure", logErr);
-          showToast(t("attendance.messages.saveFailed") || "Failed to save attendance.");
+          showToast(
+            t("attendance.messages.saveFailed") || "Failed to save attendance."
+          );
         }
       } finally {
         setLoading(false);
       }
-
     } catch (err) {
       console.error("Error preparing/saving attendance:", err);
-      showToast(t("attendance.messages.saveFailed") || "Failed to save attendance.");
+      showToast(
+        t("attendance.messages.saveFailed") || "Failed to save attendance."
+      );
       setLoading(false);
     }
   };
