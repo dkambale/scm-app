@@ -27,6 +27,8 @@ const BirthdayItem: React.FC<{ item: Birthday }> = ({ item }) => (
       <Text style={styles.nameText}>{item.name}</Text>
       <Text style={styles.roleText}>{item.role.toUpperCase()}</Text>
     </View>
+
+    
     {/* Send Message action */}
     <MaterialIcons name="send" size={20} color="#4caf50" />
   </View>
