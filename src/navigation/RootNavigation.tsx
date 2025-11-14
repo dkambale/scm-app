@@ -27,6 +27,7 @@ import StudentViewComponent from "../screens/admin/students/StudentView";
 
 import { AddEditTeacher } from "../screens/admin/teachers/AddEditTeacher";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { SignupScreen } from "../screens/auth/SignupScreen";
 
 const styles = StyleSheet.create({
   drawerContainer: {
@@ -209,9 +210,21 @@ export const RootNavigation: React.FC = () => {
   }
 
   if (!user) {
+    const AuthStack = createNativeStackNavigator();
+    const AuthHost: React.FC = () => (
+      <AuthStack.Navigator screenOptions={{ headerShown: false }}>
+        {/* Added route for LoginScreen */}
+        <AuthStack.Screen name="LoginScreen" component={LoginScreen} />
+        {/* Added route for SignupScreen */}
+        <AuthStack.Screen name="SignupScreen" component={SignupScreen
+
+        } />
+      </AuthStack.Navigator>
+    );
+
     return (
       <NavigationContainer>
-        <LoginScreen />
+        <AuthHost />
       </NavigationContainer>
     );
   }

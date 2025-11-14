@@ -4,6 +4,7 @@ import { TextInput, Button, Text, Card, Snackbar, RadioButton } from 'react-nati
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { useAuth } from '../../context/AuthContext';
+import { useNavigation } from '@react-navigation/native'; // ADDED: Import useNavigation
 
 const loginSchema = Yup.object().shape({
   userName: Yup.string().required('User Name is required'),
@@ -14,6 +15,7 @@ const loginSchema = Yup.object().shape({
 
 export const LoginScreen: React.FC = () => {
   const { login } = useAuth();
+  const navigation = useNavigation(); // ADDED: Initialize navigation hook
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showSnackbar, setShowSnackbar] = useState(false);
@@ -24,7 +26,7 @@ export const LoginScreen: React.FC = () => {
     try {
       await login(values.userName, values.password, values.accountId, values.type);
     } catch (err) {
-      setError('Invalid email or password');
+      setError('Invalid username, password, or account ID.');
       setShowSnackbar(true);
     } finally {
       setLoading(false);
@@ -134,6 +136,21 @@ export const LoginScreen: React.FC = () => {
 
             </Card.Content>
           </Card>
+
+          {/* ADDED: Link to Signup Screen */}
+          <View style={styles.footerNav}>
+            <Text variant="bodyMedium">Don't have an account?</Text>
+            <Button
+              mode="text"
+              onPress={() => navigation.navigate('SignupScreen' as never)}
+              compact
+              labelStyle={styles.textButtonLabel}
+            >
+              Sign Up
+            </Button>
+          </View>
+          {/* END: Link to Signup Screen */}
+
         </View>
 
         <Snackbar
@@ -187,6 +204,16 @@ const styles = StyleSheet.create({
   button: {
     marginTop: 16,
     paddingVertical: 6,
+  },
+  footerNav: { // ADDED
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  textButtonLabel: { // ADDED
+    fontSize: 14,
+    fontWeight: 'bold',
   },
   demoContainer: {
     marginTop: 24,

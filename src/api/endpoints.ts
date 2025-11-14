@@ -3,7 +3,8 @@
 
 const endpoints = {
   auth: {
-    login: 'api/users/login',
+    login: 'api/users/login',    signup: "api/signup",
+
     refresh: 'api/auth/refresh',
     forgotPasswordRequest: 'api/auth/forgot-password-request',
     resetPassword: 'api/auth/reset-password'

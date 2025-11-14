@@ -1,11 +1,25 @@
 import api, { endpoints } from "./index";
 import { Student, Teacher, Assignment, Class } from "../types";
 import { storage } from "../utils/storage";
+import { publicApiClient } from "./http"; // ADDED: Import public client
 
 class ApiService {
   // expose the underlying axios client so callers can use apiService.api.get/post when needed
-  public api = api;
-  async getStudentsPaged(params: {
+ public api = api;
+  
+  // ADDED: New signup method using the publicApiClient
+  async signup(payload: {
+    userName: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    address: string;
+  }): Promise<any> {
+    // CRUCIAL: Use publicApiClient here to bypass the Auth token injector
+    const res = await publicApiClient.post(endpoints.auth.signup, payload);
+    return res.data;
+  }
+    async getStudentsPaged(params: {
     accountId: string;
     page?: number;
     size?: number;

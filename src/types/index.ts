@@ -1,6 +1,7 @@
 export type UserRole = 'admin' | 'teacher' | 'student';
 
-export type Permission = 
+// Keep the legacy Permission export for compatibility if needed, but define the new structure.
+export type PermissionName = 
   | 'VIEW_STUDENTS' 
   | 'EDIT_STUDENTS' 
   | 'DELETE_STUDENTS'
@@ -29,17 +30,90 @@ export type Permission =
   | 'PAY_FEES'
   | 'VIEW_ROLES'
   | 'EDIT_ROLES';
+  
 import { ImageStyle, TextStyle, ViewStyle } from 'react-native';
 
+// --- NEW/UPDATED USER DEFINITIONS BASED ON API RESPONSE ---
+
+export interface PermissionAction {
+  id: number;
+  edit: boolean;
+  add: boolean;
+  view: boolean;
+  delete: boolean;
+}
+
+export interface Permission {
+  id: number;
+  name: string;
+  entityName: string;
+  actions: PermissionAction;
+  accountId: number;
+  // Other fields from API response
+  createdBy?: string;
+  modifiedBy?: string;
+  schoolId?: number;
+}
+
+export interface Role {
+  id: number;
+  name: string; // e.g., "Admin", "Teacher", "Student"
+  permissions: Permission[];
+  accountId: number;
+  // Other fields from API response
+  createdBy?: string;
+  modifiedBy?: string;
+  schoolId?: number;
+  schoolName?: string;
+}
+
+// Re-defining User to match the detailed API response structure
 export interface User {
-  id: string;
-  email: string;
+  id: number; 
+  userName: string;
   firstName: string;
   lastName: string;
-  role: UserRole;
-  permissions: Permission[];
-  profilePic?: string;
+  email: string | null;
+  mobileNumber: string | null;
+  address: string | null;
+  dob: string | null;
+  
+  // Account related IDs/Names
+  accountId: number | null;
+  schoolId: number | null;
+  classId: number | null;
+  divisionId: number | null;
+  className: string | null;
+  divisionName: string | null;
+  schoolName: string | null;
+  
+  // User type and status (using capitalized strings from the API)
+  type: 'Admin' | 'Teacher' | 'Student' | 'Parent'; 
+  status: 'ACTIVE' | 'INACTIVE' | 'PENDING' | string; 
+  
+  // Nested Objects
+  role: Role | null;
+  
+  // Optional/Other fields
+  gender?: string | null;
+  rollNo?: number | null;
+  middleName?: string | null;
+  documentIds?: number[] | null;
+  allocatedClasses?: any[] | null; 
+  educations?: any[] | null; 
+  createdBy?: string | null;
+  modifiedBy?: string | null;
 }
+// --- END NEW USER DEFINITIONS ---
+
+// Updated AuthResponse to use the new User type
+export interface AuthResponse {
+  token: string;
+  user: User; // Updated to use the new detailed User interface
+}
+
+// ... rest of the file definitions (Student, Teacher, Class, etc.)
+// ... existing Student, Teacher, Class, etc. interfaces kept below for file completion.
 
 export interface Student {
   id: string;
@@ -116,21 +190,6 @@ export interface Announcement {
   targetAudience: string;
   date: string;
 }
-
-
-
-export interface Role {
-  roleId: string;
-  roleName: UserRole;
-  permissions: Permission[];
-}
-
-export interface AuthResponse {
-  token: string;
-  user: User;
-}
-
-
 
 export type RNStyle = ViewStyle | TextStyle | ImageStyle;
 

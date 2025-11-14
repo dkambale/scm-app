@@ -21,11 +21,24 @@ try {
 // Remove or guard this in production if noisy.
 console.log("[api] resolved baseURL ->", baseURL);
 
+// -----------------------------------------------------------
+// 1. Authenticated Client (for requests that require a token)
+// -----------------------------------------------------------
 const apiClient: AxiosInstance = axios.create({
   baseURL,
   headers: { "Content-Type": "application/json" },
-  timeout: 20000,
+  timeout: 60000, // MODIFIED: Increased timeout to 60 seconds (was 20000)
 });
+
+// -----------------------------------------------------------
+// 2. Public Client (for requests that DO NOT require a token, like signup)
+// -----------------------------------------------------------
+export const publicApiClient: AxiosInstance = axios.create({ // EXPORTED
+  baseURL,
+  headers: { "Content-Type": "application/json" },
+  timeout: 60000, // MODIFIED: Increased timeout to 60 seconds (was 20000)
+});
+
 
 // If a request contains FormData, remove the forced JSON Content-Type so
 // the runtime/axios can set the proper multipart/form-data boundary header.
@@ -49,6 +62,30 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// We must apply the FormData interceptor to the public client as well,
+// though it's less likely to be used for non-auth endpoints.
+publicApiClient.interceptors.request.use(
+  (config) => {
+    try {
+      if (
+        config &&
+        config.data &&
+        typeof FormData !== "undefined" &&
+        config.data instanceof FormData
+      ) {
+        config.headers = config.headers ?? {};
+        delete (config.headers as any)["Content-Type"];
+      }
+    } catch {
+      // ignore
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+
+// Auth Token Injection (Only for apiClient)
 apiClient.interceptors.request.use(
   async (config) => {
     try {
@@ -67,6 +104,7 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Response Interceptor for 401 (Only for apiClient)
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -95,4 +133,4 @@ export const userDetails = {
   isLoggedIn: async () => !!(await userDetails.getRaw())?.accessToken,
 };
 
-export default apiClient;
+export default apiClient; // The default export remains the authenticated client
