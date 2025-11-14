@@ -5,7 +5,11 @@ import { LoginScreen } from "../screens/auth/LoginScreen";
 import entityRegistry from "./entityRegistry";
 import { LoadingSpinner } from "../components/common/LoadingSpinner";
 import LanguageSelector from "../components/common/LanguageSelector";
-import { createDrawerNavigator } from "@react-navigation/drawer";
+import {
+  createDrawerNavigator,
+  DrawerContentComponentProps,
+  DrawerContentScrollView,
+} from "@react-navigation/drawer";
 import {
   useHasPermission,
   permFrom,
@@ -22,6 +26,114 @@ import { AddEditStudent } from "../screens/admin/students/AddEditStudent";
 import StudentViewComponent from "../screens/admin/students/StudentView";
 
 import { AddEditTeacher } from "../screens/admin/teachers/AddEditTeacher";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+
+const styles = StyleSheet.create({
+  drawerContainer: {
+    flex: 1,
+    backgroundColor: "#ffffff",
+    paddingVertical: 12,
+  },
+  profileCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#ffffff",
+    marginHorizontal: 12,
+    padding: 12,
+    borderRadius: 8,
+    shadowColor: "#000",
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  avatarPlaceholder: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#87CEEB",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarLabel: {
+    color: "#0A0A0A",
+    fontWeight: "700",
+    fontSize: 18,
+  },
+  name: {
+    color: "#0A0A0A",
+    fontWeight: "700",
+    fontSize: 16,
+  },
+  role: {
+    color: "#6b6b6b",
+    fontSize: 12,
+    marginTop: 2,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "#f0f0f0",
+    marginVertical: 12,
+  },
+  listContainer: {
+    paddingHorizontal: 6,
+  },
+  entryRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    marginHorizontal: 6,
+  },
+  entryInner: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  iconBox: {
+    width: 34,
+    height: 34,
+    borderRadius: 8,
+    backgroundColor: "#f2f8fb",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 10,
+  },
+  iconText: {
+    fontSize: 16,
+  },
+  entryTouchable: {
+    flex: 1,
+    paddingVertical: 6,
+    paddingHorizontal: 6,
+  },
+  entryLabel: {
+    color: "#0A0A0A",
+    fontSize: 15,
+    fontWeight: "600",
+  },
+  addButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "#87CEEB",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  addButtonText: {
+    color: "#0A0A0A",
+    fontSize: 22,
+    lineHeight: 22,
+    fontWeight: "700",
+  },
+  addButtonPlaceholder: {
+    width: 36,
+    height: 36,
+  },
+  listContent: {
+    paddingHorizontal: 6,
+    paddingBottom: 24,
+  },
+});
 
 export const RootNavigation: React.FC = () => {
   const { user, loading } = useAuth();
@@ -33,7 +145,8 @@ export const RootNavigation: React.FC = () => {
   // For each supported entity we call the permission hook explicitly
   // (to respect the Rules of Hooks) and then show only those entries
   // for which the user has a 'view' permission.
-  const canViewTEACHER_DASHBOARD = true ;
+  const canViewTEACHER_DASHBOARD = true;
+  const canViewSTUDENT_DASHBOARD = true;
   const canViewSTUDENT = useHasPermission({
     entity: "STUDENT",
     action: "view",
@@ -68,12 +181,16 @@ export const RootNavigation: React.FC = () => {
     entity: "USER_PROFILE",
     action: "view",
   });
-  const canViewEXAM = useHasPermission({  
+  const canViewEXAM = useHasPermission({
     entity: "EXAM",
     action: "view",
   });
   const visibleEntries = [] as { id: string; component: any }[];
-  if (canViewTEACHER_DASHBOARD) visibleEntries.push(entityRegistry.TEACHER_DASHBOARD);
+  if (canViewTEACHER_DASHBOARD)
+    visibleEntries.push(entityRegistry.TEACHER_DASHBOARD);
+  if (canViewSTUDENT_DASHBOARD)
+    visibleEntries.push(entityRegistry.STUDENT_DASHBOARD);
+
   if (canViewSTUDENT) visibleEntries.push(entityRegistry.STUDENT);
   if (canViewTEACHER) visibleEntries.push(entityRegistry.TEACHER);
   if (canViewCLASS) visibleEntries.push(entityRegistry.CLASS);
@@ -82,6 +199,8 @@ export const RootNavigation: React.FC = () => {
   if (canViewATTENDANCE) visibleEntries.push(entityRegistry.ATTENDANCE);
   if (canViewFEE) visibleEntries.push(entityRegistry.FEE);
   if (canViewFEE_MANAGEMENT) visibleEntries.push(entityRegistry.FEE_MANAGEMENT);
+  if (canViewFEE_MANAGEMENT) visibleEntries.push(entityRegistry.MYFEE);
+
   if (canViewANNOUNCEMENT) visibleEntries.push(entityRegistry.ANNOUNCEMENT);
   if (canViewEXAM) visibleEntries.push(entityRegistry.EXAM);
   if (canViewPROFILE) visibleEntries.push(entityRegistry.PROFILE);
@@ -99,23 +218,136 @@ export const RootNavigation: React.FC = () => {
   console.log("User Role:", user.role);
 
   const DrawerHost: React.FC = () => (
-    <>
-      <LanguageSelector />
-      <Drawer.Navigator
-        initialRouteName={
-          visibleEntries.length ? visibleEntries[0].id : undefined
-        }
-      >
-        {visibleEntries.map((entry: { id: string; component: any }) => (
-          <Drawer.Screen
-            key={entry.id}
-            name={entry.id}
-            component={entry.component}
-          />
-        ))}
-      </Drawer.Navigator>
-    </>
+    <Drawer.Navigator
+      initialRouteName={
+        visibleEntries.length ? visibleEntries[0].id : undefined
+      }
+      drawerContent={(props) => <CustomDrawerContent {...props} />}
+    >
+      {visibleEntries.map((entry: { id: string; component: any }) => (
+        <Drawer.Screen
+          key={entry.id}
+          name={entry.id}
+          component={entry.component}
+        />
+      ))}
+    </Drawer.Navigator>
   );
+
+  // Map some common entity ids to their Add-route names. Only entities listed here
+  // will get the little + (add) button in the sidebar.
+  const addRouteMap: Record<string, string> = {
+    STUDENT: "AddStudent",
+    TEACHER: "AddTeacher",
+    TIMETABLE: "AddEditTimetable",
+    ATTENDANCE: "AddAttendance",
+  };
+
+  function CustomDrawerContent(props: DrawerContentComponentProps) {
+    const { navigation } = props;
+
+    // Hook-based permission checks for Add buttons
+    const canAddStudent = useHasPermission({
+      entity: "STUDENT",
+      action: "add",
+    });
+    const canAddTeacher = useHasPermission({
+      entity: "TEACHER",
+      action: "add",
+    });
+    const canAddTimetable = useHasPermission({
+      entity: "TIMETABLE",
+      action: "add",
+    });
+    const canAddAttendance = useHasPermission({
+      entity: "ATTENDANCE",
+      action: "add",
+    });
+
+    const addPermMap: Record<string, boolean> = {
+      STUDENT: Boolean(canAddStudent),
+      TEACHER: Boolean(canAddTeacher),
+      TIMETABLE: Boolean(canAddTimetable),
+      ATTENDANCE: Boolean(canAddAttendance),
+    };
+
+    // Friendly display name for the profile card — try several common fields on user
+    const displayName: string = ((user as any)?.name ||
+      (user as any)?.firstName ||
+      (user as any)?.username ||
+      user?.role ||
+      "User") as string;
+
+    return (
+      <View style={styles.drawerContainer}>
+        <LanguageSelector />
+
+        <View style={styles.profileCard}>
+          <View style={styles.avatarPlaceholder}>
+            <Text style={styles.avatarLabel}>
+              {displayName.charAt(0).toUpperCase()}
+            </Text>
+          </View>
+          <View style={{ marginLeft: 12, flex: 1 }}>
+            <Text style={styles.name}>{displayName}</Text>
+            <Text style={styles.role}>{(user as any)?.role ?? "-"}</Text>
+          </View>
+        </View>
+
+        <View style={styles.divider} />
+
+        <DrawerContentScrollView
+          {...props}
+          contentContainerStyle={styles.listContent}
+        >
+          {visibleEntries.map((entry) => {
+            const showAdd = Boolean(
+              addRouteMap[entry.id] && addPermMap[entry.id]
+            );
+            const iconMap: Record<string, string> = {
+              STUDENT: "👩‍🎓",
+              TEACHER: "👨‍🏫",
+              CLASS: "🏫",
+              TIMETABLE: "📅",
+              ATTENDANCE: "📝",
+              FEE: "💰",
+              ANNOUNCEMENT: "📢",
+              EXAM: "🧾",
+              PROFILE: "👤",
+            };
+            const entryIcon = iconMap[entry.id] ?? "•";
+
+            return (
+              <View style={styles.entryRow} key={entry.id}>
+                <TouchableOpacity
+                  style={styles.entryTouchable}
+                  onPress={() => navigation.navigate(entry.id)}
+                >
+                  <View style={styles.entryInner}>
+                    <View style={styles.iconBox}>
+                      <Text style={styles.iconText}>{entryIcon}</Text>
+                    </View>
+                    <Text style={styles.entryLabel}>{entry.id}</Text>
+                  </View>
+                </TouchableOpacity>
+
+                {showAdd ? (
+                  <TouchableOpacity
+                    style={styles.addButton}
+                    onPress={() => navigation.navigate(addRouteMap[entry.id])}
+                  >
+                    <Text style={styles.addButtonText}>+</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <View style={styles.addButtonPlaceholder} />
+                )}
+              </View>
+            );
+          })}
+  </DrawerContentScrollView>
+      </View>
+    );
+  }
 
   return (
     <NavigationContainer>
@@ -147,19 +379,19 @@ export const RootNavigation: React.FC = () => {
           }}
         />
         <Stack.Screen
-        name="AddAttendance"
-        component={makeProtectedScreen(
-          AttendanceEdit,
-          permFrom("ATTENDANCE", "add")
-        )}
-      />
-      <Stack.Screen
-        name="EditAttendance"
-        component={makeProtectedScreen(
-          AttendanceEdit,
-          permFrom("ATTENDANCE", "edit")
-        )}
-      />
+          name="AddAttendance"
+          component={makeProtectedScreen(
+            AttendanceEdit,
+            permFrom("ATTENDANCE", "add")
+          )}
+        />
+        <Stack.Screen
+          name="EditAttendance"
+          component={makeProtectedScreen(
+            AttendanceEdit,
+            permFrom("ATTENDANCE", "edit")
+          )}
+        />
         <Stack.Screen
           name="AddStudent"
           component={makeProtectedScreen(
@@ -198,7 +430,7 @@ export const RootNavigation: React.FC = () => {
         />
 
         <Stack.Screen
-          name="EditAssignment" 
+          name="EditAssignment"
           component={makeProtectedScreen(
             AttendanceEdit,
             permFrom("ASSIGNMENT", "edit")

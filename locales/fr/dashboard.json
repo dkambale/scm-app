@@ -90,11 +90,14 @@
     "active": "Actif",
     "draft": "Brouillon",
     "expired": "Expiré",
-    "date": "Date"
+    "date": "Date",
+    "progress": "Progression",
+    "Inprogress": "En cours",
+    "welcome": "Bienvenue"
   },
   "studentDashboard": {
     "title": "Tableau de Bord Élève - Vue Enseignant",
-    "text2":"Visualiser et gérer les élèves par classe et division.",
+    "text2": "Visualiser et gérer les élèves par classe et division.",
     "noAllocatedClasses": "Aucune classe attribuée trouvée pour cet enseignant. Veuillez contacter l'administrateur.",
     "selectClass": "Sélectionner la Classe",
     "selectDivision": "Sélectionner la Division",
@@ -110,7 +113,7 @@
       "studentList": "Liste des Élèves",
       "performance": "Aperçu des Performances",
       "attendance": "Suivi de la Présence",
-      "openDashboard":"Ouvrir le Tableau de Bord"
+      "openDashboard": "Ouvrir le Tableau de Bord"
     },
     "studentList": {
       "noData": "Aucun élève trouvé pour la classe et la division sélectionnées.",

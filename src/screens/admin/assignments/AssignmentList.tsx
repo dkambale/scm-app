@@ -46,8 +46,8 @@ export const AssignmentList: React.FC = () => {
         fetchUrl={fetchUrl}
         columns={columnsConfig}
         isPostRequest={true}
-        addActionUrl="AddAssignment"
-        editUrl="EditAssignment"
+        // addActionUrl="AddAssignment"
+        // editUrl="EditAssignment"
         deleteUrl="/api/users/delete"
         entityName="Assignment"
         searchPlaceholder="Search assignments..."

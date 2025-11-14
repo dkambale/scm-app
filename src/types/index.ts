@@ -117,14 +117,7 @@ export interface Announcement {
   date: string;
 }
 
-export interface Fee {
-  id: string;
-  studentId: string;
-  amount: number;
-  dueDate: string;
-  status: 'Paid' | 'Pending';
-  receiptUrl?: string;
-}
+
 
 export interface Role {
   roleId: string;
@@ -218,4 +211,47 @@ export interface ExamSummary {
     totalMax: number;
     totalObtained: number;
     percentage: string;
+}
+interface FeeInstallment {
+  id: number;
+  amount: number;
+  dueDate: string;
+  status: 'paid' | 'pending';
+}
+
+export interface Fee {
+  id: number;
+  feeId?: number; // Used in updated fees array
+  title: string;
+  feeTitle?: string; // Used in payment logic/history
+  totalAmount: number;
+  paidAmount: number;
+  remaining: number;
+  dueDate: string;
+  status: 'paid' | 'partial' | 'pending';
+  installments: FeeInstallment[];
+}
+
+export interface PaymentHistoryItem {
+  id: number | string;
+  date: string;
+  feeName?: string; // Used in Table
+  feeTitle?: string; // Used in PaymentModal logic
+  amount: number;
+  receiptNumber: string;
+  paymentMethod?: string;
+  paymentMode?: string;
+  studentFeeId?: number;
+  studentId?: number;
+  transactionId?: string;
+}
+
+export interface StudentInfo {
+  id: string | number;
+  firstName: string;
+  lastName: string;
+  rollNo: string;
+  schoolName: string;
+  className: string;
+  type: string;
 }

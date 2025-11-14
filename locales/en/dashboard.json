@@ -91,11 +91,14 @@
     "active": "Active",
     "draft": "Draft",
     "expired": "Expired",
-    "date": "Date"
+    "date": "Date",
+    "progress": "Progress",
+    "Inprogress": "In Progress",
+    "welcome": "Welcome"
   },
   "studentDashboard": {
     "title": "Student Dashboard - Teacher View",
-    "text2":"View and manage students by class and division.",
+    "text2": "View and manage students by class and division.",
     "noAllocatedClasses": "No allocated classes found for this teacher. Please contact administrator.",
     "selectClass": "Select Class",
     "selectDivision": "Select Division",
@@ -111,7 +114,7 @@
       "studentList": "Student List",
       "performance": "Performance Overview",
       "attendance": "Attendance Tracking",
-      "openDashboard":"Open Dashboard"
+      "openDashboard": "Open Dashboard"
     },
     "studentList": {
       "noData": "No students found for the selected class and division.",

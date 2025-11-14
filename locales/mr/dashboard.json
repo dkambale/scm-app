@@ -92,17 +92,20 @@
     "active": "सक्रिय",
     "draft": "मसुदा",
     "expired": "कालबाह्य",
-    "date": "तारीख"
+    "date": "तारीख",
+    "progress": "प्रगती",
+    "Inprogress": "प्रगती मध्ये",
+    "welcome": "स्वागत"
   },
   "studentDashboard": {
     "title": "विद्यार्थी डॅशबोर्ड - शिक्षक दृश्य",
-    "text2":"कक्षा आणि विभागाद्वारे विद्यार्थी पहा आणि व्यवस्थापित करा.",
+    "text2": "कक्षा आणि विभागाद्वारे विद्यार्थी पहा आणि व्यवस्थापित करा.",
     "noAllocatedClasses": "या शिक्षकासाठी कोणतीही वर्ग नियुक्त नाही. कृपया प्रशासकाशी संपर्क करा.",
     "selectClass": "वर्ग निवडा",
-    "selectDivision": "विभाग निवडा", 
+    "selectDivision": "विभाग निवडा",
     "studentDashboardTitle": "विद्यार्थी डॅशबोर्ड",
     "backToMainDashboard": "मुख्य डॅशबोर्डवर परता",
-    
+
     "summary": {
       "totalStudents": "एकूण विद्यार्थी",
       "attendanceToday": "आजची उपस्थिती",
@@ -113,7 +116,7 @@
       "studentList": "विद्यार्थी सूची",
       "performance": "कामगिरी आढावा",
       "attendance": "हजेरी ट्रॅकिंग",
-      "openDashboard":"डॅशबोर्ड उघडा"
+      "openDashboard": "डॅशबोर्ड उघडा"
     },
     "studentList": {
       "noData": "निवडलेल्या वर्ग व विभागासाठी कोणतेही विद्यार्थी सापडले नाहीत.",

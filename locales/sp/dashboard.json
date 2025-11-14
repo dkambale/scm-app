@@ -88,7 +88,10 @@
     "active": "Activo",
     "draft": "Borrador",
     "expired": "Caducado",
-    "date": "Fecha"
+    "date": "Fecha",
+    "progress": "Progreso",
+    "Inprogress": "En progreso",
+    "welcome": "Bienvenido"
   },
   "studentDashboard": {
     "title": "Panel de Estudiantes - Vista de Profesor",
