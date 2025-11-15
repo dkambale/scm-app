@@ -48,7 +48,7 @@ export const ExamList: React.FC = () => {
         isPostRequest={true}
     
         
-        
+        viewUrl='StudentExamResult'
         entityName="Exam"
         searchPlaceholder="Search exams..."
         transformData={transformExamData}

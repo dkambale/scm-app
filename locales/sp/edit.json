@@ -447,6 +447,8 @@
     "fields": { "title": "Título", "message": "Mensaje", "sendTo": "Enviar a" }
   },
   "common": {
+    "absent": "Ausente",
+    "present": "Presente",
     "save": "Guardar",
     "cancel": "Cancelar",
     "delete": "Eliminar",

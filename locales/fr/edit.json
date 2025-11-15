@@ -450,6 +450,8 @@
     "fields": { "title": "Titre", "message": "Message", "sendTo": "Envoyer à" }
   },
   "common": {
+    "absent": "Absent",
+    "present": "Présent",
     "save": "Enregistrer",
     "cancel": "Annuler",
     "delete": "Supprimer",

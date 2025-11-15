@@ -6,6 +6,8 @@ import {
   Platform,
   TouchableOpacity,
   ActivityIndicator as RNActivityIndicator, // Use RN built-in for loading state
+  Modal,
+  FlatList,
 } from "react-native";
 import {
   Button,
@@ -16,8 +18,8 @@ import {
   Snackbar,
   Card,
   Avatar,
-  Title,
 } from "react-native-paper";
+import HeaderBar from "../../../components/common/HeaderBar";
 import { apiService } from "../../../api/apiService"; // Assuming correct path
 import { storage } from "../../../utils/storage"; // Assuming correct path
 import { useAuth } from "../../../context/AuthContext"; // Assuming correct path
@@ -454,8 +456,8 @@ export const AttendanceEdit: React.FC = () => {
         schoolName: reconciled.schoolName,
         className: reconciled.className,
         divisionName: reconciled.divisionName,
-        teacherId: user?.id,
         subjectId: Number(subjectId) || null,
+        subjectName: reqData.subjectName || "",
 
         accountId,
         id: attendanceData?.id || null,
@@ -519,9 +521,17 @@ export const AttendanceEdit: React.FC = () => {
 
   return (
     <View style={styles.fullContainer}>
+      <HeaderBar
+        title={TitleText}
+        subtitle={
+          reqData.className
+            ? `${reqData.className} - ${reqData.divisionName}`
+            : ""
+        }
+        showCancel
+        onCancel={() => navigation.goBack()}
+      />
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <Title style={styles.headerTitle}>{TitleText}</Title>
-
         {/* Selection Criteria Card */}
         <Card style={styles.card}>
           <Card.Title
@@ -540,56 +550,99 @@ export const AttendanceEdit: React.FC = () => {
               />
             )}
 
-            {/* Subject Select (Using List.Accordion for dropdown simulation) */}
+            {/* Subject Select: show a modal scroller for subjects instead of Accordion */}
             <View style={styles.selectorWrapper}>
-              <List.Section style={styles.subjectSelectorSection}>
-                <List.Accordion
-                  title={
-                    subjects.find(
+              <TouchableOpacity
+                style={[
+                  styles.accordion,
+                  {
+                    backgroundColor: "#F3F8FF",
+                    borderColor: ACCENT_BLUE,
+                    borderWidth: 1,
+                    padding: 12,
+                    borderRadius: 8,
+                  },
+                ]}
+                onPress={() => setShowSubjectModal(true)}
+              >
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <List.Icon icon="book-open-variant" color={ACCENT_BLUE} />
+                  <Text
+                    style={{
+                      color: reqData.subjectId ? DARK_BLUE : "#777",
+                      fontWeight: "700",
+                      marginLeft: 8,
+                    }}
+                  >
+                    {subjects.find(
                       (s) => String(s.id) === String(reqData.subjectId)
-                    )?.name || "Select Subject"
-                  }
-                  left={(props) => (
-                    <List.Icon
-                      {...props}
-                      icon="book-open-variant"
-                      color={ACCENT_BLUE}
+                    )?.name || t("attendance.selectSubject")}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              <Modal
+                visible={showSubjectModal}
+                animationType="slide"
+                transparent
+              >
+                <View style={styles.modalOverlay}>
+                  <View style={styles.modalContentSmall}>
+                    <Text style={{ fontWeight: "700", padding: 12 }}>
+                      {t("attendance.selectSubject")}
+                    </Text>
+                    <FlatList
+                      data={subjects}
+                      keyExtractor={(item) => String(item.id)}
+                      renderItem={({ item }) => (
+                        <TouchableOpacity
+                          onPress={() => {
+                            setReqData((f) => ({
+                              ...f,
+                              subjectId: String(item.id),
+                              subjectName: item.name,
+                            }));
+                            setShowSubjectModal(false);
+                          }}
+                          style={{
+                            paddingVertical: 12,
+                            paddingHorizontal: 14,
+                            borderBottomWidth: 1,
+                            borderBottomColor: "#eee",
+                          }}
+                        >
+                          <Text style={{ color: "#0b2b55", fontWeight: "600" }}>
+                            {item.name}
+                          </Text>
+                        </TouchableOpacity>
+                      )}
+                      ListEmptyComponent={() => (
+                        <View style={{ padding: 16 }}>
+                          <Text style={{ color: "#666" }}>
+                            {t("attendance.messages.noSubjects") ||
+                              "No subjects available"}
+                          </Text>
+                        </View>
+                      )}
+                      style={{ maxHeight: 320 }}
                     />
-                  )}
-                  expanded={showSubjectModal}
-                  onPress={() => setShowSubjectModal((prev) => !prev)}
-                  style={styles.accordion}
-                  titleStyle={{ color: reqData.subjectId ? DARK_BLUE : "#999" }}
-                >
-                  <ScrollView style={styles.subjectScroll}>
-                    {subjects.map((s) => (
-                      <List.Item
-                        key={s.id}
-                        title={s.name}
-                        onPress={() => {
-                          setReqData((f) => ({
-                            ...f,
-                            subjectId: String(s.id),
-                            subjectName: s.name,
-                          }));
-                          setShowSubjectModal(false);
-                        }}
-                        right={() =>
-                          String(reqData.subjectId) === String(s.id) ? (
-                            <List.Icon icon="check" color={ACCENT_BLUE} />
-                          ) : null
-                        }
-                      />
-                    ))}
-                  </ScrollView>
-                </List.Accordion>
-              </List.Section>
+                    <TouchableOpacity
+                      style={styles.closeButton}
+                      onPress={() => setShowSubjectModal(false)}
+                    >
+                      <Text style={styles.closeText}>
+                        {t("common.close") || "Close"}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </Modal>
             </View>
 
             {/* Date Picker */}
             <TouchableOpacity
               onPress={() => setShowDatePicker(true)}
-              style={styles.pickerTouch}
+              style={[styles.pickerTouch, styles.datePickerTouch]}
               disabled={loading}
             >
               <TextInput
@@ -604,7 +657,10 @@ export const AttendanceEdit: React.FC = () => {
                   />
                 }
                 mode="outlined"
-                style={styles.input}
+                style={[styles.input, styles.dateInput]}
+                contentStyle={{ fontSize: 16, color: "#0b2b55" }}
+                outlineColor={"#E6F2FF"}
+                activeOutlineColor={ACCENT_BLUE}
                 theme={{ colors: { primary: ACCENT_BLUE } }}
               />
             </TouchableOpacity>
@@ -681,7 +737,9 @@ export const AttendanceEdit: React.FC = () => {
                         {student.studentName}
                       </Text>
                       <Text style={styles.studentRollNoText}>
-                        Roll No: {student.studentRollNo}
+                        {(t("attendance.labels.rollNo") || "Roll No") +
+                          ": " +
+                          (student.studentRollNo ?? "")}
                       </Text>
                     </View>
                     <Chip
@@ -737,7 +795,7 @@ export const AttendanceEdit: React.FC = () => {
         onDismiss={() => setSnackbarVisible(false)}
         duration={3000}
         action={{
-          label: "Close",
+          label: t("common.close") || "Close",
           onPress: () => setSnackbarVisible(false),
           labelStyle: { color: ACCENT_BLUE },
         }}
@@ -800,6 +858,22 @@ const styles = StyleSheet.create({
   pickerTouch: {
     marginBottom: 16,
   },
+  datePickerTouch: {
+    marginBottom: 16,
+    paddingHorizontal: 2,
+    paddingVertical: 4,
+    borderRadius: 8,
+    backgroundColor: BG_WHITE,
+    borderWidth: 1,
+    borderColor: "#E6F2FF",
+  },
+  dateInput: {
+    paddingVertical: 8,
+    paddingHorizontal: 8,
+    fontSize: 16,
+    color: "#0b2b55",
+    fontWeight: "700",
+  },
   actions: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -824,19 +898,19 @@ const styles = StyleSheet.create({
   },
   subjectSelectorSection: {
     borderWidth: 1,
-    borderColor: "#E0F0FF",
+    borderColor: ACCENT_BLUE,
     borderRadius: 8,
     overflow: "hidden",
-    backgroundColor: BG_WHITE,
+    backgroundColor: "#F3F8FF",
   },
   accordion: {
-    backgroundColor: BG_WHITE,
+    backgroundColor: "#F3F8FF",
     paddingHorizontal: 0,
   },
   subjectScroll: {
     maxHeight: 200,
     borderTopWidth: 1,
-    borderTopColor: "#F0F0F0",
+    borderTopColor: "#E6F2FF",
   },
   // Student List Styles
   studentListContainer: {
@@ -884,6 +958,38 @@ const styles = StyleSheet.create({
   },
   loadingStudents: {
     paddingVertical: 40,
+  },
+  // Modal styles for subject scroller
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  modalContentSmall: {
+    width: "100%",
+    maxHeight: 440,
+    backgroundColor: BG_WHITE,
+    borderRadius: 12,
+    overflow: "hidden",
+    elevation: 8,
+    shadowColor: SHADOW_COLOR,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+  },
+  closeButton: {
+    paddingVertical: 12,
+    alignItems: "center",
+    borderTopWidth: 1,
+    borderTopColor: "#eee",
+    backgroundColor: "#fafafa",
+  },
+  closeText: {
+    color: DARK_BLUE,
+    fontWeight: "700",
+    fontSize: 16,
   },
 });
 

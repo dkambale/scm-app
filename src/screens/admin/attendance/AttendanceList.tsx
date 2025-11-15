@@ -9,7 +9,7 @@ const columnsConfig = [
   { key: 'className', header: 'Class' },
   { key: 'schoolName', header: 'School' },
   { key: 'divisionName', header: 'Division' },
-  // { key: 'schoolName', header: 'School' },
+  // { key: 'subjectName', header: 'Subject' },
   // { key: 'className', header: 'Class' },
   // { key: 'divisionName', header: 'Division' },
 ];

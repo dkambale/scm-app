@@ -323,14 +323,16 @@ export const ReusableDataGrid: React.FC<ReusableDataGridProps> = ({
   };
 
   const handleView = (item: any) => {
-    if (!viewUrl) return;
+    const target =
+      viewUrl || (entityName === "Exam" ? "StudentExamResult" : undefined);
+    if (!target) return;
     const rootNav = (navigation as any).getParent
       ? (navigation as any).getParent()
       : navigation;
     if (rootNav && (rootNav as any).navigate) {
-      (rootNav as any).navigate(viewUrl as any, { id: item.id });
+      (rootNav as any).navigate(target as any, { id: item.id });
     } else {
-      (navigation as any).navigate(viewUrl as any, { id: item.id });
+      (navigation as any).navigate(target as any, { id: item.id });
     }
   };
 

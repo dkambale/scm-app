@@ -448,6 +448,8 @@
     "fields": { "title": "शीर्षक", "message": "संदेश", "sendTo": "को भेजें" }
   },
   "common": {
+    "absent": "अनुपस्थित",
+    "present": "उपस्थित",
     "save": "सहेजें",
     "cancel": "रद्द करें",
     "delete": "हटाएँ",

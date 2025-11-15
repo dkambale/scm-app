@@ -12,8 +12,8 @@ import {
   Card,
   Surface,
   Chip,
-  Appbar,
 } from "react-native-paper";
+import HeaderBar from "../../../components/common/HeaderBar";
 import { useNavigation } from "@react-navigation/native";
 import { apiService } from "../../../api/apiService";
 
@@ -122,16 +122,11 @@ const TimetableView: React.FC<Props> = ({ id }) => {
 
   return (
     <View style={styles.container}>
-      <Appbar.Header style={styles.appbar}>
-        <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content
-          title={data.className || data.classId || "Class Timetable"}
-          subtitle={
-            data.divisionName || data.divisionId || data.schoolName || ""
-          }
-          titleStyle={styles.appbarTitle}
-        />
-      </Appbar.Header>
+      <HeaderBar
+        title={data.className || data.classId || "Class Timetable"}
+        subtitle={data.divisionName || data.divisionId || data.schoolName || ""}
+        backgroundColor={styles.appbar.backgroundColor}
+      />
 
       <ScrollView contentContainerStyle={{ padding: 12 }}>
         <Card style={styles.headerCard}>

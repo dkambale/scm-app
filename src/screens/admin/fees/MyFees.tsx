@@ -105,67 +105,10 @@ export const StudentFeeView: React.FC = () => {
       console.error("Error fetching student data:", error);
 
       // --- Mock Data on Error/Demo ---
-      setStudentInfo({
-        id: targetStudentId,
-        firstName: "Aryan",
-        lastName: "Sharma",
-        className: "6A",
-        schoolName: "Sunrise High School",
-        rollNo: "101",
-        type: "STUDENT",
-      } as StudentInfo);
+   
 
-      setFees([
-        {
-          id: 1,
-          title: "Term 1 Tuition Fee",
-          totalAmount: 12000,
-          paidAmount: 9000,
-          remaining: 3000,
-          dueDate: "2025-08-31",
-          status: "partial",
-          installments: [],
-        },
-        {
-          id: 2,
-          title: "Library Fee",
-          totalAmount: 1000,
-          paidAmount: 1000,
-          remaining: 0,
-          dueDate: "2025-08-01",
-          status: "paid",
-          installments: [],
-        },
-        {
-          id: 3,
-          title: "Lab Fee",
-          totalAmount: 2500,
-          paidAmount: 0,
-          remaining: 2500,
-          dueDate: "2025-09-15",
-          status: "pending",
-          installments: [],
-        },
-      ] as Fee[]);
 
-      setPaymentHistory([
-        {
-          id: 1,
-          date: "2025-08-02",
-          feeTitle: "Term 1 Tuition Fee",
-          amount: 9000,
-          receiptNumber: "RCP001",
-          paymentMode: "UPI",
-        },
-        {
-          id: 2,
-          date: "2025-08-01",
-          feeTitle: "Library Fee",
-          amount: 1000,
-          receiptNumber: "RCP002",
-          paymentMode: "Net Banking",
-        },
-      ] as PaymentHistoryItem[]);
+      
       setErrorMessage("Could not connect to API. Showing mock data.");
       // --- End Mock Data ---
     } finally {

@@ -11,6 +11,7 @@ import { ProfileScreen } from "../screens/common/ProfileScreen";
 import { AddEditStudent } from "../screens/admin/students/AddEditStudent";
 import { AddEditTeacher } from "../screens/admin/teachers/AddEditTeacher";
 import StudentViewComponent from "../screens/admin/students/StudentView";
+import StudentExamResult from "../screens/admin/exam/StudentExamResult";
 
 import { AssignmentsScreen } from "../screens/admin/AssignmentsScreen";
 import EditAssignmentScreen from "../screens/admin/assignments/EditAssignment";
@@ -43,12 +44,12 @@ export function AdminNavigation() {
   const canViewTimetables = useHasPermission(permFrom("TIMETABLE", "view"));
   return (
     <Drawer.Navigator initialRouteName="Dashboard">
-      <Drawer.Screen 
-        name="Dashboard" 
+      <Drawer.Screen
+        name="Dashboard"
         component={AdminDashboardScreen}
         // ----------------------------------------------------------------------
         // MODIFICATION: Add NotificationButton to the headerRight
-        options={{ 
+        options={{
           headerRight: () => <NotificationButton />,
         }}
         // ----------------------------------------------------------------------
@@ -143,6 +144,21 @@ export function AdminNavigation() {
             name="StudentView"
             component={StudentViewScreen}
             options={{ drawerLabel: () => null, title: "View Student" }}
+          />
+        );
+      })()}
+
+      {/* Student Exam Result (hidden route) */}
+      {(() => {
+        const StudentExamResultScreen = ({ route }: any) => {
+          const id = route?.params?.id ?? route?.params?.examId ?? "";
+          return <StudentExamResult id={String(id)} route={route} />;
+        };
+        return (
+          <Drawer.Screen
+            name="StudentExamResult"
+            component={StudentExamResultScreen}
+            options={{ drawerLabel: () => null, title: "Exam Result" }}
           />
         );
       })()}

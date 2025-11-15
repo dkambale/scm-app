@@ -1,276 +1,237 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { View, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Alert as RNAlert, ScrollView } from 'react-native';
-import { Button, Text, Title, Card } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
-import { useSelector } from 'react-redux'; // Keep for other state, but not for user
-import { useTranslation } from 'react-i18next';
-// FIX: Corrected MaterialIcons import
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons'; 
-// FIX: Corrected apiService import syntax
-import { apiService } from '../../../api/apiService'; 
-import { User } from '../../types/dashboard'; // Assuming User type is available
-import { useAuth } from '../../../context/AuthContext'; // --- ADDED ---
+import React, { useEffect, useState, useMemo } from "react";
+import { View, ScrollView, StyleSheet } from "react-native";
+import {
+  Card,
+  Text,
+  Divider,
+  Chip,
+  ActivityIndicator,
+} from "react-native-paper";
+import HeaderBar from "../../../components/common/HeaderBar";
+import api, { userDetails } from "../../../api";
 
-// --- CONSTANTS ---
-const ACCENT_BLUE = "#00BFFF"; // Sky Blue
-const DARK_BLUE = "#1E90FF"; // Dodger Blue
+const CertificateRow: React.FC<{ label: string; value?: any }> = ({
+  label,
+  value,
+}) => (
+  <View style={styles.row}>
+    <Text style={styles.rowLabel}>{label}</Text>
+    <Text style={styles.rowValue}>{value ?? "-"}</Text>
+  </View>
+);
 
-// --- TYPES ---
-interface ExamListItem {
-  id: string;
-  examName: string;
-  className: string;
-  divisionName: string;
-  // Add other relevant fields if needed
-}
-
-// --- List Item Component (Replaces DataGrid Row) ---
-interface ExamRowProps {
-    item: ExamListItem;
-    onViewResult: (examId: string) => void;
-    t: (key: string) => string;
-}
-
-const ExamRow: React.FC<ExamRowProps> = React.memo(({ item, onViewResult, t }) => {
-    return (
-        <Card style={styles.examCard} elevation={2}>
-            <View style={styles.cardContentContainer}>
-                <View style={styles.infoContainer}>
-                    <Text style={styles.examNameText}>{item.examName}</Text>
-                    <Text style={styles.detailText}>
-                        {t('columns.class') || 'Class'}: {item.className} / {item.divisionName}
-                    </Text>
-                </View>
-                <Button
-                    mode="contained"
-                    icon={() => <MaterialIcons name="pageview" size={20} color="#FFFFFF" />}
-                    onPress={() => onViewResult(item.id)}
-                    style={styles.viewButton}
-                    labelStyle={styles.viewButtonLabel}
-                    buttonColor={DARK_BLUE}
-                >
-                    {t('Actions.ViewResult') || 'View Result'}
-                </Button>
-            </View>
-        </Card>
-    );
-});
-
-
-// --- MAIN COMPONENT ---
-const StudentExamListScreen: React.FC = () => {
-  const navigation = useNavigation();
-  const { t } = useTranslation('exam');
-  
-  // FIX: Replaced useSelector with useAuth() to get the correct user object
-  const { user } = useAuth(); // --- MODIFIED ---
-  
-  const [exams, setExams] = useState<ExamListItem[]>([]);
+const StudentExamResult: React.FC<any> = ({ route }: any) => {
+  const examId = route?.params?.id ?? route?.params?.examId;
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const studentDetailsReady = useMemo(() => {
-    // FIX: Using optional chaining for safety in user object access
-    const isReady = !!(user?.id && user?.accountId && user?.schoolId && user?.classId && user?.divisionId);
-    
-    // This log will now show the correct values once the AuthContext is ready
-    console.log('Student details ready:', isReady, user?.id, user?.accountId, user?.schoolId, user?.classId, user?.divisionId);
-
-    return isReady;
-  }, [user]);
-
-
-  const fetchExams = useCallback(async () => {
-    if (!studentDetailsReady) {
-      setError(t('errors.incompleteProfile') || 'User profile details are incomplete. Cannot fetch exams.');
-      setLoading(false);
-      return;
-    }
-    
-    // Deconstruct fields safely (user is guaranteed to be non-null here by studentDetailsReady)
-    const { accountId, schoolId, classId, divisionId } = user!;
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const payload = {
-        size: 50, 
-        sortBy: 'id',
-        sortDir: 'asc',
-        schoolId: schoolId,
-        classId: classId,
-        divisionId: divisionId
-      };
-      
-      const endpoint = `/api/exams/getAllBy/${accountId}`;
-      console.log(`[API CALL] Fetching exams from: ${endpoint}`);
-
-      // @ts-ignore
-      const response = await apiService.post(endpoint, payload);
-      
-      const content = response?.data?.content || response?.data || [];
-      
-      setExams(content);
-      
-      if (content.length === 0) {
-          setError(t('messages.noExamsFound') || 'No exams found for your current class and division.');
-      }
-
-    } catch (err: any) {
-      console.error('Failed to load exams:', err);
-      const errorMessage = err?.message || 'Unknown error occurred.';
-      RNAlert.alert(t('errors.loadExams') || 'Could not load exams.', errorMessage);
-      setError(t('errors.loadExams') || 'Could not load exams.');
-      setExams([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [studentDetailsReady, user, t]);
+  const [examStudents, setExamStudents] = useState<any[]>([]);
 
   useEffect(() => {
-    if (studentDetailsReady) {
-        fetchExams();
-    } else if (user) { // If user exists but details are just incomplete
-         setError(t('errors.incompleteProfile') || 'User profile details are incomplete. Cannot fetch exams.');
-    } else {
-        // User object itself might still be loading from context
-        setError(t('errors.loadingProfile') || 'Loading user profile...');
-    }
-  }, [fetchExams, studentDetailsReady, user]);
+    const load = async () => {
+      if (!examId) return;
+      setLoading(true);
+      try {
+        const user = await userDetails.getUser();
+        const studentId = user?.id;
+        if (!studentId) {
+          setExamStudents([]);
+          return;
+        }
+        const res = await api.get(
+          `/api/exams/getExamStudent/${examId}/${studentId}`
+        );
+        const data = res?.data || res?.data?.data || [];
+        setExamStudents(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error("Failed to load exam result", err);
+        setExamStudents([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, [examId]);
 
-
-  const handleViewResult = useCallback((examId: string) => {
-    // Navigate to the result view screen, passing the examId in params
-    // @ts-ignore
-    navigation.navigate('StudentExamResultScreen', { examId: examId });
-  }, [navigation]);
-
-
-  // --- Render Logic ---
-
-  const renderEmptyList = () => (
-      <View style={styles.center}>
-        <MaterialIcons name="assignment" size={40} color="#ccc" />
-        <Text style={styles.emptyText}>{error || (t('messages.noExamsFound') || 'No exams found.')}</Text>
-      </View>
-  );
+  const summary = useMemo(() => {
+    if (!examStudents?.length) return null;
+    let totalMax = 0;
+    let totalObtained = 0;
+    examStudents.forEach((es) => {
+      totalMax += Number(es?.totalMarks || 0);
+      totalObtained += Number(es?.marksObtained || 0);
+    });
+    const percentage =
+      totalMax > 0 ? ((totalObtained / totalMax) * 100).toFixed(2) : "0.00";
+    const overall = examStudents[0] || {};
+    return {
+      examName: overall.examName,
+      studentName: overall.studentName,
+      className: overall.className,
+      divisionName: overall.divisionName,
+      schoolName: overall.schoolName,
+      totalMax,
+      totalObtained,
+      percentage,
+    };
+  }, [examStudents]);
 
   return (
-    <View style={styles.fullContainer}>
-{/* ... existing code ... */}
-        
-        {/* Error/Loading Handling */}
-        {error && !loading && (
-            <Card style={styles.errorCard} elevation={2}>
-{/* ... existing code ... */}
-                    <Text style={styles.errorText}>{t('common.error') || 'Error'}: {error}</Text>
-                </Card.Content>
+    <View style={styles.container}>
+      <HeaderBar title={summary?.examName || "Exam Result"} showCancel />
+      <ScrollView contentContainerStyle={styles.scroll}>
+        {loading ? (
+          <ActivityIndicator
+            animating={true}
+            size={36}
+            style={{ marginTop: 24 }}
+          />
+        ) : (
+          <>
+            <Card style={styles.card} elevation={3}>
+              <Card.Content>
+                <Text style={styles.certificateTitle}>
+                  Examination Certificate
+                </Text>
+                <Divider style={{ marginVertical: 12 }} />
+                {summary ? (
+                  <>
+                    <CertificateRow label="School" value={summary.schoolName} />
+                    <CertificateRow
+                      label="Student"
+                      value={summary.studentName}
+                    />
+                    <CertificateRow label="Exam" value={summary.examName} />
+                    <CertificateRow
+                      label="Class / Division"
+                      value={`${summary.className} / ${summary.divisionName}`}
+                    />
+                    <Divider style={{ marginVertical: 12 }} />
+                    <View style={styles.metricsRow}>
+                      <View style={styles.metricItem}>
+                        <Text style={styles.metricLabel}>Total Marks</Text>
+                        <Text style={styles.metricValue}>
+                          {summary.totalObtained} / {summary.totalMax}
+                        </Text>
+                      </View>
+                      <View style={styles.metricItem}>
+                        <Text style={styles.metricLabel}>Percentage</Text>
+                        <Text style={styles.metricValue}>
+                          {summary.percentage}%
+                        </Text>
+                      </View>
+                    </View>
+                  </>
+                ) : (
+                  <Text style={styles.emptyText}>No results available.</Text>
+                )}
+              </Card.Content>
             </Card>
-        )}
 
-        {loading && exams.length === 0 && (
-            <View style={styles.center}>
-{/* ... existing code ... */}
-                <Text style={styles.loadingText}>Fetching exams...</Text>
-            </View>
+            <Card style={styles.card} elevation={1}>
+              <Card.Content>
+                <Text style={styles.sectionTitle}>Subject-wise Details</Text>
+                <Divider style={{ marginVertical: 10 }} />
+                {examStudents.map((row) => (
+                  <Card
+                    key={`${row.subjectId}-${row.id || Math.random()}`}
+                    style={styles.subjectCardOuter}
+                    mode="elevated"
+                  >
+                    <Card.Content>
+                      <View style={styles.subjectInner}>
+                        <Text style={styles.subjectNameDark}>
+                          {row.subjectName}
+                        </Text>
+                        <View style={{ marginTop: 8 }}>
+                          <View style={styles.subjectRow}>
+                            <Text style={styles.subjectLabelDark}>Marks</Text>
+                            <Text style={styles.subjectValueDark}>{`${
+                              row.marksObtained ?? 0
+                            } / ${row.totalMarks ?? 0}`}</Text>
+                          </View>
+                          <View style={styles.subjectRow}>
+                            <Text style={styles.subjectLabelDark}>Grade</Text>
+                            <Text style={styles.subjectValueDark}>
+                              {row.grade ?? "-"}
+                            </Text>
+                          </View>
+                          <View style={styles.subjectRow}>
+                            <Text style={styles.subjectLabelDark}>Remarks</Text>
+                            <Text style={styles.subjectValueDark}>
+                              {row.remarks ?? "-"}
+                            </Text>
+                          </View>
+                          {row.passed !== undefined && (
+                            <Chip
+                              style={{ marginTop: 8 }}
+                              mode="flat"
+                              textStyle={{ color: "#fff" }}
+                              icon={row.passed ? "check" : "close"}
+                            >
+                              {row.passed ? "Passed" : "Failed"}
+                            </Chip>
+                          )}
+                        </View>
+                      </View>
+                    </Card.Content>
+                  </Card>
+                ))}
+              </Card.Content>
+            </Card>
+          </>
         )}
-        
-        {/* Exam List (Replaces DataGrid) */}
-{/* ... existing code ... */}
+      </ScrollView>
     </View>
   );
 };
 
-// --- STYLES ---
-
 const styles = StyleSheet.create({
-  fullContainer: {
-    flex: 1,
-    backgroundColor: '#F0F8FF', // Light blue tint background
-    padding: 16,
+  container: { flex: 1, backgroundColor: "#F8FAFF" },
+  scroll: { padding: 16, paddingBottom: 80 },
+  card: { marginBottom: 16, backgroundColor: "#ffffff" },
+  certificateTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    textAlign: "center",
+    marginBottom: 6,
   },
-  mainTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: DARK_BLUE,
-    marginBottom: 20,
-    textAlign: 'center',
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 6,
   },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 50,
+  rowLabel: { color: "#555", fontWeight: "600", width: "45%" },
+  rowValue: { color: "#111", width: "55%", textAlign: "right" },
+  metricsRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 8,
   },
-  loadingText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: DARK_BLUE,
-  },
-  emptyText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: '#6c757d',
-    textAlign: 'center',
-  },
-  errorCard: {
-      marginBottom: 20,
-      backgroundColor: '#FFEBEE', // Light Red
-      borderColor: '#F44336', // Error Red
-      borderWidth: 1,
-      borderRadius: 8,
-  },
-  // FIX: Added missing errorText style
-  errorText: {
-      color: '#D32F2F', // Error Red
-      textAlign: 'center',
-      fontSize: 16,
-      fontWeight: '600'
-  },
-  listContent: {
-    paddingBottom: 20,
-  },
-  
-  // --- Exam Row Styles ---
-  examCard: {
+  metricItem: { flex: 1, alignItems: "center" },
+  metricLabel: { color: "#666" },
+  metricValue: { fontSize: 18, fontWeight: "700" },
+  emptyText: { textAlign: "center", color: "#666", paddingVertical: 20 },
+  sectionTitle: { fontSize: 16, fontWeight: "700", marginBottom: 6 },
+  subjectCard: { marginBottom: 10 },
+  subjectName: { fontSize: 15, fontWeight: "700", marginBottom: 6 },
+  subjectCardOuter: {
     marginBottom: 12,
+    borderRadius: 12,
+    overflow: "hidden",
+    backgroundColor: "#ffffff",
+  },
+  subjectInner: {
+    backgroundColor: "#0d0d0d",
     borderRadius: 10,
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
+    padding: 12,
   },
-  cardContentContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 15,
+  subjectNameDark: { color: "#ffffff", fontSize: 16, fontWeight: "800" },
+  subjectRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 6,
   },
-  infoContainer: {
-    flex: 1,
-    marginRight: 10,
-  },
-  examNameText: {
-    fontSize: 17,
-    fontWeight: 'bold',
-    color: DARK_BLUE,
-    marginBottom: 4,
-  },
-  detailText: {
-    fontSize: 13,
-    color: '#6c757d',
-  },
-  viewButton: {
-    minWidth: 120,
-    borderRadius: 6,
-  },
-  viewButtonLabel: {
-    fontWeight: 'bold',
-    fontSize: 12,
-  },
+  subjectLabelDark: { color: "rgba(255,255,255,0.75)", fontWeight: "600" },
+  subjectValueDark: { color: "#ffffff", fontWeight: "700" },
 });
 
-export default StudentExamListScreen;
+export default StudentExamResult;

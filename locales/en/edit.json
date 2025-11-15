@@ -4,6 +4,7 @@
       "add": "Add Student",
       "edit": "Edit Student"
     },
+   
     "tabs": {
       "details": "Student Details",
       "documents": "Documents"
@@ -448,6 +449,8 @@
     "fields": { "title": "Title", "message": "Message", "sendTo": "Send To" }
   },
   "common": {
+    "absent": "Absent",
+    "present": "Present",
     "save": "Save",
     "cancel": "Cancel",
     "delete": "Delete",

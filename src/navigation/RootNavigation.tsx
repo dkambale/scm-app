@@ -21,12 +21,15 @@ import { AttendanceEdit } from "../screens/admin/attendance/AddAttendance";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import AddEditTimetable from "../screens/admin/timetables/AddEditTimetable";
 import TimetableView from "../screens/admin/timetables/TimetableView";
+import StudentExamResult from "../screens/admin/exam/StudentExamResult";
+import TeacherExamView from "../screens/admin/exam/TeacherExamView";
 
 import { AddEditStudent } from "../screens/admin/students/AddEditStudent";
 import StudentViewComponent from "../screens/admin/students/StudentView";
 
 import { AddEditTeacher } from "../screens/admin/teachers/AddEditTeacher";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { Avatar } from "react-native-paper";
 import { SignupScreen } from "../screens/auth/SignupScreen";
 import NotificationScreen from "../components/common/NotificationScreen";
 
@@ -160,7 +163,7 @@ export const RootNavigation: React.FC = () => {
     entity: "TEACHER",
     action: "view",
   });
-  const canViewCLASS = useHasPermission({ entity: "CLASS", action: "view" });
+  // const canViewCLASS is unused; omit to avoid lint warnings
   const canViewTIMETABLE = useHasPermission({
     entity: "TIMETABLE",
     action: "view",
@@ -185,7 +188,16 @@ export const RootNavigation: React.FC = () => {
     entity: "EXAM",
     action: "view",
   });
-  const visibleEntries = [] as { id: string; title?: string; component: any }[];
+  const canViewEXAM_TEACHER_VIEW = useHasPermission({
+    entity: "EXAM_TEACHER_VIEW",
+    action: "view",
+  });
+  const visibleEntries = [] as {
+    id: string;
+    title?: string;
+    component: any;
+    icon?: string;
+  }[];
   if (canViewTEACHER_DASHBOARD)
     visibleEntries.push(entityRegistry.TEACHER_DASHBOARD);
   if (canViewSTUDENT_DASHBOARD)
@@ -203,6 +215,8 @@ export const RootNavigation: React.FC = () => {
 
   // if (canViewANNOUNCEMENT) visibleEntries.push(entityRegistry.ANNOUNCEMENT);
   if (canViewEXAM) visibleEntries.push(entityRegistry.EXAM);
+  if (canViewEXAM_TEACHER_VIEW)
+    visibleEntries.push(entityRegistry.EXAM_TEACHER_VIEW);
   if (canViewPROFILE) visibleEntries.push(entityRegistry.PROFILE);
   if (loading) {
     return <LoadingSpinner />;
@@ -339,7 +353,8 @@ export const RootNavigation: React.FC = () => {
                 >
                   <View style={styles.entryInner}>
                     <View style={styles.iconBox}>
-                      <Text style={styles.iconText}>{entryIcon}</Text>
+                      {/* Render a MaterialCommunity icon using Avatar.Icon so it looks polished */}
+                      <Avatar.Icon size={28} icon={entry.icon ?? entryIcon} />
                     </View>
                     <Text style={styles.entryLabel}>
                       {entry.title ?? entry.id}
@@ -383,21 +398,19 @@ export const RootNavigation: React.FC = () => {
             permFrom("TIMETABLE", "add")
           )}
         />
-        <Stack.Screen
-          name="TimetableView"
-          component={({ route }: any) => {
+        <Stack.Screen name="TimetableView">
+          {({ route }: any) => {
             const id = route?.params?.id ?? route?.params?.timetableId ?? "";
             return <TimetableView id={String(id)} />;
           }}
-        />
+        </Stack.Screen>
         {/* Backward-compatible alias used in some parts of the app */}
-        <Stack.Screen
-          name="ViewTimetable"
-          component={({ route }: any) => {
+        <Stack.Screen name="ViewTimetable">
+          {({ route }: any) => {
             const id = route?.params?.id ?? route?.params?.timetableId ?? "";
             return <TimetableView id={String(id)} />;
           }}
-        />
+        </Stack.Screen>
         <Stack.Screen
           name="AddAttendance"
           component={makeProtectedScreen(
@@ -426,13 +439,19 @@ export const RootNavigation: React.FC = () => {
             permFrom("STUDENT", "edit")
           )}
         />
-        <Stack.Screen
-          name="StudentView"
-          component={({ route }: any) => {
+        <Stack.Screen name="StudentView">
+          {({ route }: any) => {
             const id = route?.params?.id ?? route?.params?.studentId ?? "";
             return <StudentViewComponent id={String(id)} />;
           }}
-        />
+        </Stack.Screen>
+
+        <Stack.Screen name="StudentExamResult">
+          {({ route }: any) => <StudentExamResult route={route} />}
+        </Stack.Screen>
+        <Stack.Screen name="TeacherExamView">
+          {({ route }: any) => <TeacherExamView route={route} />}
+        </Stack.Screen>
 
         <Stack.Screen
           name="AddTeacher"

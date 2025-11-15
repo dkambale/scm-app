@@ -11,31 +11,45 @@ import { FeesScreen as StudentFeesScreen } from "../screens/student/FeesScreen";
 import TeacherDashboardScreen from "../screens/teacher/TeacherDashboardScreen";
 import { StudentDashboardScreen } from "../dashboard/studentDashboard/StudentDashboardScreen";
 import StudentExamResultScreen from "../screens/admin/exam/StudentExamResult";
-import StudentExamListScreen from "../screens/admin/exam/StudentExamListScreen"; 
+import StudentExamListScreen from "../screens/admin/exam/StudentExamListScreen";
 import { StudentFeeView } from "../screens/admin/fees/MyFees";
+import TeacherExamView from "../screens/admin/exam/TeacherExamView";
 // import TeacherTimetableCard from
 // Map permission entity names to a screen component and a friendly title.
 const entityRegistry: Record<
   string,
   { id: string; title: string; component: any }
 > = {
-  STUDENT: { id: "STUDENT", title: "Students", component: StudentsScreen },
-  TEACHER: { id: "TEACHER", title: "Teachers", component: TeachersScreen },
+  STUDENT: {
+    id: "STUDENT",
+    title: "Students",
+    component: StudentsScreen,
+    icon: "account-group",
+  },
+  TEACHER: {
+    id: "TEACHER",
+    title: "Teachers",
+    component: TeachersScreen,
+    icon: "account-tie",
+  },
   // CLASS: { id: "CLASS", title: "Classes", component: ClassesScreen },
   TIMETABLE: {
     id: "TIMETABLE",
     title: "Timetables",
     component: TimetablesScreen,
+    icon: "calendar-clock",
   },
   ASSIGNMENT: {
     id: "ASSIGNMENT",
     title: "Assignments",
     component: AssignmentsScreen,
+    icon: "book-open-variant",
   },
   ATTENDANCE: {
     id: "ATTENDANCE",
     title: "Attendance",
     component: AttendancesScreen,
+    icon: "clipboard-check-outline",
   },
   // FEE: { id: "FEE", title: "Fees (Student)", component: StudentFeesScreen },
   // FEE_MANAGEMENT: {
@@ -43,31 +57,46 @@ const entityRegistry: Record<
   //   title: "Fees (Admin)",
   //   component: AdminFeesScreen,
   // },
-   MYFEE: {
+  MYFEE: {
     id: "MY fees",
     title: "Fees (Student)",
     component: StudentFeeView,
+    icon: "cash",
   },
   // ANNOUNCEMENT: {
   //   id: "ANNOUNCEMENT",
   //   title: "Announcements",
   //   component: AnnouncementsScreen,
   // },
-  PROFILE: { id: "PROFILE", title: "Profile", component: ProfileScreen },
+  PROFILE: {
+    id: "PROFILE",
+    title: "Profile",
+    component: ProfileScreen,
+    icon: "account-circle",
+  },
   TEACHER_DASHBOARD: {
     id: "TEACHER_DASHBOARD",
     title: "Admin Dashboard",
     component: TeacherDashboardScreen,
+    icon: "view-dashboard",
   },
-   STUDENT_DASHBOARD: {
+  STUDENT_DASHBOARD: {
     id: "STUDENT_DASHBOARD",
     title: "Student Dashboard",
     component: StudentDashboardScreen,
+    icon: "school",
   },
-  EXAM : {
+  EXAM: {
     id: "EXAM",
     title: "Examinations",
     component: StudentExamListScreen, // Placeholder for Examination Screen
+    icon: "file-document-outline",
+  },
+  EXAM_TEACHER_VIEW: {
+    id: "EXAM_TEACHER_VIEW",
+    title: "Teacher Examination View",
+    component: TeacherExamView, // Placeholder for Examination Screen
+    icon: "account-tie",
   },
 };
 

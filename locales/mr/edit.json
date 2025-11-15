@@ -447,6 +447,8 @@
     "fields": { "title": "शीर्षक", "message": "संदेश", "sendTo": "यांना पाठवा" }
   },
   "common": {
+    "absent": "अनुपस्थित",
+    "present": "उपस्थित",
     "save": "जतन करा",
     "cancel": "रद्द करा",
     "delete": "हटवा",
