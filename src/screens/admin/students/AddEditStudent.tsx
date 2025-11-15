@@ -160,7 +160,18 @@ export const AddEditStudent: React.FC = () => {
       } else {
         await api.post("/api/users/save", payload);
       }
-      navigation.navigate("StudentList" as never);
+      // After save/update, prefer to go back if possible (works for nested navigators).
+      if ((navigation as any).canGoBack && (navigation as any).canGoBack()) {
+        (navigation as any).goBack();
+      } else {
+        // Fallback: try to navigate to a known Students route in app root.
+        try {
+          navigation.navigate("Students" as never);
+        } catch (e) {
+          // Last resort: navigate to main drawer root so user ends up at a safe place
+          navigation.navigate("MainDrawer" as never);
+        }
+      }
     } catch (err) {
       console.error("Save failed", err);
     } finally {
@@ -175,7 +186,13 @@ export const AddEditStudent: React.FC = () => {
       onSubmit={onSubmit}
       fields={studentFormFields as FormField[]}
       isEditMode={isEditMode}
-      cancelAction={() => navigation.navigate("Students" as never)}
+      cancelAction={() => {
+        if ((navigation as any).canGoBack && (navigation as any).canGoBack()) {
+          (navigation as any).goBack();
+        } else {
+          navigation.navigate("MainDrawer" as never);
+        }
+      }}
       tNamespace="student"
     />
   );

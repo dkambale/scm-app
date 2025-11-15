@@ -42,7 +42,7 @@ interface ReusableDataGridProps {
   columns: Column[];
   addActionUrl?: string;
   editUrl?: string;
-    viewUrl?: string;
+  viewUrl?: string;
   deleteUrl?: string;
   entityName?: string;
   searchPlaceholder?: string;
@@ -62,7 +62,7 @@ export const ReusableDataGrid: React.FC<ReusableDataGridProps> = ({
   columns,
   addActionUrl,
   editUrl,
-    viewUrl,
+  viewUrl,
 
   deleteUrl,
   entityName,
@@ -384,12 +384,15 @@ export const ReusableDataGrid: React.FC<ReusableDataGridProps> = ({
               </Text>
               {/* small meta row */}
               <View style={styles.metaRow}>
-                <Chip
-                  mode="outlined"
-                  style={[styles.idChip, { backgroundColor: "#f3f3f3" }]}
-                >
-                  {item.id || item._id || ""}
-                </Chip>
+                <View style={styles.idCircle}>
+                  <Text
+                    style={styles.idCircleText}
+                    numberOfLines={1}
+                    ellipsizeMode="middle"
+                  >
+                    {String(item.id ?? item._id ?? "")}
+                  </Text>
+                </View>
                 <Text style={{ marginLeft: 8, color: "#333333" }}>
                   {item.visibility || ""}
                 </Text>
@@ -408,46 +411,47 @@ export const ReusableDataGrid: React.FC<ReusableDataGridProps> = ({
                 </>
               ) : (
                 <>
-                  {(editUrl || viewUrl || (deleteUrl && canDelete)) && (canEdit || canView || (deleteUrl && canDelete)) && (
-                    <Menu
-                      visible={!!menuVisibleFor[idKey]}
-                      onDismiss={() => closeMenu(idKey)}
-                      anchor={
-                        <IconButton
-                          icon="dots-vertical"
-                          onPress={() => openMenu(idKey)}
-                        />
-                      }
-                    >
-                      { editUrl && canEdit && (
-                        <Menu.Item
-                          onPress={() => {
-                            closeMenu(idKey);
-                            handleEdit(item);
-                          }}
-                          title="Edit"
-                        />
-                      )}
-                      {viewUrl && canView && (
-                        <Menu.Item
-                          onPress={() => {
-                            closeMenu(idKey); /* manage visibility */
-                            handleView(item);
-                          }}
-                          title="View"
-                        />
-                      )}
-                      {deleteUrl && canDelete && (
-                        <Menu.Item
-                          onPress={() => {
-                            closeMenu(idKey);
-                            showDeleteDialog(item.id || item._id);
-                          }}
-                          title="Delete"
-                        />
-                      )}
-                    </Menu>
-                  )}
+                  {(editUrl || viewUrl || (deleteUrl && canDelete)) &&
+                    (canEdit || canView || (deleteUrl && canDelete)) && (
+                      <Menu
+                        visible={!!menuVisibleFor[idKey]}
+                        onDismiss={() => closeMenu(idKey)}
+                        anchor={
+                          <IconButton
+                            icon="dots-vertical"
+                            onPress={() => openMenu(idKey)}
+                          />
+                        }
+                      >
+                        {editUrl && canEdit && (
+                          <Menu.Item
+                            onPress={() => {
+                              closeMenu(idKey);
+                              handleEdit(item);
+                            }}
+                            title="Edit"
+                          />
+                        )}
+                        {viewUrl && canView && (
+                          <Menu.Item
+                            onPress={() => {
+                              closeMenu(idKey); /* manage visibility */
+                              handleView(item);
+                            }}
+                            title="View"
+                          />
+                        )}
+                        {deleteUrl && canDelete && (
+                          <Menu.Item
+                            onPress={() => {
+                              closeMenu(idKey);
+                              showDeleteDialog(item.id || item._id);
+                            }}
+                            title="Delete"
+                          />
+                        )}
+                      </Menu>
+                    )}
                 </>
               )}
             </View>
@@ -831,6 +835,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     height: 26,
     alignSelf: "flex-start",
+  },
+  idCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "#e6f0ff",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  idCircleText: {
+    color: "#0b5fff",
+    fontWeight: "700",
+    fontSize: 12,
   },
   headerActions: {
     marginLeft: 8,

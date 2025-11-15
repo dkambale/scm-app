@@ -1,32 +1,59 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import { TextInput, Button, Text, Card, Snackbar, RadioButton } from 'react-native-paper';
-import { Formik } from 'formik';
-import * as Yup from 'yup';
-import { useAuth } from '../../context/AuthContext';
-import { useNavigation } from '@react-navigation/native'; // ADDED: Import useNavigation
+import React, { useState } from "react";
+import {
+  View,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from "react-native";
+import {
+  TextInput,
+  Button,
+  Text,
+  Card,
+  Snackbar,
+  RadioButton,
+} from "react-native-paper";
+import { Formik } from "formik";
+import * as Yup from "yup";
+import { useAuth } from "../../context/AuthContext";
+import { useNavigation } from "@react-navigation/native"; // ADDED: Import useNavigation
 
 const loginSchema = Yup.object().shape({
-  userName: Yup.string().required('User Name is required'),
-  password: Yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
-  accountId: Yup.string().required('Account ID is required'),
-  type: Yup.mixed<'ADMIN' | 'TEACHER' | 'STUDENT'>().oneOf(['ADMIN', 'TEACHER', 'STUDENT']).required('User Type is required'),
+  userName: Yup.string().required("User Name is required"),
+  password: Yup.string()
+    .min(6, "Password must be at least 6 characters")
+    .required("Password is required"),
+  accountId: Yup.string().required("Account ID is required"),
+  type: Yup.mixed<"ADMIN" | "TEACHER" | "STUDENT">()
+    .oneOf(["ADMIN", "TEACHER", "STUDENT"])
+    .required("User Type is required"),
 });
 
 export const LoginScreen: React.FC = () => {
   const { login } = useAuth();
   const navigation = useNavigation(); // ADDED: Initialize navigation hook
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [showSnackbar, setShowSnackbar] = useState(false);
 
-  const handleLogin = async (values: { userName: string; password: string; accountId: string; type: 'ADMIN' | 'TEACHER' | 'STUDENT' }) => {
+  const handleLogin = async (values: {
+    userName: string;
+    password: string;
+    accountId: string;
+    type: "ADMIN" | "TEACHER" | "STUDENT";
+  }) => {
     setLoading(true);
-    setError('');
+    setError("");
     try {
-      await login(values.userName, values.password, values.accountId, values.type);
+      await login(
+        values.userName,
+        values.password,
+        values.accountId,
+        values.type
+      );
     } catch (err) {
-      setError('Invalid username, password, or account ID.');
+      setError("Invalid username, password, or account ID.");
       setShowSnackbar(true);
     } finally {
       setLoading(false);
@@ -35,13 +62,13 @@ export const LoginScreen: React.FC = () => {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.content}>
           <Text variant="headlineLarge" style={styles.title}>
-            School Management
+            KoolERP
           </Text>
           <Text variant="titleMedium" style={styles.subtitle}>
             Sign in to continue
@@ -50,17 +77,29 @@ export const LoginScreen: React.FC = () => {
           <Card style={styles.card}>
             <Card.Content>
               <Formik
-                initialValues={{ userName: '', password: '', accountId: '', type: 'ADMIN' as 'ADMIN' | 'TEACHER' | 'STUDENT' }}
+                initialValues={{
+                  userName: "",
+                  password: "",
+                  accountId: "",
+                  type: "ADMIN" as "ADMIN" | "TEACHER" | "STUDENT",
+                }}
                 validationSchema={loginSchema}
                 onSubmit={handleLogin}
               >
-                {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+                {({
+                  handleChange,
+                  handleBlur,
+                  handleSubmit,
+                  values,
+                  errors,
+                  touched,
+                }) => (
                   <View>
                     <TextInput
                       label="User Name"
                       value={values.userName}
-                      onChangeText={handleChange('userName')}
-                      onBlur={handleBlur('userName')}
+                      onChangeText={handleChange("userName")}
+                      onBlur={handleBlur("userName")}
                       autoCapitalize="none"
                       style={styles.input}
                       mode="outlined"
@@ -72,8 +111,8 @@ export const LoginScreen: React.FC = () => {
                     <TextInput
                       label="Password"
                       value={values.password}
-                      onChangeText={handleChange('password')}
-                      onBlur={handleBlur('password')}
+                      onChangeText={handleChange("password")}
+                      onBlur={handleBlur("password")}
                       secureTextEntry
                       style={styles.input}
                       mode="outlined"
@@ -85,8 +124,8 @@ export const LoginScreen: React.FC = () => {
                     <TextInput
                       label="Account ID"
                       value={values.accountId}
-                      onChangeText={handleChange('accountId')}
-                      onBlur={handleBlur('accountId')}
+                      onChangeText={handleChange("accountId")}
+                      onBlur={handleBlur("accountId")}
                       autoCapitalize="none"
                       style={styles.input}
                       mode="outlined"
@@ -96,28 +135,52 @@ export const LoginScreen: React.FC = () => {
                     )}
 
                     <View style={{ marginTop: 8, marginBottom: 8 }}>
-                      <Text variant="bodyMedium" style={{ marginBottom: 8 }}>User Type</Text>
+                      <Text variant="bodyMedium" style={{ marginBottom: 8 }}>
+                        User Type
+                      </Text>
                       <RadioButton.Group
-                        onValueChange={(value) => (handleChange('type')(value))}
+                        onValueChange={(value) => handleChange("type")(value)}
                         value={values.type}
                       >
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <View
+                          style={{
+                            flexDirection: "row",
+                            justifyContent: "space-between",
+                          }}
+                        >
+                          <View
+                            style={{
+                              flexDirection: "row",
+                              alignItems: "center",
+                            }}
+                          >
                             <RadioButton value="ADMIN" />
                             <Text>Admin</Text>
                           </View>
-                          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                          <View
+                            style={{
+                              flexDirection: "row",
+                              alignItems: "center",
+                            }}
+                          >
                             <RadioButton value="TEACHER" />
                             <Text>Teacher</Text>
                           </View>
-                          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                          <View
+                            style={{
+                              flexDirection: "row",
+                              alignItems: "center",
+                            }}
+                          >
                             <RadioButton value="STUDENT" />
                             <Text>Student</Text>
                           </View>
                         </View>
                       </RadioButton.Group>
                       {touched.type && errors.type && (
-                        <Text style={styles.errorText}>{errors.type as any}</Text>
+                        <Text style={styles.errorText}>
+                          {errors.type as any}
+                        </Text>
                       )}
                     </View>
 
@@ -133,16 +196,17 @@ export const LoginScreen: React.FC = () => {
                   </View>
                 )}
               </Formik>
-
             </Card.Content>
           </Card>
 
           {/* ADDED: Link to Signup Screen */}
           <View style={styles.footerNav}>
-            <Text variant="bodyMedium">Don't have an account?</Text>
+            <Text variant="bodyMedium" style={styles.footerText}>
+              Don't have an account?
+            </Text>
             <Button
               mode="text"
-              onPress={() => navigation.navigate('SignupScreen' as never)}
+              onPress={() => navigation.navigate("SignupScreen" as never)}
               compact
               labelStyle={styles.textButtonLabel}
             >
@@ -150,7 +214,6 @@ export const LoginScreen: React.FC = () => {
             </Button>
           </View>
           {/* END: Link to Signup Screen */}
-
         </View>
 
         <Snackbar
@@ -168,26 +231,26 @@ export const LoginScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
   },
   scrollContainer: {
     flexGrow: 1,
   },
   content: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
     padding: 20,
   },
   title: {
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 8,
-    fontWeight: 'bold',
-    color: '#6200ee',
+    fontWeight: "bold",
+    color: "#6200ee",
   },
   subtitle: {
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 32,
-    color: '#666',
+    color: "#666",
   },
   card: {
     elevation: 4,
@@ -196,7 +259,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   errorText: {
-    color: 'red',
+    color: "red",
     fontSize: 12,
     marginBottom: 8,
     marginLeft: 12,
@@ -205,28 +268,35 @@ const styles = StyleSheet.create({
     marginTop: 16,
     paddingVertical: 6,
   },
-  footerNav: { // ADDED
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+  footerNav: {
+    // ADDED
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     marginTop: 20,
   },
-  textButtonLabel: { // ADDED
+  textButtonLabel: {
+    // ADDED
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: "bold",
+  },
+  footerText: {
+    color: "#0A0A0A",
+    fontSize: 14,
+    marginRight: 8,
   },
   demoContainer: {
     marginTop: 24,
     padding: 12,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: "#f0f0f0",
     borderRadius: 8,
   },
   demoTitle: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 8,
   },
   demoText: {
-    color: '#666',
+    color: "#000000ff",
     marginBottom: 2,
   },
 });

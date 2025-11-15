@@ -3,8 +3,7 @@ import { View, Text, StyleSheet, FlatList } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import RNDashboardCard from '../common/RNDashboardCard'; // Assuming RNDashboardCard is in a common directory
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-
-// Mock data structure, replace with actual API call/Redux state
+import NotificationButton from '../../components/common/NotificationButton';// Mock data structure, replace with actual API call/Redux state
 const MOCK_TIMETABLE = [
   { id: '1', time: '9:00 AM', subject: 'Mathematics', class: 'Grade 10 A', room: 'R-201' },
   { id: '2', time: '10:00 AM', subject: 'Science', class: 'Grade 9 B', room: 'Lab 1' },

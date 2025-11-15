@@ -8,12 +8,20 @@ import {
   FlatList,
   TouchableOpacity,
 } from "react-native";
-import { TextInput, Button, Card, IconButton, Text } from "react-native-paper";
+import {
+  TextInput,
+  Button,
+  Card,
+  IconButton,
+  Text,
+  ActivityIndicator,
+} from "react-native-paper";
 import { Formik, FieldArray } from "formik";
 import * as Yup from "yup";
 import { useNavigation, useRoute } from "@react-navigation/native";
 
 import SCDSelector from "../../../components/common/SCDSelector.native";
+import StatusMessage from "../../../components/common/StatusMessage";
 
 import { apiService } from "../../../api/apiService";
 import { storage } from "../../../utils/storage";
@@ -134,6 +142,13 @@ const AddEditTimetable: React.FC = () => {
     slotIndex: number;
   } | null>(null);
 
+  // status/snackbar state
+  const [statusVisible, setStatusVisible] = useState(false);
+  const [statusType, setStatusType] = useState<"success" | "error" | "info">(
+    "success"
+  );
+  const [statusMessage, setStatusMessage] = useState("");
+
   const daysOfWeek = [
     "Monday",
     "Tuesday",
@@ -226,6 +241,21 @@ const AddEditTimetable: React.FC = () => {
     );
   };
 
+  if (loading) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          padding: 12,
+        }}
+      >
+        <ActivityIndicator />
+      </View>
+    );
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Card style={styles.card}>
@@ -288,19 +318,21 @@ const AddEditTimetable: React.FC = () => {
                   : apiService.api.post;
                 await method(endpoint, finalValues);
 
-                Alert.alert(
-                  "Success",
-                  `Timetable ${timetableId ? "updated" : "saved"} successfully`,
-                  [
-                    {
-                      text: "OK",
-                      onPress: () => navigation.navigate("Timetables" as never),
-                    },
-                  ]
+                // show success via reusable component and navigate on dismiss
+                setStatusType("success");
+                setStatusMessage(
+                  `Timetable ${timetableId ? "updated" : "saved"} successfully`
                 );
-              } catch (err) {
+                setStatusVisible(true);
+              } catch (err: any) {
                 console.error("Save timetable failed", err);
-                Alert.alert("Error", "Failed to save timetable");
+                const msg =
+                  err?.response?.data?.message ||
+                  err?.message ||
+                  "Failed to save timetable";
+                setStatusType("error");
+                setStatusMessage(String(msg));
+                setStatusVisible(true);
               } finally {
                 setSubmitting(false as any);
               }
@@ -681,6 +713,29 @@ const AddEditTimetable: React.FC = () => {
                     Cancel
                   </Button>
                 </View>
+                {/* Status snackbar */}
+                <StatusMessage
+                  visible={statusVisible}
+                  type={statusType}
+                  message={statusMessage}
+                  onDismiss={() => {
+                    setStatusVisible(false);
+                    // navigate back to timetables list or goBack if possible
+                    try {
+                      if (
+                        navigation &&
+                        typeof navigation.canGoBack === "function" &&
+                        navigation.canGoBack()
+                      ) {
+                        navigation.goBack();
+                      } else {
+                        navigation.navigate("Timetables" as never);
+                      }
+                    } catch {
+                      // swallow navigation errors
+                    }
+                  }}
+                />
               </View>
             )}
           </Formik>

@@ -43,7 +43,7 @@ export const LoginScreen: React.FC = () => {
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.content}>
           <Text variant="headlineLarge" style={styles.title}>
-            School Management
+            KoolERP
           </Text>
           <Text variant="titleMedium" style={styles.subtitle}>
             Sign in to continue

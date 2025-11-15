@@ -50,7 +50,7 @@ export const StudentList: React.FC = () => {
         fetchUrl={fetchUrl}
         columns={columnsConfig}
         isPostRequest={true}
-        // addActionUrl="AddStudent"
+        addActionUrl="AddStudent"
         // editUrl="EditStudent"
         // deleteUrl="/api/users/delete"
         entityName="Student"

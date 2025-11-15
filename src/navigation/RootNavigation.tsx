@@ -15,8 +15,8 @@ import {
   permFrom,
   makeProtectedScreen,
 } from "./permissionUtils";
-
-import AttendanceEdit from "../screens/admin/attendance/AddAttendance";
+import NotificationDrawerItem from "../components/common/NotificationDrawerItem";
+import { AttendanceEdit } from "../screens/admin/attendance/AddAttendance";
 
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import AddEditTimetable from "../screens/admin/timetables/AddEditTimetable";
@@ -28,6 +28,7 @@ import StudentViewComponent from "../screens/admin/students/StudentView";
 import { AddEditTeacher } from "../screens/admin/teachers/AddEditTeacher";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { SignupScreen } from "../screens/auth/SignupScreen";
+import NotificationScreen from "../components/common/NotificationScreen";
 
 const styles = StyleSheet.create({
   drawerContainer: {
@@ -143,11 +144,14 @@ export const RootNavigation: React.FC = () => {
   const Stack = createNativeStackNavigator();
 
   // Build top-level drawer entries directly from the entity registry.
-  // For each supported entity we call the permission hook explicitly
-  // (to respect the Rules of Hooks) and then show only those entries
-  // for which the user has a 'view' permission.
-  const canViewTEACHER_DASHBOARD = true;
-  const canViewSTUDENT_DASHBOARD = true;
+  // Show the appropriate dashboard depending on the authenticated user's type.
+  // (User is present here because we returned earlier when !user.)
+  const userType = ((user as any)?.type || (user as any)?.role || "")
+    .toString()
+    .toUpperCase();
+  const canViewTEACHER_DASHBOARD =
+    userType === "ADMIN" || userType === "TEACHER";
+  const canViewSTUDENT_DASHBOARD = userType === "STUDENT";
   const canViewSTUDENT = useHasPermission({
     entity: "STUDENT",
     action: "view",
@@ -169,13 +173,8 @@ export const RootNavigation: React.FC = () => {
     entity: "ATTENDANCE",
     action: "view",
   });
-  const canViewFEE = useHasPermission({ entity: "FEE", action: "view" });
   const canViewFEE_MANAGEMENT = useHasPermission({
     entity: "FEE_MANAGEMENT",
-    action: "view",
-  });
-  const canViewANNOUNCEMENT = useHasPermission({
-    entity: "ANNOUNCEMENT",
     action: "view",
   });
   const canViewPROFILE = useHasPermission({
@@ -186,7 +185,7 @@ export const RootNavigation: React.FC = () => {
     entity: "EXAM",
     action: "view",
   });
-  const visibleEntries = [] as { id: string; component: any }[];
+  const visibleEntries = [] as { id: string; title?: string; component: any }[];
   if (canViewTEACHER_DASHBOARD)
     visibleEntries.push(entityRegistry.TEACHER_DASHBOARD);
   if (canViewSTUDENT_DASHBOARD)
@@ -194,15 +193,15 @@ export const RootNavigation: React.FC = () => {
 
   if (canViewSTUDENT) visibleEntries.push(entityRegistry.STUDENT);
   if (canViewTEACHER) visibleEntries.push(entityRegistry.TEACHER);
-  if (canViewCLASS) visibleEntries.push(entityRegistry.CLASS);
+  // if (canViewCLASS) visibleEntries.push(entityRegistry.CLASS);
   if (canViewTIMETABLE) visibleEntries.push(entityRegistry.TIMETABLE);
   if (canViewASSIGNMENT) visibleEntries.push(entityRegistry.ASSIGNMENT);
   if (canViewATTENDANCE) visibleEntries.push(entityRegistry.ATTENDANCE);
-  if (canViewFEE) visibleEntries.push(entityRegistry.FEE);
-  if (canViewFEE_MANAGEMENT) visibleEntries.push(entityRegistry.FEE_MANAGEMENT);
+  // if (canViewFEE) visibleEntries.push(entityRegistry.FEE);
+  // if (canViewFEE_MANAGEMENT) visibleEntries.push(entityRegistry.FEE_MANAGEMENT);
   if (canViewFEE_MANAGEMENT) visibleEntries.push(entityRegistry.MYFEE);
 
-  if (canViewANNOUNCEMENT) visibleEntries.push(entityRegistry.ANNOUNCEMENT);
+  // if (canViewANNOUNCEMENT) visibleEntries.push(entityRegistry.ANNOUNCEMENT);
   if (canViewEXAM) visibleEntries.push(entityRegistry.EXAM);
   if (canViewPROFILE) visibleEntries.push(entityRegistry.PROFILE);
   if (loading) {
@@ -216,9 +215,7 @@ export const RootNavigation: React.FC = () => {
         {/* Added route for LoginScreen */}
         <AuthStack.Screen name="LoginScreen" component={LoginScreen} />
         {/* Added route for SignupScreen */}
-        <AuthStack.Screen name="SignupScreen" component={SignupScreen
-
-        } />
+        <AuthStack.Screen name="SignupScreen" component={SignupScreen} />
       </AuthStack.Navigator>
     );
 
@@ -290,11 +287,13 @@ export const RootNavigation: React.FC = () => {
       (user as any)?.username ||
       user?.role ||
       "User") as string;
-
+    const notificationUnreadCount = 5;
     return (
       <View style={styles.drawerContainer}>
         <LanguageSelector />
-
+        <View style={{ marginBottom: 12 }}>
+          <NotificationDrawerItem unreadCount={notificationUnreadCount} />
+        </View>
         <View style={styles.profileCard}>
           <View style={styles.avatarPlaceholder}>
             <Text style={styles.avatarLabel}>
@@ -327,6 +326,8 @@ export const RootNavigation: React.FC = () => {
               ANNOUNCEMENT: "📢",
               EXAM: "🧾",
               PROFILE: "👤",
+              TEACHER_DASHBOARD: "📊",
+              STUDENT_DASHBOARD: "🎓",
             };
             const entryIcon = iconMap[entry.id] ?? "•";
 
@@ -340,7 +341,9 @@ export const RootNavigation: React.FC = () => {
                     <View style={styles.iconBox}>
                       <Text style={styles.iconText}>{entryIcon}</Text>
                     </View>
-                    <Text style={styles.entryLabel}>{entry.id}</Text>
+                    <Text style={styles.entryLabel}>
+                      {entry.title ?? entry.id}
+                    </Text>
                   </View>
                 </TouchableOpacity>
 
@@ -357,7 +360,7 @@ export const RootNavigation: React.FC = () => {
               </View>
             );
           })}
-  </DrawerContentScrollView>
+        </DrawerContentScrollView>
       </View>
     );
   }
@@ -368,7 +371,11 @@ export const RootNavigation: React.FC = () => {
         <Stack.Screen name="MainDrawer" component={DrawerHost} />
 
         {/* Global hidden screens (Add/Edit/View) so navigation.navigate(...) always resolves */}
-
+        <Stack.Screen
+          name="NotificationScreen"
+          component={NotificationScreen}
+          options={{ title: "Notifications", headerShown: true }}
+        />
         <Stack.Screen
           name="AddEditTimetable"
           component={makeProtectedScreen(

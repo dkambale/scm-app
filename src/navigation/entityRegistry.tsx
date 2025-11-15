@@ -21,7 +21,7 @@ const entityRegistry: Record<
 > = {
   STUDENT: { id: "STUDENT", title: "Students", component: StudentsScreen },
   TEACHER: { id: "TEACHER", title: "Teachers", component: TeachersScreen },
-  CLASS: { id: "CLASS", title: "Classes", component: ClassesScreen },
+  // CLASS: { id: "CLASS", title: "Classes", component: ClassesScreen },
   TIMETABLE: {
     id: "TIMETABLE",
     title: "Timetables",
@@ -37,22 +37,22 @@ const entityRegistry: Record<
     title: "Attendance",
     component: AttendancesScreen,
   },
-  FEE: { id: "FEE", title: "Fees (Student)", component: StudentFeesScreen },
-  FEE_MANAGEMENT: {
-    id: "FEE_MANAGEMENT",
-    title: "Fees (Admin)",
-    component: AdminFeesScreen,
-  },
+  // FEE: { id: "FEE", title: "Fees (Student)", component: StudentFeesScreen },
+  // FEE_MANAGEMENT: {
+  //   id: "FEE_MANAGEMENT",
+  //   title: "Fees (Admin)",
+  //   component: AdminFeesScreen,
+  // },
    MYFEE: {
     id: "MY fees",
     title: "Fees (Student)",
     component: StudentFeeView,
   },
-  ANNOUNCEMENT: {
-    id: "ANNOUNCEMENT",
-    title: "Announcements",
-    component: AnnouncementsScreen,
-  },
+  // ANNOUNCEMENT: {
+  //   id: "ANNOUNCEMENT",
+  //   title: "Announcements",
+  //   component: AnnouncementsScreen,
+  // },
   PROFILE: { id: "PROFILE", title: "Profile", component: ProfileScreen },
   TEACHER_DASHBOARD: {
     id: "TEACHER_DASHBOARD",
