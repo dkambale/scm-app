@@ -1,11 +1,11 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import ClassList from './classes/ClassList';
+import SchoolList from './schools/SchoolList';
 
-export const ClassesScreen: React.FC = () => {
+export const SchoolsScreen: React.FC = () => {
   return (
     <View style={styles.container}>
-      <ClassList />
+      <SchoolList />
     </View>
   );
 };
