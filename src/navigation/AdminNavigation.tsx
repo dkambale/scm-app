@@ -23,6 +23,15 @@ import { TimetablesScreen } from "../screens/admin/TimetablesScreen";
 import AddEditTimetable from "../screens/admin/timetables/AddEditTimetable";
 import ViewTimetable from "../screens/admin/timetables/TimetableView";
 
+// Import new SCD and Institute screens
+import { SchoolsScreen } from "../screens/admin/SchoolsScreen";
+import { DivisionsScreen } from "../screens/admin/DivisionsScreen";
+import { InstitutesScreen } from "../screens/admin/InstitutesScreen";
+import AddEditSchool from "../screens/admin/schools/AddEditSchool";
+import AddEditClass from "../screens/admin/classes/AddEditClass";
+import AddEditDivision from "../screens/admin/divisions/AddEditDivision";
+import AddEditInstitute from "../screens/admin/institutes/AddEditInstitute";
+
 import { IconButton, Dialog, Portal, Button } from "react-native-paper";
 import i18n from "../../i18n";
 import { Text, View } from "react-native";
@@ -46,12 +55,6 @@ export function AdminNavigation() {
       <Drawer.Screen 
         name="Dashboard" 
         component={AdminDashboardScreen}
-        // ----------------------------------------------------------------------
-        // MODIFICATION: Add NotificationButton to the headerRight
-        options={{ 
-          headerRight: () => <NotificationButton />,
-        }}
-        // ----------------------------------------------------------------------
       />
       {canViewStudents && (
         <Drawer.Screen
@@ -73,9 +76,21 @@ export function AdminNavigation() {
         />
       )}
       <Drawer.Screen
+        name="Schools"
+        component={SchoolsScreen}
+      />
+      <Drawer.Screen
         name="Classes"
         component={ClassesScreen}
         options={{ drawerLabel: () => <LanguageDrawerLabel /> }}
+      />
+      <Drawer.Screen
+        name="Divisions"
+        component={DivisionsScreen}
+      />
+      <Drawer.Screen
+        name="Institutes"
+        component={InstitutesScreen}
       />
       <Drawer.Screen name="Fees" component={FeesScreen} />
       <Drawer.Screen name="Assignments" component={AssignmentsScreen} />
@@ -180,6 +195,54 @@ export function AdminNavigation() {
         name="EditAttendance"
         component={AttendanceEditScreen}
         options={{ drawerLabel: () => null, title: "Edit Attendance" }} // Hide from drawerLabel
+      />
+
+      {/* School Add/Edit Screens */}
+      <Drawer.Screen
+        name="AddSchool"
+        component={AddEditSchool}
+        options={{ drawerLabel: () => null, title: "Add School" }}
+      />
+      <Drawer.Screen
+        name="EditSchool"
+        component={AddEditSchool}
+        options={{ drawerLabel: () => null, title: "Edit School" }}
+      />
+
+      {/* Class Add/Edit Screens */}
+      <Drawer.Screen
+        name="AddClass"
+        component={AddEditClass}
+        options={{ drawerLabel: () => null, title: "Add Class" }}
+      />
+      <Drawer.Screen
+        name="EditClass"
+        component={AddEditClass}
+        options={{ drawerLabel: () => null, title: "Edit Class" }}
+      />
+
+      {/* Division Add/Edit Screens */}
+      <Drawer.Screen
+        name="AddDivision"
+        component={AddEditDivision}
+        options={{ drawerLabel: () => null, title: "Add Division" }}
+      />
+      <Drawer.Screen
+        name="EditDivision"
+        component={AddEditDivision}
+        options={{ drawerLabel: () => null, title: "Edit Division" }}
+      />
+
+      {/* Institute Add/Edit Screens */}
+      <Drawer.Screen
+        name="AddInstitute"
+        component={AddEditInstitute}
+        options={{ drawerLabel: () => null, title: "Add Institute" }}
+      />
+      <Drawer.Screen
+        name="EditInstitute"
+        component={AddEditInstitute}
+        options={{ drawerLabel: () => null, title: "Edit Institute" }}
       />
     </Drawer.Navigator>
   );
