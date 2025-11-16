@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import ReusableDataGrid from '../../../components/common/ReusableDataGrid';
+import ReusableDataGrid from '../../../../components/common/ReusableDataGrid';
 import { useTranslation } from 'react-i18next';
 import { storage } from '../../../utils/storage';
 
@@ -38,7 +38,6 @@ export const SchoolList: React.FC = () => {
         columns={schoolColumns}
         fetchUrl={`/api/schoolBranches/getAll/${accountId}`}
         deleteUrl="/api/schoolBranches/delete"
-        entityName="SCHOOL"
       />
     </View>
   );
