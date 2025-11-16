@@ -404,12 +404,13 @@ export const ReusableDataGrid: React.FC<ReusableDataGridProps> = ({
             <View style={styles.headerActions}>
               {Platform.OS === "android" ? (
                 <>
-                  {(canEdit || canView || (deleteUrl && canDelete)) && (
-                    <IconButton
-                      icon="dots-vertical"
-                      onPress={() => setActionsModalId(idKey)}
-                    />
-                  )}
+                  {(editUrl || viewUrl || (deleteUrl && canDelete)) &&
+                    (canEdit || canView || (deleteUrl && canDelete)) && (
+                      <IconButton
+                        icon="dots-vertical"
+                        onPress={() => setActionsModalId(idKey)}
+                      />
+                    )}
                 </>
               ) : (
                 <>
@@ -671,6 +672,7 @@ export const ReusableDataGrid: React.FC<ReusableDataGridProps> = ({
 
       {/* Android modal for per-row actions (opened via three-dot icon) */}
       {Platform.OS === "android" && actionsModalId && (
+        
         <Modal
           visible={!!actionsModalId}
           animationType="fade"
@@ -688,26 +690,29 @@ export const ReusableDataGrid: React.FC<ReusableDataGridProps> = ({
                 });
                 return (
                   <>
-                    <Button
-                      mode="text"
-                      onPress={() => {
-                        setActionsModalId(null);
-                        if (sel) handleEdit(sel);
-                      }}
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      mode="text"
-                      onPress={() => {
-                        setActionsModalId(null);
-                        // view action - currently closes modal
-                        if (sel) handleView(sel);
-                      }}
-                    >
-                      View
-                    </Button>
-                    {deleteUrl && (
+                    {editUrl && canEdit && (
+                      <Button
+                        mode="text"
+                        onPress={() => {
+                          setActionsModalId(null);
+                          if (sel) handleEdit(sel);
+                        }}
+                      >
+                        Edit
+                      </Button>
+                    )}
+                    {viewUrl && canView && (
+                      <Button
+                        mode="text"
+                        onPress={() => {
+                          setActionsModalId(null);
+                          if (sel) handleView(sel);
+                        }}
+                      >
+                        View
+                      </Button>
+                    )}
+                    {deleteUrl && canDelete && (
                       <Button
                         mode="text"
                         onPress={() => {

@@ -37,9 +37,9 @@ const StudentCard = ({
     <Card style={styles.studentCard} elevation={2}>
       <Card.Title
         title={student.studentName}
-        subtitle={`Roll No: ${student.studentRollNo || "N"},Student ID ${
-          student.studentId
-        }`}
+        subtitle={`Roll No: ${student.studentRollNo || "N"}, Student ID ${student.studentId}`}
+        titleStyle={styles.studentTitle}
+        subtitleStyle={styles.studentSubtitle}
       />
 
       <Card.Content>
@@ -70,7 +70,7 @@ const StudentCard = ({
       </Card.Content>
       <Card.Actions style={{ justifyContent: "flex-end" }}>
         <Button mode="contained" onPress={() => onSave(student.studentId)}>
-          Save
+          {"Save"}
         </Button>
       </Card.Actions>
     </Card>
@@ -291,15 +291,15 @@ const TeacherExamView: React.FC = () => {
                 ]}
               >
                 <Card.Content>
-                  <Text>
-                    Please select School, Class and Division to load exams
+                  <Text style={styles.noticeText}>
+                    {t("teacherView.selectSCD") || "Please select School, Class and Division to load exams"}
                   </Text>
                 </Card.Content>
               </Card>
             ) : (
               <Card style={styles.filterCard}>
                 <Card.Content>
-                  <Text style={{ marginBottom: 8 }}>Select Exam</Text>
+                  <Text style={styles.sectionTitle}>{t("teacherView.selectExam") || "Select Exam"}</Text>
                   <FlatList
                     data={exams}
                     horizontal
@@ -343,7 +343,7 @@ const TeacherExamView: React.FC = () => {
             !selectedClassId ||
             !selectedDivisionId) ? null : (
             <View style={{ padding: 12 }}>
-              <Text>No students found</Text>
+              <Text style={styles.noStudentsText}>{t("teacherView.noStudents") || "No students found"}</Text>
             </View>
           )
         }
@@ -354,14 +354,15 @@ const TeacherExamView: React.FC = () => {
         <Card style={styles.graderCard}>
           <Card.Title
             title={`${gradingItem.student.studentName} - ${gradingItem.subject.subjectName}`}
+            titleStyle={styles.graderTitle}
             left={() => <IconButton icon="arrow-left" onPress={closeGrader} />}
           />
           <Card.Content>
-            <Text variant="bodyLarge">
-              Question: {gradingItem.subject.question || "—"}
+            <Text variant="bodyLarge" style={styles.graderText}>
+              {t("teacherView.question") || "Question"}: {gradingItem.subject.question || "—"}
             </Text>
-            <Text style={{ marginTop: 8 }}>
-              Student Answer: {gradingItem.student.answer || "—"}
+            <Text style={[{ marginTop: 8 }, styles.graderText]}>
+              {t("teacherView.studentAnswer") || "Student Answer"}: {gradingItem.student.answer || "—"}
             </Text>
             <TextInput
               label="Marks"
@@ -409,7 +410,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 8,
   },
-  subjectLabel: { flex: 1, fontWeight: "700" },
   controls: { flexDirection: "row", alignItems: "center", gap: 8 },
   marksInput: { width: 110, marginRight: 8 },
   graderCard: {
@@ -420,6 +420,21 @@ const styles = StyleSheet.create({
     zIndex: 40,
     elevation: 12,
   },
+  studentTitle: {
+    color: "#0b2b55",
+    fontWeight: "800",
+    fontSize: 16,
+  },
+  studentSubtitle: {
+    color: "#333",
+    fontSize: 13,
+  },
+  subjectLabel: { flex: 1, fontWeight: "700", color: "#0b2b55", fontSize: 15 },
+  noticeText: { color: "#0b2b55", fontWeight: "700", textAlign: "center" },
+  sectionTitle: { marginBottom: 8, color: "#0b2b55", fontWeight: "700" },
+  noStudentsText: { color: "#333", fontSize: 15, textAlign: "center" },
+  graderTitle: { color: "#0b2b55", fontWeight: "800" },
+  graderText: { color: "#111" },
 });
 
 export default TeacherExamView;
