@@ -4,6 +4,9 @@ import AdminDashboardScreen from "../screens/admin/AdminDashboardScreen";
 import { StudentsScreen } from "../screens/admin/StudentsScreen";
 import { TeachersScreen } from "../screens/admin/TeachersScreen";
 import { ClassesScreen } from "../screens/admin/ClassesScreen";
+import { InstitutesScreen } from "../screens/admin/InstitutesScreen";
+import { SchoolsScreen } from "../screens/admin/SchoolsScreen";
+import { DivisionsScreen } from "../screens/admin/DivisionsScreen";
 import { FeesScreen } from "../screens/admin/FeesScreen";
 import { AnnouncementsScreen } from "../screens/common/AnnouncementsScreen";
 import { ProfileScreen } from "../screens/common/ProfileScreen";
@@ -31,6 +34,7 @@ import {
   permFrom,
   useHasPermission,
 } from "./permissionUtils";
+import NotificationButton from "../components/common/NotificationButton";
 const Drawer = createDrawerNavigator();
 
 export function AdminNavigation() {
@@ -73,9 +77,21 @@ export function AdminNavigation() {
         />
       )}
       <Drawer.Screen
+        name="Institutes"
+        component={InstitutesScreen}
+      />
+      <Drawer.Screen
+        name="Schools"
+        component={SchoolsScreen}
+      />
+      <Drawer.Screen
         name="Classes"
         component={ClassesScreen}
         options={{ drawerLabel: () => <LanguageDrawerLabel /> }}
+      />
+      <Drawer.Screen
+        name="Divisions"
+        component={DivisionsScreen}
       />
       <Drawer.Screen name="Fees" component={FeesScreen} />
       <Drawer.Screen name="Assignments" component={AssignmentsScreen} />

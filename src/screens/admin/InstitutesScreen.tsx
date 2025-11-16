@@ -1,11 +1,11 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import ClassList from './classes/ClassList';
+import InstituteList from './institutes/InstituteList';
 
-export const ClassesScreen: React.FC = () => {
+export const InstitutesScreen: React.FC = () => {
   return (
     <View style={styles.container}>
-      <ClassList />
+      <InstituteList />
     </View>
   );
 };
@@ -15,3 +15,5 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
+
+export default InstitutesScreen;
