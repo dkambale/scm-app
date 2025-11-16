@@ -1,53 +1,44 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { ReusableDataGrid } from '../../../components/common/ReusableDataGrid';
-import { storage } from '../../../utils/storage';
+import ReusableDataGrid from '../../../components/common/ReusableDataGrid';
 import { useTranslation } from 'react-i18next';
-
-const columnsConfig = [
-  { key: 'name', header: 'Institute Name' },
-  { key: 'address', header: 'Address' },
-  { key: 'email', header: 'Email' },
-  { key: 'phone', header: 'Phone' },
-];
-
-const transformInstituteData = (institute: any) => ({
-  ...institute,
-  name: institute.name || 'N/A',
-  address: institute.address || 'N/A',
-  email: institute.email || 'N/A',
-  phone: institute.phone || institute.mobile || 'N/A',
-});
+import { storage } from '../../../utils/storage';
 
 export const InstituteList: React.FC = () => {
-  const [fetchUrl, setFetchUrl] = useState('');
   const { t } = useTranslation('title');
+  const [accountId, setAccountId] = React.useState('');
 
-  useEffect(() => {
-    const initialize = async () => {
+  React.useEffect(() => {
+    const getAccountId = async () => {
       const raw = await storage.getItem("SCM-AUTH");
-      const accountId = raw ? JSON.parse(raw)?.data?.accountId : undefined;
-      if (accountId) {
-        setFetchUrl(`/api/institutes/getAll/${accountId}`);
-      }
+      const id = raw ? JSON.parse(raw)?.data?.accountId : '';
+      setAccountId(id);
     };
-    initialize();
+    getAccountId();
   }, []);
 
-  if (!fetchUrl) {
-    return null;
-  }
+  const instituteColumns = [
+    { key: 'name', header: 'Institute Name' },
+    { key: 'address', header: 'Address' },
+    { key: 'email', header: 'Email' },
+    { key: 'phone', header: 'Phone' },
+    { 
+      key: 'actions', 
+      header: 'Actions', 
+      isAction: true,
+    },
+  ];
+
+  if (!accountId) return null;
 
   return (
     <View style={styles.container}>
       <ReusableDataGrid
         title={t('institutesItem')}
-        fetchUrl={fetchUrl}
-        columns={columnsConfig}
-        isPostRequest={true}
+        columns={instituteColumns}
+        fetchUrl={`/api/institutes/getAll/${accountId}`}
+        deleteUrl="/api/institutes/delete"
         entityName="INSTITUTE"
-        searchPlaceholder="Search institutes..."
-        transformData={transformInstituteData}
       />
     </View>
   );

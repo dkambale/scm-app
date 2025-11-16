@@ -1,53 +1,44 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { ReusableDataGrid } from '../../../components/common/ReusableDataGrid';
-import { storage } from '../../../utils/storage';
+import ReusableDataGrid from '../../../components/common/ReusableDataGrid';
 import { useTranslation } from 'react-i18next';
-
-const columnsConfig = [
-  { key: 'name', header: 'School Name' },
-  { key: 'address', header: 'Address' },
-  { key: 'email', header: 'Email' },
-  { key: 'phone', header: 'Phone' },
-];
-
-const transformSchoolData = (school: any) => ({
-  ...school,
-  name: school.name || 'N/A',
-  address: school.address || 'N/A',
-  email: school.email || 'N/A',
-  phone: school.phone || school.mobile || 'N/A',
-});
+import { storage } from '../../../utils/storage';
 
 export const SchoolList: React.FC = () => {
-  const [fetchUrl, setFetchUrl] = useState('');
   const { t } = useTranslation('title');
+  const [accountId, setAccountId] = React.useState('');
 
-  useEffect(() => {
-    const initialize = async () => {
+  React.useEffect(() => {
+    const getAccountId = async () => {
       const raw = await storage.getItem("SCM-AUTH");
-      const accountId = raw ? JSON.parse(raw)?.data?.accountId : undefined;
-      if (accountId) {
-        setFetchUrl(`/api/schoolBranches/getAll/${accountId}`);
-      }
+      const id = raw ? JSON.parse(raw)?.data?.accountId : '';
+      setAccountId(id);
     };
-    initialize();
+    getAccountId();
   }, []);
 
-  if (!fetchUrl) {
-    return null;
-  }
+  const schoolColumns = [
+    { key: 'name', header: 'School Name' },
+    { key: 'address', header: 'Address' },
+    { key: 'email', header: 'Email' },
+    { key: 'phone', header: 'Phone' },
+    { 
+      key: 'actions', 
+      header: 'Actions', 
+      isAction: true,
+    },
+  ];
+
+  if (!accountId) return null;
 
   return (
     <View style={styles.container}>
       <ReusableDataGrid
         title={t('schools')}
-        fetchUrl={fetchUrl}
-        columns={columnsConfig}
-        isPostRequest={true}
+        columns={schoolColumns}
+        fetchUrl={`/api/schoolBranches/getAll/${accountId}`}
+        deleteUrl="/api/schoolBranches/delete"
         entityName="SCHOOL"
-        searchPlaceholder="Search schools..."
-        transformData={transformSchoolData}
       />
     </View>
   );

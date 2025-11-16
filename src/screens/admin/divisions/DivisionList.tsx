@@ -1,49 +1,42 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { ReusableDataGrid } from '../../../components/common/ReusableDataGrid';
-import { storage } from '../../../utils/storage';
+import ReusableDataGrid from '../../../components/common/ReusableDataGrid';
 import { useTranslation } from 'react-i18next';
-
-const columnsConfig = [
-  { key: 'name', header: 'Division Name' },
-  { key: 'description', header: 'Description' },
-];
-
-const transformDivisionData = (division: any) => ({
-  ...division,
-  name: division.name || 'N/A',
-  description: division.description || 'N/A',
-});
+import { storage } from '../../../utils/storage';
 
 export const DivisionList: React.FC = () => {
-  const [fetchUrl, setFetchUrl] = useState('');
   const { t } = useTranslation('title');
+  const [accountId, setAccountId] = React.useState('');
 
-  useEffect(() => {
-    const initialize = async () => {
+  React.useEffect(() => {
+    const getAccountId = async () => {
       const raw = await storage.getItem("SCM-AUTH");
-      const accountId = raw ? JSON.parse(raw)?.data?.accountId : undefined;
-      if (accountId) {
-        setFetchUrl(`/api/divisions/getAll/${accountId}`);
-      }
+      const id = raw ? JSON.parse(raw)?.data?.accountId : '';
+      setAccountId(id);
     };
-    initialize();
+    getAccountId();
   }, []);
 
-  if (!fetchUrl) {
-    return null;
-  }
+  const divisionColumns = [
+    { key: 'name', header: 'Division Name' },
+    { key: 'description', header: 'Description' },
+    { 
+      key: 'actions', 
+      header: 'Actions', 
+      isAction: true,
+    },
+  ];
+
+  if (!accountId) return null;
 
   return (
     <View style={styles.container}>
       <ReusableDataGrid
         title={t('divisions')}
-        fetchUrl={fetchUrl}
-        columns={columnsConfig}
-        isPostRequest={true}
+        columns={divisionColumns}
+        fetchUrl={`/api/divisions/getAll/${accountId}`}
+        deleteUrl="/api/divisions/delete"
         entityName="DIVISION"
-        searchPlaceholder="Search divisions..."
-        transformData={transformDivisionData}
       />
     </View>
   );
