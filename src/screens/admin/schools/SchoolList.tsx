@@ -4,22 +4,21 @@ import { ReusableDataGrid } from '../../../components/common/ReusableDataGrid';
 import { storage } from '../../../utils/storage';
 
 const columnsConfig = [
-  { key: 'subjectName', header: 'Subject' },
-  { key: 'attendanceDate', header: 'Attendance Date' },
-  { key: 'className', header: 'Class' },
-  { key: 'schoolName', header: 'School' },
-  { key: 'divisionName', header: 'Division' },
-  // { key: 'subjectName', header: 'Subject' },
-  // { key: 'className', header: 'Class' },
-  // { key: 'divisionName', header: 'Division' },
+  { key: 'name', header: 'Name' },
+  { key: 'address', header: 'Address' },
+  { key: 'mobileNumber', header: 'Mobile number' },
+  { key: 'email', header: 'Emain' },
+  { key: 'faxNumber', header: 'Fax number' },
+  { key: 'instituteId', header: 'Institute ID' },
+  { key: 'code', header: 'code' },
 ];
 
-const transformAttendanceData = (attendance: any) => ({
-  ...attendance,
+const transformSchoolData = (school: any) => ({
+  ...school,
  
 });
 
-export const AttendanceList: React.FC = () => {
+export const SchoolList: React.FC = () => {
   const [fetchUrl, setFetchUrl] = useState('');
 
   useEffect(() => {
@@ -27,7 +26,7 @@ export const AttendanceList: React.FC = () => {
       const raw = await storage.getItem("SCM-AUTH");
       const accountId = raw ? JSON.parse(raw)?.data?.accountId : undefined;
       if (accountId) {
-        setFetchUrl(`/api/attendance/getAllBy/${accountId}`);
+        setFetchUrl(`/api/schoolBranches/getAll/${accountId}`);
       }
     };
     initialize();
@@ -40,17 +39,20 @@ export const AttendanceList: React.FC = () => {
   return (
     <View style={styles.container}>
       <ReusableDataGrid
-        title="Attendances"
+        title="Schools"
         fetchUrl={fetchUrl}
         columns={columnsConfig}
         isPostRequest={true}
-        addActionUrl="AddAttendance"
-        editUrl="EditAttendance"
+        addActionUrl="AddSchool"
+        editUrl="EditSchool"
         deleteUrl="/api/users/delete"
-        entityName="Attendance"
-        searchPlaceholder="Search attendances..."
-        transformData={transformAttendanceData}
-        enableFilters={true}
+        entityName="School"
+        searchPlaceholder="Search schools..."
+        transformData={transformSchoolData}
+        enableFilters = {false}
+//   showSchoolFilter = {true}
+//   showClassFilter = {true}
+//   showDivisionFilter = {true}
       />
     </View>
   );
@@ -62,4 +64,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AttendanceList;
+export default SchoolList;

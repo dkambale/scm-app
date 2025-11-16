@@ -14,18 +14,26 @@ import StudentExamResultScreen from "../screens/admin/exam/StudentExamResult";
 import StudentExamListScreen from "../screens/admin/exam/StudentExamListScreen";
 import { StudentFeeView } from "../screens/admin/fees/MyFees";
 import TeacherExamView from "../screens/admin/exam/TeacherExamView";
+import SchoolList from "../screens/admin/schools/SchoolList";
 // import TeacherTimetableCard from
 // Map permission entity names to a screen component and a friendly title.
 const entityRegistry: Record<
   string,
   { id: string; title: string; component: any }
 > = {
+   SCHOOL: {
+    id: "SCHOOL",
+    title: "SCHOOLs",
+    component: SchoolList,
+    icon: "account-group",
+  },
   STUDENT: {
     id: "STUDENT",
     title: "Students",
     component: StudentsScreen,
     icon: "account-group",
   },
+
   TEACHER: {
     id: "TEACHER",
     title: "Teachers",

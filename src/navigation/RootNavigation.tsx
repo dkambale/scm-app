@@ -155,7 +155,11 @@ export const RootNavigation: React.FC = () => {
   const canViewTEACHER_DASHBOARD =
     userType === "ADMIN" || userType === "TEACHER";
   const canViewSTUDENT_DASHBOARD = userType === "STUDENT";
-  const canViewSTUDENT = useHasPermission({
+  const canViewSCHOOL = useHasPermission({
+    entity: "SCHOOL",
+    action: "view",
+  });
+   const canViewSTUDENT = useHasPermission({
     entity: "STUDENT",
     action: "view",
   });
@@ -202,8 +206,9 @@ export const RootNavigation: React.FC = () => {
     visibleEntries.push(entityRegistry.TEACHER_DASHBOARD);
   if (canViewSTUDENT_DASHBOARD)
     visibleEntries.push(entityRegistry.STUDENT_DASHBOARD);
-
+  if (canViewSCHOOL) visibleEntries.push(entityRegistry.SCHOOL);
   if (canViewSTUDENT) visibleEntries.push(entityRegistry.STUDENT);
+
   if (canViewTEACHER) visibleEntries.push(entityRegistry.TEACHER);
   // if (canViewCLASS) visibleEntries.push(entityRegistry.CLASS);
   if (canViewTIMETABLE) visibleEntries.push(entityRegistry.TIMETABLE);

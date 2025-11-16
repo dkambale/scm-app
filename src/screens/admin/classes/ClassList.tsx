@@ -5,21 +5,19 @@ import { storage } from '../../../utils/storage';
 
 const columnsConfig = [
   { key: 'subjectName', header: 'Subject' },
-  { key: 'attendanceDate', header: 'Attendance Date' },
+  { key: 'classesDate', header: 'Classes Date' },
   { key: 'className', header: 'Class' },
   { key: 'schoolName', header: 'School' },
   { key: 'divisionName', header: 'Division' },
-  // { key: 'subjectName', header: 'Subject' },
-  // { key: 'className', header: 'Class' },
-  // { key: 'divisionName', header: 'Division' },
+
 ];
 
-const transformAttendanceData = (attendance: any) => ({
-  ...attendance,
+const transformClassesData = (classes: any) => ({
+  ...classes,
  
 });
 
-export const AttendanceList: React.FC = () => {
+export const ClassesList: React.FC = () => {
   const [fetchUrl, setFetchUrl] = useState('');
 
   useEffect(() => {
@@ -27,7 +25,7 @@ export const AttendanceList: React.FC = () => {
       const raw = await storage.getItem("SCM-AUTH");
       const accountId = raw ? JSON.parse(raw)?.data?.accountId : undefined;
       if (accountId) {
-        setFetchUrl(`/api/attendance/getAllBy/${accountId}`);
+        setFetchUrl(`/api/schoolClasses/getAllBy/${accountId}`);
       }
     };
     initialize();
@@ -40,17 +38,17 @@ export const AttendanceList: React.FC = () => {
   return (
     <View style={styles.container}>
       <ReusableDataGrid
-        title="Attendances"
+        title="Classess"
         fetchUrl={fetchUrl}
         columns={columnsConfig}
         isPostRequest={true}
-        addActionUrl="AddAttendance"
-        editUrl="EditAttendance"
-        deleteUrl="/api/users/delete"
-        entityName="Attendance"
-        searchPlaceholder="Search attendances..."
-        transformData={transformAttendanceData}
-        enableFilters={true}
+        addActionUrl="AddClasses"
+        editUrl="EditClasses"
+        deleteUrl="/api/schoolClasses/delete"
+        entityName="Classes"
+        searchPlaceholder="Search classess..."
+        transformData={transformClassesData}
+        
       />
     </View>
   );
@@ -62,4 +60,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AttendanceList;
+export default ClassesList;

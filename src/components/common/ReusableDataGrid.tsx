@@ -54,6 +54,10 @@ interface ReusableDataGridProps {
   onDataChange?: (data: any[]) => void;
   defaultPageSize?: number;
   sortBy?: string;
+  enableFilters?: boolean;
+  showSchoolFilter?: boolean;
+  showClassFilter?: boolean;
+  showDivisionFilter?: boolean;
 }
 
 export const ReusableDataGrid: React.FC<ReusableDataGridProps> = ({
@@ -75,6 +79,10 @@ export const ReusableDataGrid: React.FC<ReusableDataGridProps> = ({
   onDataChange,
   defaultPageSize = 10,
   sortBy = "asc",
+  enableFilters = true,
+  showSchoolFilter = true,
+  showClassFilter = true,
+  showDivisionFilter = true,
 }) => {
   const navigation = useNavigation();
   const theme = useTheme();
@@ -518,15 +526,21 @@ export const ReusableDataGrid: React.FC<ReusableDataGridProps> = ({
         />
       </View>
 
-      {/* Filters: School / Class / Division */}
-      <ListGridFilters
-        filters={gridFilters}
-        onFiltersChange={handleFiltersChange}
-        schools={[]}
-        classes={[]}
-        divisions={[]}
-        loading={loading}
-      />
+      {/* Filters: School / Class / Division (optional) */}
+      {enableFilters &&
+        (showSchoolFilter || showClassFilter || showDivisionFilter) && (
+          <ListGridFilters
+            filters={gridFilters}
+            onFiltersChange={handleFiltersChange}
+            schools={[]}
+            classes={[]}
+            divisions={[]}
+            loading={loading}
+            showSchool={showSchoolFilter}
+            showClass={showClassFilter}
+            showDivision={showDivisionFilter}
+          />
+        )}
 
       {/* Main List Area */}
       {loading && !refreshing ? (
@@ -672,7 +686,6 @@ export const ReusableDataGrid: React.FC<ReusableDataGridProps> = ({
 
       {/* Android modal for per-row actions (opened via three-dot icon) */}
       {Platform.OS === "android" && actionsModalId && (
-        
         <Modal
           visible={!!actionsModalId}
           animationType="fade"

@@ -37,7 +37,9 @@ const StudentCard = ({
     <Card style={styles.studentCard} elevation={2}>
       <Card.Title
         title={student.studentName}
-        subtitle={`Roll No: ${student.studentRollNo || "N"}, Student ID ${student.studentId}`}
+        subtitle={`Roll No: ${student.studentRollNo || "N"}, Student ID ${
+          student.studentId
+        }`}
         titleStyle={styles.studentTitle}
         subtitleStyle={styles.studentSubtitle}
       />
@@ -292,14 +294,17 @@ const TeacherExamView: React.FC = () => {
               >
                 <Card.Content>
                   <Text style={styles.noticeText}>
-                    {t("teacherView.selectSCD") || "Please select School, Class and Division to load exams"}
+                    {t("teacherView.selectSCD") ||
+                      "Please select School, Class and Division to load exams"}
                   </Text>
                 </Card.Content>
               </Card>
             ) : (
               <Card style={styles.filterCard}>
                 <Card.Content>
-                  <Text style={styles.sectionTitle}>{t("teacherView.selectExam") || "Select Exam"}</Text>
+                  <Text style={styles.sectionTitle}>
+                    {t("teacherView.selectExam") || "Select Exam"}
+                  </Text>
                   <FlatList
                     data={exams}
                     horizontal
@@ -343,7 +348,9 @@ const TeacherExamView: React.FC = () => {
             !selectedClassId ||
             !selectedDivisionId) ? null : (
             <View style={{ padding: 12 }}>
-              <Text style={styles.noStudentsText}>{t("teacherView.noStudents") || "No students found"}</Text>
+              <Text style={styles.noStudentsText}>
+                {t("teacherView.noStudents") || "No students found"}
+              </Text>
             </View>
           )
         }
@@ -359,10 +366,12 @@ const TeacherExamView: React.FC = () => {
           />
           <Card.Content>
             <Text variant="bodyLarge" style={styles.graderText}>
-              {t("teacherView.question") || "Question"}: {gradingItem.subject.question || "—"}
+              {t("teacherView.question") || "Question"}:{" "}
+              {gradingItem.subject.question || "—"}
             </Text>
             <Text style={[{ marginTop: 8 }, styles.graderText]}>
-              {t("teacherView.studentAnswer") || "Student Answer"}: {gradingItem.student.answer || "—"}
+              {t("teacherView.studentAnswer") || "Student Answer"}:{" "}
+              {gradingItem.student.answer || "—"}
             </Text>
             <TextInput
               label="Marks"

@@ -35,9 +35,9 @@ interface Props {
 const ListGridFilters: React.FC<Props> = ({
   filters = {},
   onFiltersChange,
-  showSchool = true,
-  showClass = true,
-  showDivision = true,
+  showSchool,
+  showClass,
+  showDivision,
 
   loading = false,
   disableSCDFilter = false,

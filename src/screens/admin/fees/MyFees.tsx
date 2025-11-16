@@ -24,7 +24,7 @@ import { FeeCard } from "./components/FeeCard";
 import { PaymentModal } from "./components/PaymentModal";
 import { FeeReceiptModal } from "./components/FeeReceiptModal";
 import { Fee, StudentInfo, PaymentHistoryItem } from "../../../types";
-import { LoadingSpinner } from "../../../../components/common/LoadingSpinner"; // Assuming this path
+import { LoadingSpinner } from "../../../components/common/LoadingSpinner"; // Assuming this path
 
 // Helper function to format currency
 const formatCurrency = (amount: number | undefined) => {
