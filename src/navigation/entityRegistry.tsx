@@ -14,17 +14,39 @@ import StudentExamResultScreen from "../screens/admin/exam/StudentExamResult";
 import StudentExamListScreen from "../screens/admin/exam/StudentExamListScreen";
 import { StudentFeeView } from "../screens/admin/fees/MyFees";
 import TeacherExamView from "../screens/admin/exam/TeacherExamView";
+
 import SchoolList from "../screens/admin/schools/SchoolList";
+import ClassList from "../screens/admin/classes/ClassList";
+import InstituteList from "../screens/admin/institutes/InstituteList";
+import DivisionsList from "../screens/admin/divisions/divisionsList";
 // import TeacherTimetableCard from
 // Map permission entity names to a screen component and a friendly title.
 const entityRegistry: Record<
   string,
   { id: string; title: string; component: any }
 > = {
+   INSTITUTE: {
+    id: "INSTITUTE",
+    title: "INSTITUTES",
+    component: InstituteList,
+    icon: "account-group",
+  },
    SCHOOL: {
     id: "SCHOOL",
-    title: "SCHOOLs",
+    title: "SCHOOLS",
     component: SchoolList,
+    icon: "account-group",
+  },
+   CLASSES: {
+    id: "CLASSES",
+    title: "CLASSES",
+    component: ClassList,
+    icon: "account-group",
+  },
+   DIVISION: {
+    id: "DIVISION",
+    title: "DIVISIONS",
+    component: DivisionsList ,
     icon: "account-group",
   },
   STUDENT: {
@@ -40,7 +62,7 @@ const entityRegistry: Record<
     component: TeachersScreen,
     icon: "account-tie",
   },
-  // CLASS: { id: "CLASS", title: "Classes", component: ClassesScreen },
+  // CLASS: { id: "CLASS", title: "Divisions", component: ClassesScreen },
   TIMETABLE: {
     id: "TIMETABLE",
     title: "Timetables",

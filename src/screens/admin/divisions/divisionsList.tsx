@@ -5,16 +5,16 @@ import { storage } from '../../../utils/storage';
 
 const columnsConfig = [
   { key: 'name', header: 'Name' },
-  { key: 'instituteId', header: 'institute Id' },
+  // { key: 'instituteId', header: 'institute Id' },
 
 ];
 
-const transformClassData = (classes: any) => ({
-  ...classes,
+const transformDivisionsData = (divisionses: any) => ({
+  ...divisionses,
  
 });
 
-export const ClassList: React.FC = () => {
+export const DivisionsList: React.FC = () => {
   const [fetchUrl, setFetchUrl] = useState('');
 
   useEffect(() => {
@@ -22,7 +22,7 @@ export const ClassList: React.FC = () => {
       const raw = await storage.getItem("SCM-AUTH");
       const accountId = raw ? JSON.parse(raw)?.data?.accountId : undefined;
       if (accountId) {
-        setFetchUrl(`/api/schoolClasses/getAll/${accountId}`);
+        setFetchUrl(`/api/divisions/getAll/${accountId}`);
       }
     };
     initialize();
@@ -35,16 +35,16 @@ export const ClassList: React.FC = () => {
   return (
     <View style={styles.container}>
       <ReusableDataGrid
-        title="Class"
+        title="Divisions"
         fetchUrl={fetchUrl}
         columns={columnsConfig}
         isPostRequest={true}
-        addActionUrl="AddClass"
-        editUrl="EditClass"
+        addActionUrl="AddEditDivision"
+        editUrl="AddEditDivision"
         deleteUrl="/api/users/delete"
-        entityName="Class"
-        searchPlaceholder="Search classes..."
-        transformData={transformClassData}
+        entityName="Division"
+        searchPlaceholder="Search divisionses..."
+        transformData={transformDivisionsData}
         enableFilters = {false}
   // showSchoolFilter = {true}
   // showClassFilter = {false}
@@ -60,4 +60,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ClassList;
+export default DivisionsList;

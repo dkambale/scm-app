@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   StyleSheet,
@@ -69,6 +69,7 @@ interface ReusableFormProps {
   cancelButton?: React.ReactNode;
   showCancelButton?: boolean;
   showSCDSelector?: boolean;
+  disableSCD?: boolean;
 
   // Formik-style API used by newer callers
   initialValues?: any;
@@ -99,6 +100,7 @@ export const ReusableForm: React.FC<ReusableFormProps> = ({
   cancelAction,
   submitLabel,
   tNamespace,
+  disableSCD = false,
 }) => {
   const navigation = useNavigation();
   const route = useRoute();
@@ -110,6 +112,8 @@ export const ReusableForm: React.FC<ReusableFormProps> = ({
   const [errors, setErrors] = useState<any>({});
   // Track which field's date picker is visible
   const [datePickers, setDatePickers] = useState<Record<string, boolean>>({});
+  // Ref to the Formik instance when we render with Formik
+  const formikRef = useRef<any>(null);
 
   // Fetch initial data for editing
   useEffect(() => {
@@ -403,6 +407,7 @@ export const ReusableForm: React.FC<ReusableFormProps> = ({
           <Card.Content>
             {initialValues ? (
               <Formik
+                innerRef={formikRef}
                 initialValues={initialValues}
                 validationSchema={validationSchema}
                 onSubmit={externalOnSubmit as any}
@@ -450,7 +455,7 @@ export const ReusableForm: React.FC<ReusableFormProps> = ({
                       </View>
                     ))}
 
-                    {showSCDSelector && (
+                    {showSCDSelector && !disableSCD && (
                       <View
                         style={[
                           styles.scdContainer,
@@ -546,12 +551,19 @@ export const ReusableForm: React.FC<ReusableFormProps> = ({
 
         <Button
           mode="contained"
-          onPress={handleSubmit}
+          onPress={() => {
+            // If Formik is being used, trigger Formik's submitForm(), otherwise use legacy handler
+            if (formikRef && formikRef.current && typeof formikRef.current.submitForm === "function") {
+              formikRef.current.submitForm();
+            } else {
+              handleSubmit();
+            }
+          }}
           style={styles.fullWidthAction}
           contentStyle={styles.fullWidthActionContent}
           labelStyle={styles.fullWidthActionLabel}
-          loading={loading}
-          disabled={loading}
+          loading={loading || (formikRef?.current?.isSubmitting ?? false)}
+          disabled={loading || (formikRef?.current?.isSubmitting ?? false)}
           buttonColor={theme.colors.primary}
           textColor={theme.colors.onPrimary || "#ffffff"}
         >

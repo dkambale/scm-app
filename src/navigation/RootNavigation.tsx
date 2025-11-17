@@ -27,6 +27,8 @@ import TeacherExamView from "../screens/admin/exam/TeacherExamView";
 import { AddEditStudent } from "../screens/admin/students/AddEditStudent";
 import StudentViewComponent from "../screens/admin/students/StudentView";
 
+import AddEditDivision from "../screens/admin/divisions/AddEditDivision";
+
 import { AddEditTeacher } from "../screens/admin/teachers/AddEditTeacher";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Avatar } from "react-native-paper";
@@ -155,11 +157,23 @@ export const RootNavigation: React.FC = () => {
   const canViewTEACHER_DASHBOARD =
     userType === "ADMIN" || userType === "TEACHER";
   const canViewSTUDENT_DASHBOARD = userType === "STUDENT";
+  const canViewinstitute = useHasPermission({
+    entity: "institute",
+    action: "view",
+  });
   const canViewSCHOOL = useHasPermission({
     entity: "SCHOOL",
     action: "view",
   });
-   const canViewSTUDENT = useHasPermission({
+  const canViewCLASS = useHasPermission({
+    entity: "CLASS",
+    action: "view",
+  });
+  const canViewDIVISION = useHasPermission({
+    entity: "DIVISION",
+    action: "view",
+  });
+  const canViewSTUDENT = useHasPermission({
     entity: "STUDENT",
     action: "view",
   });
@@ -206,7 +220,10 @@ export const RootNavigation: React.FC = () => {
     visibleEntries.push(entityRegistry.TEACHER_DASHBOARD);
   if (canViewSTUDENT_DASHBOARD)
     visibleEntries.push(entityRegistry.STUDENT_DASHBOARD);
+  if (canViewinstitute) visibleEntries.push(entityRegistry.INSTITUTE);
   if (canViewSCHOOL) visibleEntries.push(entityRegistry.SCHOOL);
+  if (canViewCLASS) visibleEntries.push(entityRegistry.CLASSES);
+  if (canViewDIVISION) visibleEntries.push(entityRegistry.DIVISION);
   if (canViewSTUDENT) visibleEntries.push(entityRegistry.STUDENT);
 
   if (canViewTEACHER) visibleEntries.push(entityRegistry.TEACHER);
@@ -267,6 +284,7 @@ export const RootNavigation: React.FC = () => {
   // will get the little + (add) button in the sidebar.
   const addRouteMap: Record<string, string> = {
     STUDENT: "AddStudent",
+    DIVISION: "AddEditDivision",
     TEACHER: "AddTeacher",
     TIMETABLE: "AddEditTimetable",
     ATTENDANCE: "AddAttendance",
@@ -278,6 +296,10 @@ export const RootNavigation: React.FC = () => {
     // Hook-based permission checks for Add buttons
     const canAddStudent = useHasPermission({
       entity: "STUDENT",
+      action: "add",
+    });
+    const canAddDivision = useHasPermission({
+      entity: "DIVISION",
       action: "add",
     });
     const canAddTeacher = useHasPermission({
@@ -295,6 +317,7 @@ export const RootNavigation: React.FC = () => {
 
     const addPermMap: Record<string, boolean> = {
       STUDENT: Boolean(canAddStudent),
+      DIVISION: Boolean(canAddDivision),
       TEACHER: Boolean(canAddTeacher),
       TIMETABLE: Boolean(canAddTimetable),
       ATTENDANCE: Boolean(canAddAttendance),
@@ -442,6 +465,20 @@ export const RootNavigation: React.FC = () => {
           component={makeProtectedScreen(
             AddEditStudent,
             permFrom("STUDENT", "edit")
+          )}
+        />
+        <Stack.Screen
+          name="AddEditDivision"
+          component={makeProtectedScreen(
+            AddEditDivision,
+            permFrom("DIVISION", "add")
+          )}
+        />
+        <Stack.Screen
+          name="EditDivision"
+          component={makeProtectedScreen(
+            AddEditDivision,
+            permFrom("DIVISION", "edit")
           )}
         />
         <Stack.Screen name="StudentView">
