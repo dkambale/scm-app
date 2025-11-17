@@ -349,14 +349,39 @@ export const ReusableDataGrid: React.FC<ReusableDataGridProps> = ({
     setDeleteDialogVisible(true);
   };
   const hideDeleteDialog = () => setDeleteDialogVisible(false);
+  // DELETE
+  // /api/divisions/delete/{accountId}/{id}
+  // can you please add at last of this api {accountId}/{id} in delete deleteUrl
 
   const handleDelete = async () => {
     if (deleteUrl && deleteItemId) {
       try {
-        await api.post(deleteUrl, { id: deleteItemId });
+        // Resolve accountId and build a URL of the form
+        // /api/.../delete/{accountId}/{id}
+        const { userDetails } = await import("../../utils/apiService");
+        const accountId = await userDetails.getAccountId();
+
+        let finalUrl = deleteUrl;
+        // If the template contains placeholders, replace them
+        if (finalUrl.includes("{accountId}")) {
+          finalUrl = finalUrl.replace("{accountId}", String(accountId ?? ""));
+        }
+        if (finalUrl.includes("{id}")) {
+          finalUrl = finalUrl.replace("{id}", String(deleteItemId));
+        }
+
+        // If no placeholders, append accountId/id to the end
+        if (!finalUrl.includes("{accountId}") && !finalUrl.includes("{id}")) {
+          // ensure no trailing slash duplication
+          if (!finalUrl.endsWith("/")) finalUrl = finalUrl + "/";
+          finalUrl = finalUrl + `${accountId}/${deleteItemId}`;
+        }
+
+        await api.delete(finalUrl);
         Alert.alert("Success", `${entityName} deleted successfully.`);
         fetchData();
       } catch (error: any) {
+        console.error("Delete failed:", error);
         Alert.alert("Delete Error", error.message || "Failed to delete item.");
       } finally {
         hideDeleteDialog();
@@ -491,15 +516,16 @@ export const ReusableDataGrid: React.FC<ReusableDataGridProps> = ({
                 </Text>
               </View>
             ))}
-
-          <View style={styles.viewMoreRow}>
-            <Button
-              mode="text"
-              onPress={() => setExpandedId(isExpanded ? null : idKey)}
-            >
-              {isExpanded ? "View less" : "View more"}
-            </Button>
-          </View>
+          {columns.length >= 5 && (
+            <View style={styles.viewMoreRow}>
+              <Button
+                mode="text"
+                onPress={() => setExpandedId(isExpanded ? null : idKey)}
+              >
+                {isExpanded ? "View less" : "View more"}
+              </Button>
+            </View>
+          )}
         </Card.Content>
       </Card>
     );

@@ -19,10 +19,10 @@ const getAuthData = async () => {
 };
 
 // Axios client configuration
-let baseURL = process.env.EXPO_PUBLIC_API_BASE_URL ;
+let baseURL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
 const apiClient = axios.create({
-  baseURL:baseURL,
+  baseURL: baseURL,
   headers: { "Content-Type": "application/json" },
 });
 
@@ -36,11 +36,26 @@ apiClient.interceptors.request.use(
 
     if (token) config.headers.Authorization = `Bearer ${token}`;
 
+    const accountId = authData?.data?.accountId;
+
+    // Attach audit fields and accountId automatically so callers don't need to fetch them.
     if (userId) {
       if (config.method === "post") {
         config.data = { ...config.data, createdBy: userId, updatedBy: userId };
+        if (accountId) config.data = { ...config.data, accountId };
       } else if (config.method === "put" || config.method === "patch") {
         config.data = { ...config.data, updatedBy: username };
+        if (accountId) config.data = { ...config.data, accountId };
+      }
+    } else {
+      // If we don't have a userId but do have an accountId, still attach it for API calls
+      if (
+        accountId &&
+        (config.method === "post" ||
+          config.method === "put" ||
+          config.method === "patch")
+      ) {
+        config.data = { ...config.data, accountId };
       }
     }
 
@@ -50,7 +65,7 @@ apiClient.interceptors.request.use(
 );
 
 // User detail helpers (async)
-export const userDetails = { 
+export const userDetails = {
   getUser: async () => (await getAuthData())?.data || null,
   getAccountId: async () => {
     const raw = await storage.getItem("SCM-AUTH");

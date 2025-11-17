@@ -68,8 +68,8 @@ export const InstituteList: React.FC = () => {
         fetchUrl={fetchUrl}
         columns={columnsConfig}
         isPostRequest={true}
-        addActionUrl="AddInstitute"
-        editUrl="EditInstitute"
+        addActionUrl="AddEditInstitute"
+        editUrl="AddEditInstitute"
         deleteUrl="/api/users/delete"
         entityName="Institute"
         searchPlaceholder="Search institutees..."

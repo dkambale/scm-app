@@ -39,8 +39,8 @@ export const ClassList: React.FC = () => {
         fetchUrl={fetchUrl}
         columns={columnsConfig}
         isPostRequest={true}
-        addActionUrl="AddClass"
-        editUrl="EditClass"
+        addActionUrl="AddEditClasses"
+        editUrl="AddEditClasses"
         deleteUrl="/api/users/delete"
         entityName="Class"
         searchPlaceholder="Search classes..."

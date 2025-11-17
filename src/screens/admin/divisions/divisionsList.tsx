@@ -41,7 +41,7 @@ export const DivisionsList: React.FC = () => {
         isPostRequest={true}
         addActionUrl="AddEditDivision"
         editUrl="AddEditDivision"
-        deleteUrl="/api/users/delete"
+        deleteUrl="/api/divisions/delete"
         entityName="Division"
         searchPlaceholder="Search divisionses..."
         transformData={transformDivisionsData}

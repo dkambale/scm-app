@@ -4,9 +4,11 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
 import * as Yup from "yup";
 
-import { ReusableForm, FormField } from "../../../components/common/ReusableForm";
+import {
+  ReusableForm,
+  FormField,
+} from "../../../components/common/ReusableForm";
 import { apiService } from "../../../api/apiService";
-import { userDetails } from "../../../utils/apiService";
 
 const AddEditDivision: React.FC = () => {
   const navigation = useNavigation();
@@ -38,7 +40,9 @@ const AddEditDivision: React.FC = () => {
           }
         } catch (err) {
           console.error("Failed to load division:", err);
-          Alert.alert(t("division.messages.fetchFailed") || "Failed to load division");
+          Alert.alert(
+            t("division.messages.fetchFailed") || "Failed to load division"
+          );
         }
       }
     })();
@@ -48,54 +52,48 @@ const AddEditDivision: React.FC = () => {
   }, [divisionId, t]);
 
   const fields: FormField[] = [
-    { name: "name", label: t("division.fields.name") || "Division Name", required: true },
-    { name: "subjectCode", label: t("division.fields.code") || "Division Code" },
+    {
+      name: "name",
+      label: t("division.fields.name") || "Division Name",
+      required: true,
+    },
+    {
+      name: "subjectCode",
+      label: t("division.fields.code") || "Division Code",
+    },
   ];
 
   const validationSchema = Yup.object().shape({
-    name: Yup.string().max(255).required(t("common.required") || "This field is required"),
+    name: Yup.string()
+      .max(255)
+      .required(t("common.required") || "This field is required"),
   });
 
   const handleSubmit = async (values: any, formikHelpers: any) => {
-    formikHelpers.setSubmitting(true);
-    try {
-      const accountId = await userDetails.getAccountId();
-      const payload = { ...values, accountId };
-      console.log("Submitting division payload:", payload);
-      if (values?.id) {
-        await apiService.api.put("api/divisions/update", payload);
-        Alert.alert(t("division.messages.saved") || "Division updated");
-      } else {
-        await apiService.api.post("api/divisions/save", payload);
-        Alert.alert(t("division.messages.saved") || "Division created");
-      }
-
-      if ((navigation as any).canGoBack && (navigation as any).canGoBack()) {
-        (navigation as any).goBack();
-      } else {
-        navigation.navigate("DivisionsList" as never);
-      }
-    } catch (err) {
-      console.error("Save division failed", err);
-      Alert.alert(
-        t("division.messages.saveFailed") || "Failed to save division"
-      );
-    } finally {
-      formikHelpers.setSubmitting(false);
+    // Perform save and let ReusableForm show success/failure messages and handle navigation.
+    const payload = { ...values };
+    console.log("Submitting division payload:", payload);
+    if (values?.id) {
+      await apiService.api.put("api/divisions/update", payload);
+      return;
     }
+    await apiService.api.post("api/divisions/save", payload);
+    return;
   };
 
   return (
     <View style={styles.container}>
-      <ReusableForm 
-      
+      <ReusableForm
         initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
         fields={fields}
         isEditMode={!!divisionId}
         cancelAction={() => {
-          if ((navigation as any).canGoBack && (navigation as any).canGoBack()) {
+          if (
+            (navigation as any).canGoBack &&
+            (navigation as any).canGoBack()
+          ) {
             (navigation as any).goBack();
           } else {
             navigation.navigate("DivisionsList" as never);
@@ -103,7 +101,11 @@ const AddEditDivision: React.FC = () => {
         }}
         disableSCD={true}
         entityName="Division"
-        submitLabel={divisionId ? t("division.messages.updateLabel") || "Update" : t("division.messages.saveLabel") || "Save"}
+        submitLabel={
+          divisionId
+            ? t("division.messages.updateLabel") || "Update"
+            : t("division.messages.saveLabel") || "Save"
+        }
       />
     </View>
   );

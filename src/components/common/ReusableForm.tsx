@@ -6,6 +6,8 @@ import {
   Alert,
   Platform,
   TouchableOpacity,
+  Modal,
+  FlatList,
 } from "react-native";
 import {
   Button,
@@ -14,28 +16,22 @@ import {
   HelperText,
   useTheme,
   Text,
-  // Select components are not native to react-native-paper,
-  // but we'll include a placeholder structure.
 } from "react-native-paper";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import api from "../../api";
+import { userDetails } from "../../utils/apiService";
 import { LoadingSpinner } from "./LoadingSpinner";
 import SCDSelectorNative from "./SCDSelector.native"; // Assuming this handles the select/picker logic
 import { Formik } from "formik";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import dayjs from "dayjs";
 
 // Define the structure for a form field
-// Support two shapes of FormField used across the app. Many callers pass `labelKey`, `widthMultiplier`, etc.
 export interface FormField {
   name: string;
-  // optional human friendly label OR i18n key used by callers
   label?: string;
   labelKey?: string;
-  // small helper text to show under the input (e.g. "Available balance:")
   helper?: string;
-  // a value portion of the helper that should be highlighted (e.g. "10,000$")
   helperValue?: string;
+  placeholder?: string;
   type?:
     | "text"
     | "email"
@@ -49,10 +45,13 @@ export interface FormField {
   disabled?: boolean;
   multiline?: boolean;
   widthMultiplier?: number;
-  inputProps?: any;
-  // For select fields
   options?: any[];
   optionsUrl?: string; // URL to fetch options from
+  optionsMethod?: "GET" | "POST"; // method to fetch options
+  optionsLabelKey?: string; // key to display in option label (default: 'name')
+  optionsValueKey?: string; // key to use as option value (default: 'id')
+  inputProps?: any;
+  optionsPayload?: any; // optional extra payload to send when fetching options
 }
 
 interface ReusableFormProps {
@@ -110,10 +109,14 @@ export const ReusableForm: React.FC<ReusableFormProps> = ({
   const [formData, setFormData] = useState<any>({});
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<any>({});
-  // Track which field's date picker is visible
-  const [datePickers, setDatePickers] = useState<Record<string, boolean>>({});
+  // date pickers (not used yet)
   // Ref to the Formik instance when we render with Formik
   const formikRef = useRef<any>(null);
+  // Select options state/cache and modal visibility
+  const [selectModalVisible, setSelectModalVisible] = useState<
+    Record<string, boolean>
+  >({});
+  const [optionsCache, setOptionsCache] = useState<Record<string, any[]>>({});
 
   // Fetch initial data for editing
   useEffect(() => {
@@ -156,6 +159,54 @@ export const ReusableForm: React.FC<ReusableFormProps> = ({
     });
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const fetchOptionsForField = async (field: FormField) => {
+    if (!field.optionsUrl) return [];
+    const key = field.name;
+    if (optionsCache[key]) return optionsCache[key];
+    try {
+      // resolve accountId placeholder or attach as body
+      const accountId = await userDetails.getAccountId();
+      let url = field.optionsUrl;
+      if (url.includes("{accountId}")) {
+        url = url.replace("{accountId}", String(accountId ?? ""));
+      }
+
+      const method = (field.optionsMethod || "POST").toUpperCase();
+      let resp;
+      if (method === "GET") {
+        resp = await api.get(url, { params: { accountId } });
+      } else {
+        // POST - include accountId and default paging/search payload
+        const defaultPayload = {
+          page: 0,
+          search: "",
+          size: 10,
+          sortBy: "id",
+          sortDir: "asc",
+        };
+        const body = {
+          accountId,
+          ...defaultPayload,
+          ...(field.optionsPayload || {}),
+        };
+        resp = await api.post(url, body);
+      }
+
+      const list = resp?.data?.content || resp?.data || resp || [];
+      setOptionsCache((s) => ({
+        ...s,
+        [key]: Array.isArray(list) ? list : [],
+      }));
+      return Array.isArray(list) ? list : [];
+    } catch (err) {
+      console.error("Failed to fetch options for", field.name, err);
+      setOptionsCache((s) => ({ ...s, [field.name]: [] }));
+      return [];
+    } finally {
+      // no-op
+    }
   };
 
   const handleSubmit = async () => {
@@ -207,30 +258,7 @@ export const ReusableForm: React.FC<ReusableFormProps> = ({
     }
   };
 
-  const openDatePicker = (fieldName: string) => {
-    setDatePickers((p) => ({ ...p, [fieldName]: true }));
-  };
-
-  const handleDateChange = (
-    fieldName: string,
-    event: any,
-    selectedDate: Date | undefined,
-    formikHelpers?: any
-  ) => {
-    // On Android the picker closes automatically; on iOS it may stay open depending on display
-    setDatePickers((p) => ({
-      ...p,
-      [fieldName]: Platform.OS === "ios" ? !!selectedDate : false,
-    }));
-    if (selectedDate) {
-      const formatted = dayjs(selectedDate).format("YYYY-MM-DD");
-      if (formikHelpers) {
-        formikHelpers.setFieldValue(fieldName, formatted);
-      } else {
-        handleInputChange(fieldName, formatted);
-      }
-    }
-  };
+  // date handling TODO
 
   if (loading && !Object.keys(formData).length) {
     return <LoadingSpinner />;
@@ -260,63 +288,100 @@ export const ReusableForm: React.FC<ReusableFormProps> = ({
 
     const labelText = field.label || field.labelKey || field.name;
 
-    if (field.type === "date") {
-      const value = formikHelpers
-        ? formikHelpers.values[field.name]
-        : formData[field.name];
-      return (
-        <TouchableOpacity
-          key={field.name}
-          onPress={() => openDatePicker(field.name)}
-          disabled={field.disabled}
-        >
-          <TextInput
-            label={labelText}
-            // placeholder={labelText}
-            value={value || ""}
-            mode="outlined"
-            editable={false}
-            right={
-              <TextInput.Icon
-                icon="calendar"
-                onPress={() => openDatePicker(field.name)}
-              />
-            }
-            style={[styles.input]}
-            theme={lightInputTheme as any}
-          />
-          {datePickers[field.name] && (
-            <DateTimePicker
-              value={value ? dayjs(value).toDate() : dayjs().toDate()}
-              mode="date"
-              display="default"
-              onChange={(e, d) =>
-                handleDateChange(field.name, e, d, formikHelpers)
-              }
-              minimumDate={dayjs().toDate()}
-            />
-          )}
-        </TouchableOpacity>
-      );
-    }
-
     if (field.type === "select") {
-      // If used inside Formik, prefer formik values; otherwise use local state formData
-      const value = formikHelpers
-        ? formikHelpers.values[field.name]
-        : formData[field.name];
+      const key = field.name;
+      const labelKey = field.optionsLabelKey || "name";
+      const valueKey = field.optionsValueKey || "id";
+
+      const openPicker = async () => {
+        const opts = await fetchOptionsForField(field);
+        setOptionsCache((s) => ({ ...s, [key]: opts }));
+        setSelectModalVisible((s) => ({ ...s, [key]: true }));
+      };
+
+      const closePicker = () =>
+        setSelectModalVisible((s) => ({ ...s, [key]: false }));
+
       return (
-        <TextInput
-          key={field.name}
-          label={labelText}
-          // placeholder={labelText}
-          value={value ? String(value) : ""}
-          mode="outlined"
-          disabled={true}
-          style={[styles.input]}
-          // Apply light theme overrides
-          theme={lightInputTheme as any}
-        />
+        <View style={{ marginBottom: 12 }} key={field.name}>
+          <Text style={{ marginBottom: 6 }}>{field.label}</Text>
+          <TouchableOpacity
+            onPress={openPicker}
+            style={{
+              padding: 12,
+              borderWidth: 1,
+              borderColor: "#ddd",
+              borderRadius: 6,
+            }}
+          >
+            <Text>
+              {(() => {
+                const val = formikHelpers
+                  ? formikHelpers.values?.[key]
+                  : formData[key];
+                const list = optionsCache[key] || [];
+                const found = list.find(
+                  (o) => String(o[valueKey]) === String(val)
+                );
+                return found
+                  ? found[labelKey]
+                  : field.placeholder || "Select...";
+              })()}
+            </Text>
+          </TouchableOpacity>
+
+          {selectModalVisible[key] ? (
+            <Modal visible transparent animationType="slide">
+              <View
+                style={{
+                  flex: 1,
+                  backgroundColor: "rgba(0,0,0,0.5)",
+                  justifyContent: "center",
+                }}
+              >
+                <View
+                  style={{
+                    margin: 20,
+                    backgroundColor: "white",
+                    borderRadius: 8,
+                    maxHeight: "70%",
+                  }}
+                >
+                  <FlatList
+                    data={optionsCache[key] || []}
+                    keyExtractor={(i, idx) => String(i[valueKey]) + idx}
+                    renderItem={({ item }) => (
+                      <TouchableOpacity
+                        onPress={() => {
+                          const v = item[valueKey];
+                          if (formikHelpers)
+                            formikHelpers.setFieldValue(key, v);
+                          else setFormData((s: any) => ({ ...s, [key]: v }));
+                          closePicker();
+                        }}
+                        style={{
+                          padding: 12,
+                          borderBottomWidth: 1,
+                          borderColor: "#eee",
+                        }}
+                      >
+                        <Text>{item[labelKey]}</Text>
+                      </TouchableOpacity>
+                    )}
+                  />
+                  <TouchableOpacity
+                    onPress={closePicker}
+                    style={{ padding: 12 }}
+                  >
+                    <Text style={{ textAlign: "center", color: "#007aff" }}>
+                      Close
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </Modal>
+          ) : null}
+        </View>
       );
     }
 
@@ -410,7 +475,71 @@ export const ReusableForm: React.FC<ReusableFormProps> = ({
                 innerRef={formikRef}
                 initialValues={initialValues}
                 validationSchema={validationSchema}
-                onSubmit={externalOnSubmit as any}
+                onSubmit={async (values: any, formikHelpers: any) => {
+                  formikHelpers.setSubmitting(true);
+                  try {
+                    const accountId = await userDetails.getAccountId();
+                    const payload = accountId
+                      ? { ...values, accountId }
+                      : values;
+
+                    let response: any = null;
+
+                    if (externalOnSubmit) {
+                      // If caller provided an onSubmit, let it handle the save.
+                      response = await (externalOnSubmit as any)(
+                        payload,
+                        formikHelpers
+                      );
+                    } else {
+                      // Fallback: use saveUrl/updateUrl if provided (mirror legacy behavior)
+                      if (id) {
+                        if (!updateUrl)
+                          throw new Error("updateUrl not provided");
+                        response = await api.put(updateUrl, { id, ...payload });
+                      } else {
+                        if (!saveUrl) throw new Error("saveUrl not provided");
+                        response = await api.post(saveUrl, payload);
+                      }
+                    }
+
+                    // Call optional onSuccess callback
+                    if (onSuccess) {
+                      try {
+                        onSuccess(response?.data ?? response);
+                      } catch (err) {
+                        console.error("onSuccess handler failed:", err);
+                      }
+                    }
+
+                    // Notify user and navigate
+                    Alert.alert(
+                      "Success",
+                      `${entityName} ${id ? "updated" : "saved"} successfully!`,
+                      [
+                        {
+                          text: "OK",
+                          onPress: () => {
+                            if (onSuccessUrl) {
+                              navigation.navigate(onSuccessUrl as never);
+                            } else {
+                              navigation.goBack();
+                            }
+                          },
+                        },
+                      ]
+                    );
+                  } catch (err: any) {
+                    console.error("Form submission failed:", err);
+                    Alert.alert(
+                      "Error",
+                      err?.response?.data?.message ||
+                        `Failed to ${id ? "update" : "save"} ${entityName}.`
+                    );
+                  } finally {
+                    formikHelpers.setSubmitting(false);
+                  }
+                }}
                 enableReinitialize
               >
                 {(formikProps) => (
@@ -553,7 +682,11 @@ export const ReusableForm: React.FC<ReusableFormProps> = ({
           mode="contained"
           onPress={() => {
             // If Formik is being used, trigger Formik's submitForm(), otherwise use legacy handler
-            if (formikRef && formikRef.current && typeof formikRef.current.submitForm === "function") {
+            if (
+              formikRef &&
+              formikRef.current &&
+              typeof formikRef.current.submitForm === "function"
+            ) {
               formikRef.current.submitForm();
             } else {
               handleSubmit();

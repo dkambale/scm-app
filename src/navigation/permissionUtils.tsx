@@ -47,7 +47,7 @@ export function makeProtectedScreen(
         ? (user as any).permissions
         : []
     ) as any[];
-
+console.log("Permissions:", permsRaw);
     // use shared permission helper
     if (hasPermission(permsRaw, required)) {
       // forward route/navigation props
@@ -112,7 +112,6 @@ export function hasPermission(permsRaw: any[], required: PermCheck): boolean {
         if (token.includes(actionToken) && token.includes(eUpper)) return true;
         continue;
       }
-
       const name = (p.entityName || p.name || "").toString().toUpperCase();
       if (name === eUpper) {
         const actions = p.actions || {};

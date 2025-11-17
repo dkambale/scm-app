@@ -28,7 +28,9 @@ import { AddEditStudent } from "../screens/admin/students/AddEditStudent";
 import StudentViewComponent from "../screens/admin/students/StudentView";
 
 import AddEditDivision from "../screens/admin/divisions/AddEditDivision";
-
+import AddEditInstitute from "../screens/admin/institutes/AddEditInstitute";
+import AddEditSchool from "../screens/admin/schools/AddEditSchool";
+import AddEditClasses from "../screens/admin/classes/AddEditClasses";
 import { AddEditTeacher } from "../screens/admin/teachers/AddEditTeacher";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Avatar } from "react-native-paper";
@@ -165,7 +167,7 @@ export const RootNavigation: React.FC = () => {
     entity: "SCHOOL",
     action: "view",
   });
-  const canViewCLASS = useHasPermission({
+  const canViewCLASSES = useHasPermission({
     entity: "CLASS",
     action: "view",
   });
@@ -181,7 +183,7 @@ export const RootNavigation: React.FC = () => {
     entity: "TEACHER",
     action: "view",
   });
-  // const canViewCLASS is unused; omit to avoid lint warnings
+  // const canViewCLASSES is unused; omit to avoid lint warnings
   const canViewTIMETABLE = useHasPermission({
     entity: "TIMETABLE",
     action: "view",
@@ -222,12 +224,12 @@ export const RootNavigation: React.FC = () => {
     visibleEntries.push(entityRegistry.STUDENT_DASHBOARD);
   if (canViewinstitute) visibleEntries.push(entityRegistry.INSTITUTE);
   if (canViewSCHOOL) visibleEntries.push(entityRegistry.SCHOOL);
-  if (canViewCLASS) visibleEntries.push(entityRegistry.CLASSES);
+  if (canViewCLASSES) visibleEntries.push(entityRegistry.CLASSES);
   if (canViewDIVISION) visibleEntries.push(entityRegistry.DIVISION);
   if (canViewSTUDENT) visibleEntries.push(entityRegistry.STUDENT);
 
   if (canViewTEACHER) visibleEntries.push(entityRegistry.TEACHER);
-  // if (canViewCLASS) visibleEntries.push(entityRegistry.CLASS);
+  // if (canViewCLASSES) visibleEntries.push(entityRegistry.CLASSES);
   if (canViewTIMETABLE) visibleEntries.push(entityRegistry.TIMETABLE);
   if (canViewASSIGNMENT) visibleEntries.push(entityRegistry.ASSIGNMENT);
   if (canViewATTENDANCE) visibleEntries.push(entityRegistry.ATTENDANCE);
@@ -285,6 +287,9 @@ export const RootNavigation: React.FC = () => {
   const addRouteMap: Record<string, string> = {
     STUDENT: "AddStudent",
     DIVISION: "AddEditDivision",
+    INSTITUTE: "AddEditInstitute",
+    SCHOOL: "AddEditSchool",
+    CLASSES: "AddEditClasses",
     TEACHER: "AddTeacher",
     TIMETABLE: "AddEditTimetable",
     ATTENDANCE: "AddAttendance",
@@ -300,6 +305,10 @@ export const RootNavigation: React.FC = () => {
     });
     const canAddDivision = useHasPermission({
       entity: "DIVISION",
+      action: "add",
+    });
+    const canAddClasses = useHasPermission({
+      entity: "CLASS",
       action: "add",
     });
     const canAddTeacher = useHasPermission({
@@ -318,6 +327,7 @@ export const RootNavigation: React.FC = () => {
     const addPermMap: Record<string, boolean> = {
       STUDENT: Boolean(canAddStudent),
       DIVISION: Boolean(canAddDivision),
+      CLASSES: Boolean(canAddClasses),
       TEACHER: Boolean(canAddTeacher),
       TIMETABLE: Boolean(canAddTimetable),
       ATTENDANCE: Boolean(canAddAttendance),
@@ -361,7 +371,7 @@ export const RootNavigation: React.FC = () => {
             const iconMap: Record<string, string> = {
               STUDENT: "👩‍🎓",
               TEACHER: "👨‍🏫",
-              CLASS: "🏫",
+              CLASSES: "🏫",
               TIMETABLE: "📅",
               ATTENDANCE: "📝",
               FEE: "💰",
@@ -475,10 +485,38 @@ export const RootNavigation: React.FC = () => {
           )}
         />
         <Stack.Screen
+          name="AddEditInstitute"
+          component={makeProtectedScreen(
+            AddEditInstitute,
+            permFrom("INSTITUTE", "add")
+          )}
+        />
+        <Stack.Screen
+          name="AddEditSchool"
+          component={makeProtectedScreen(
+            AddEditSchool,
+            permFrom("SCHOOL", "add")
+          )}
+        />
+        <Stack.Screen
+          name="AddEditClasses"
+          component={makeProtectedScreen(
+            AddEditClasses,
+            permFrom("CLASSES", "add")
+          )}
+        />
+        <Stack.Screen
           name="EditDivision"
           component={makeProtectedScreen(
             AddEditDivision,
             permFrom("DIVISION", "edit")
+          )}
+        />
+        <Stack.Screen 
+          name="EditInstitute"
+          component={makeProtectedScreen(
+            AddEditInstitute,
+            permFrom("INSTITUTE", "edit")
           )}
         />
         <Stack.Screen name="StudentView">
