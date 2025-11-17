@@ -502,7 +502,7 @@ export const RootNavigation: React.FC = () => {
           name="AddEditClasses"
           component={makeProtectedScreen(
             AddEditClasses,
-            permFrom("CLASSES", "add")
+            permFrom("CLASS", "add")
           )}
         />
         <Stack.Screen

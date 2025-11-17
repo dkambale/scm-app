@@ -83,7 +83,7 @@ const AddEditClasses = () => {
     const classPayload = { 
       ...values, 
       id: isUpdate ? id : undefined,
-      accountId: 'MOCK_ACCOUNT_ID',
+      // accountId: 'MOCK_ACCOUNT_ID',
       // Convert select IDs back to number for API
       schoolbranchId: Number(values.schoolbranchId), 
       instituteId: Number(values.instituteId) 

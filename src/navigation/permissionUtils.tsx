@@ -79,7 +79,7 @@ export function permFrom(entity: string, action: string) {
 
   // pluralize entity - simple rules for common terms
   const pluralMap: Record<string, string> = {
-    CLASS: "CLASSES",
+    CLASS: "CLASS",
     STUDENT: "STUDENTS",
     TEACHER: "TEACHERS",
     ASSIGNMENT: "ASSIGNMENTS",
