@@ -86,7 +86,10 @@ const AddEditDivision: React.FC = () => {
       <ReusableForm
         initialValues={initialValues}
         validationSchema={validationSchema}
-        onSubmit={handleSubmit}
+        // onSubmit={handleSubmit}
+        saveUrl="api/divisions/save"
+        updateUrl="api/divisions/update"
+        onSuccessRoute={{ name: "MainDrawer", params: { screen: "DIVISION" } }}
         fields={fields}
         isEditMode={!!divisionId}
         cancelAction={() => {
@@ -96,7 +99,7 @@ const AddEditDivision: React.FC = () => {
           ) {
             (navigation as any).goBack();
           } else {
-            navigation.navigate("DivisionsList" as never);
+            (navigation as any).navigate("MainDrawer", { screen: "DIVISION" });
           }
         }}
         disableSCD={true}

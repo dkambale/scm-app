@@ -8,6 +8,10 @@ import {
   TouchableOpacity,
   Modal,
   FlatList,
+  KeyboardAvoidingView,
+  Keyboard,
+  TouchableWithoutFeedback,
+  Dimensions,
 } from "react-native";
 import {
   Button,
@@ -24,7 +28,7 @@ import { LoadingSpinner } from "./LoadingSpinner";
 import SCDSelectorNative from "./SCDSelector.native"; // Assuming this handles the select/picker logic
 import { Formik } from "formik";
 
-// Define the structure for a form field
+// Define the structure for a form field (unchanged)
 export interface FormField {
   name: string;
   label?: string;
@@ -46,39 +50,44 @@ export interface FormField {
   multiline?: boolean;
   widthMultiplier?: number;
   options?: any[];
-  optionsUrl?: string; // URL to fetch options from
-  optionsMethod?: "GET" | "POST"; // method to fetch options
-  optionsLabelKey?: string; // key to display in option label (default: 'name')
-  optionsValueKey?: string; // key to use as option value (default: 'id')
+  optionsUrl?: string; 
+  optionsMethod?: "GET" | "POST"; 
+  optionsLabelKey?: string; 
+  optionsValueKey?: string; 
   inputProps?: any;
-  optionsPayload?: any; // optional extra payload to send when fetching options
+  optionsPayload?: any; 
 }
 
 interface ReusableFormProps {
-  // Legacy/alternative API support: either operate as a self-contained form (entityName + save/update urls)
-  // or accept an external Formik-style API (initialValues + validationSchema + onSubmit).
   entityName?: string;
   fields: FormField[];
-  fetchUrl?: string; // URL to get entity data for editing, e.g., /api/users/getById
-  saveUrl?: string; // URL to create a new entity, e.g., /api/users/save
-  updateUrl?: string; // URL to update an existing entity, e.g., /api/users/update
-  transformForSubmit?: (data: any, isUpdate?: boolean) => any; // Function to transform data before submitting
-  onSuccess?: (response: any) => void; // Callback on successful submission
-  onSuccessUrl?: string; // URL to navigate to on success
+  fetchUrl?: string; 
+  saveUrl?: string; 
+  updateUrl?: string; 
+  transformForSubmit?: (data: any, isUpdate?: boolean) => any; 
+  onSuccess?: (response: any) => void; 
+  onSuccessUrl?: string; 
   cancelButton?: React.ReactNode;
   showCancelButton?: boolean;
   showSCDSelector?: boolean;
   disableSCD?: boolean;
 
-  // Formik-style API used by newer callers
   initialValues?: any;
   validationSchema?: any;
   onSubmit?: (values: any, formikHelpers: any) => Promise<void> | void;
   isEditMode?: boolean;
   cancelAction?: () => void;
-  tNamespace?: string; // optional namespace like 'student' to derive title
+  tNamespace?: string; 
   submitLabel?: string;
+  onSuccessRoute?: { name: string; params?: any };
 }
+
+// **UI CONSTANTS**
+const FOOTER_HEIGHT = 80;
+const SKY_BLUE = "#007AFF"; // Amazing Sky Blue/Primary Accent
+const TEXT_DARK = "#333333";
+const TEXT_MUTED = "#6B7280";
+const BACKGROUND_LIGHT = "#F9FAFB"; // Very light off-white background
 
 export const ReusableForm: React.FC<ReusableFormProps> = ({
   entityName,
@@ -100,27 +109,51 @@ export const ReusableForm: React.FC<ReusableFormProps> = ({
   submitLabel,
   tNamespace,
   disableSCD = false,
+  onSuccessRoute,
 }) => {
   const navigation = useNavigation();
   const route = useRoute();
-  const theme = useTheme(); // Initialize theme
+  const theme = useTheme(); 
   const { id } = (route.params as { id?: string }) || {};
 
   const [formData, setFormData] = useState<any>({});
   const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<any>({});
-  // date pickers (not used yet)
-  // Ref to the Formik instance when we render with Formik
   const formikRef = useRef<any>(null);
-  // Select options state/cache and modal visibility
+  const scrollRef = useRef<any>(null);
+  const [fieldLayouts, setFieldLayouts] = useState<Record<string, number>>({});
+  const inputRefs = useRef<Record<string, any>>({});
+  const [keyboardHeight, setKeyboardHeight] = useState<number>(0);
+  const [windowHeight, setWindowHeight] = useState<number>(Dimensions.get("window").height);
+
+  useEffect(() => {
+    const onKeyboardShow = (e: any) => {
+      const h = e?.endCoordinates?.height || 0;
+      setKeyboardHeight(h);
+    };
+    const onKeyboardHide = () => setKeyboardHeight(0);
+
+    const showSub = Keyboard.addListener("keyboardDidShow", onKeyboardShow);
+    const hideSub = Keyboard.addListener("keyboardDidHide", onKeyboardHide);
+
+    const dimSub = Dimensions.addEventListener?.("change", ({ window }) => {
+      setWindowHeight(window.height);
+    });
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+      if (dimSub && typeof dimSub.remove === "function") dimSub.remove();
+    };
+  }, []);
+  
   const [selectModalVisible, setSelectModalVisible] = useState<
     Record<string, boolean>
   >({});
   const [optionsCache, setOptionsCache] = useState<Record<string, any[]>>({});
 
-  // Fetch initial data for editing
   useEffect(() => {
-    // If using the legacy fetchUrl approach (entityName + save/update urls), keep loading existing data
     if (id && fetchUrl) {
       const loadData = async () => {
         setLoading(true);
@@ -148,11 +181,9 @@ export const ReusableForm: React.FC<ReusableFormProps> = ({
   const validate = () => {
     const newErrors: any = {};
     fields.forEach((field) => {
-      // Skip password validation for update if field is not touched/empty
       if (id && field.name === "password" && !formData[field.name]) {
         return;
       }
-
       if (field.required && !formData[field.name]) {
         newErrors[field.name] = `${field.label} is required.`;
       }
@@ -166,7 +197,6 @@ export const ReusableForm: React.FC<ReusableFormProps> = ({
     const key = field.name;
     if (optionsCache[key]) return optionsCache[key];
     try {
-      // resolve accountId placeholder or attach as body
       const accountId = await userDetails.getAccountId();
       let url = field.optionsUrl;
       if (url.includes("{accountId}")) {
@@ -178,7 +208,6 @@ export const ReusableForm: React.FC<ReusableFormProps> = ({
       if (method === "GET") {
         resp = await api.get(url, { params: { accountId } });
       } else {
-        // POST - include accountId and default paging/search payload
         const defaultPayload = {
           page: 0,
           search: "",
@@ -213,8 +242,7 @@ export const ReusableForm: React.FC<ReusableFormProps> = ({
     if (!validate()) {
       return;
     }
-
-    setLoading(true);
+    setSubmitting(true);
     let data = formData;
 
     if (transformForSubmit) {
@@ -225,7 +253,6 @@ export const ReusableForm: React.FC<ReusableFormProps> = ({
       let response;
       if (id) {
         if (!updateUrl) throw new Error("updateUrl not provided");
-        // Assume API takes ID in the payload for PUT, adjusting the URL call
         response = await api.put(updateUrl, { id, ...data });
       } else {
         if (!saveUrl) throw new Error("saveUrl not provided");
@@ -241,7 +268,12 @@ export const ReusableForm: React.FC<ReusableFormProps> = ({
         onSuccess(response.data);
       }
 
-      if (onSuccessUrl) {
+      if (onSuccessRoute) {
+        (navigation as any).navigate(
+          onSuccessRoute.name,
+          onSuccessRoute.params
+        );
+      } else if (onSuccessUrl) {
         navigation.navigate(onSuccessUrl as never);
       } else {
         navigation.goBack();
@@ -254,16 +286,15 @@ export const ReusableForm: React.FC<ReusableFormProps> = ({
           `Failed to ${id ? "update" : "save"} ${entityName}.`
       );
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
-  // date handling TODO
 
   if (loading && !Object.keys(formData).length) {
     return <LoadingSpinner />;
   }
-  // Derive a title from either entityName or tNamespace or fallback to a capitalized generic
+  
   const nounLabel =
     entityName ||
     (tNamespace
@@ -275,14 +306,15 @@ export const ReusableForm: React.FC<ReusableFormProps> = ({
 
   // Helper function to render different input types
   const renderField = (field: FormField, formikHelpers?: any) => {
-    // Use a light input theme so inputs match the white card look in the design
-    const lightInputTheme = {
+    
+    // Custom theme for Paper inputs
+    const customInputTheme = {
       colors: {
-        onSurface: "#111111",
-        text: "#111111",
-        placeholder: "#9aa0b1",
-        primary: theme.colors.primary,
-        background: "#ffffff",
+        onSurface: TEXT_DARK,
+        text: TEXT_DARK,
+        placeholder: TEXT_MUTED,
+        primary: SKY_BLUE, // Use Sky Blue for focus/active state
+        background: "#ffffff", // White background inside the input box
       },
     };
 
@@ -304,17 +336,15 @@ export const ReusableForm: React.FC<ReusableFormProps> = ({
 
       return (
         <View style={{ marginBottom: 12 }} key={field.name}>
-          <Text style={{ marginBottom: 6 }}>{field.label}</Text>
+          <Text style={{ marginBottom: 6, color: TEXT_DARK, fontWeight: '600' }}>{field.label}</Text>
           <TouchableOpacity
             onPress={openPicker}
-            style={{
-              padding: 12,
-              borderWidth: 1,
-              borderColor: "#ddd",
-              borderRadius: 6,
-            }}
+            style={[
+              styles.selectField,
+              { borderColor: SKY_BLUE, borderWidth: 2, backgroundColor: BACKGROUND_LIGHT }, // Highlighted border
+            ]}
           >
-            <Text>
+            <Text style={{ color: TEXT_DARK }}>
               {(() => {
                 const val = formikHelpers
                   ? formikHelpers.values?.[key]
@@ -325,7 +355,7 @@ export const ReusableForm: React.FC<ReusableFormProps> = ({
                 );
                 return found
                   ? found[labelKey]
-                  : field.placeholder || "Select...";
+                  : field.placeholder || "Tap to Select...";
               })()}
             </Text>
           </TouchableOpacity>
@@ -333,19 +363,10 @@ export const ReusableForm: React.FC<ReusableFormProps> = ({
           {selectModalVisible[key] ? (
             <Modal visible transparent animationType="slide">
               <View
-                style={{
-                  flex: 1,
-                  backgroundColor: "rgba(0,0,0,0.5)",
-                  justifyContent: "center",
-                }}
+                style={styles.modalOverlay}
               >
                 <View
-                  style={{
-                    margin: 20,
-                    backgroundColor: "white",
-                    borderRadius: 8,
-                    maxHeight: "70%",
-                  }}
+                  style={styles.modalContent}
                 >
                   <FlatList
                     data={optionsCache[key] || []}
@@ -359,21 +380,17 @@ export const ReusableForm: React.FC<ReusableFormProps> = ({
                           else setFormData((s: any) => ({ ...s, [key]: v }));
                           closePicker();
                         }}
-                        style={{
-                          padding: 12,
-                          borderBottomWidth: 1,
-                          borderColor: "#eee",
-                        }}
+                        style={styles.modalItem}
                       >
-                        <Text>{item[labelKey]}</Text>
+                        <Text style={{ color: TEXT_DARK }}>{item[labelKey]}</Text>
                       </TouchableOpacity>
                     )}
                   />
                   <TouchableOpacity
                     onPress={closePicker}
-                    style={{ padding: 12 }}
+                    style={styles.modalCloseButton}
                   >
-                    <Text style={{ textAlign: "center", color: "#007aff" }}>
+                    <Text style={{ textAlign: "center", color: SKY_BLUE, fontWeight: '700' }}>
                       Close
                     </Text>
                   </TouchableOpacity>
@@ -388,322 +405,331 @@ export const ReusableForm: React.FC<ReusableFormProps> = ({
     const isPassword = field.type === "password";
     const isNumber = field.type === "number";
     const isEmail = field.type === "email";
+    
+    // --- KEYBOARD FIX LOGIC ---
+    const handleFocus = (r: any) => {
+        const y = fieldLayouts[field.name];
+        const vh = windowHeight || Dimensions.get("window").height;
+        const kh = keyboardHeight || 0; 
+        const extra = 20;
 
-    // If we are rendering inside a Formik context, use formik helpers to bind values
-    if (formikHelpers) {
-      return (
-        <TextInput
-          key={field.name}
-          label={labelText}
-          // placeholder={labelText}
-          value={formikHelpers.values[field.name] || ""}
-          onChangeText={(text) => formikHelpers.setFieldValue(field.name, text)}
-          onBlur={() => formikHelpers.setFieldTouched(field.name, true)}
-          mode="outlined"
-          secureTextEntry={isPassword}
-          keyboardType={
-            isNumber ? "numeric" : isEmail ? "email-address" : "default"
-          }
-          error={
-            !!(
-              formikHelpers.touched[field.name] &&
-              formikHelpers.errors[field.name]
-            )
-          }
-          style={[styles.input]}
-          autoCapitalize={isEmail ? "none" : "sentences"}
-          theme={lightInputTheme as any}
-          multiline={field.multiline}
-          {...(field.inputProps || {})}
-        />
-      );
-    }
+        // The height of the screen *above* the keyboard/footer
+        const visibleAreaTop = vh - kh - FOOTER_HEIGHT - extra; 
+        
+        if (typeof y === "number" && y > 0) {
+            let target = y - visibleAreaTop;
+            if (target < 0) target = 0; 
+            scrollRef.current?.scrollTo({ y: Math.max(0, target), animated: true });
+        } else {
+            if (r && typeof r.measureInWindow === "function") {
+                r.measureInWindow((mx: number, my: number, mw: number, mh: number) => {
+                    const pageY = my;
+                    const visibleAreaTop = vh - kh - FOOTER_HEIGHT - extra;
+                    let target = pageY - visibleAreaTop;
+                    if (target < 0) target = 0;
+                    scrollRef.current?.scrollTo({ y: Math.max(0, target), animated: true });
+                });
+            } else {
+                scrollRef.current?.scrollTo({ y: 0, animated: true });
+            }
+        }
+    };
+    // --- END KEYBOARD FIX LOGIC ---
 
-    return (
+    // TextInput Component
+    const TextInputComponent = (
       <TextInput
         key={field.name}
+        ref={(r: any) => (inputRefs.current[field.name] = r)}
         label={labelText}
-        // placeholder={labelText}
-        value={formData[field.name] || ""}
-        onChangeText={(text) => handleInputChange(field.name, text)}
+        value={formikHelpers ? formikHelpers.values[field.name] || "" : formData[field.name] || ""}
+        onChangeText={(text) => formikHelpers ? formikHelpers.setFieldValue(field.name, text) : handleInputChange(field.name, text)}
+        onFocus={() => handleFocus(inputRefs.current[field.name])}
+        onBlur={() => formikHelpers && formikHelpers.setFieldTouched(field.name, true)}
         mode="outlined"
         secureTextEntry={isPassword}
         keyboardType={
           isNumber ? "numeric" : isEmail ? "email-address" : "default"
         }
-        error={!!errors[field.name]}
-        style={[styles.input]}
+        error={
+          formikHelpers
+            ? !!(formikHelpers.touched[field.name] && formikHelpers.errors[field.name])
+            : !!errors[field.name]
+        }
+        style={[styles.input, { backgroundColor: BACKGROUND_LIGHT }]} // Set background for contrast
         autoCapitalize={isEmail ? "none" : "sentences"}
-        theme={lightInputTheme as any}
+        theme={customInputTheme as any}
         multiline={field.multiline}
+        outlineStyle={styles.inputOutlineStyle} // Custom outline style
         {...(field.inputProps || {})}
       />
     );
+
+    return TextInputComponent;
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: "#ffffff" }]}>
-      {/* Minimal Header (kept but light) */}
-      <View
-        style={[
-          styles.header,
-          { borderBottomColor: "#f0f0f0", backgroundColor: "#ffffff" },
-        ]}
-      >
-        <Text variant="headlineSmall" style={{ color: "#111111" }}>
-          {formTitle}
-        </Text>
-        <Text variant="bodySmall" style={{ color: "#6b6b6b" }}>
-          {id
-            ? "Review and update details"
-            : "Fill in the required information"}
-        </Text>
-      </View>
+    <KeyboardAvoidingView
+      style={[styles.container, { backgroundColor: BACKGROUND_LIGHT }]}
+      behavior={Platform.OS === "ios" ? "padding" : "height"} 
+      keyboardVerticalOffset={0} 
+    >
+      <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+        <View style={{ flex: 1 }}> 
+          {/* Header with shadow for separation */}
+          <View
+            style={[
+              styles.header,
+              { borderBottomColor: BACKGROUND_LIGHT, backgroundColor: "#ffffff" },
+              styles.headerShadow, // Apply subtle shadow
+            ]}
+          >
+            <Text variant="headlineSmall" style={{ color: TEXT_DARK, fontWeight: '700' }}>
+              {formTitle}
+            </Text>
+            <Text variant="bodySmall" style={{ color: TEXT_MUTED }}>
+              {id
+                ? "Review and update details"
+                : "Fill in the required information"}
+            </Text>
+          </View>
 
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-      >
-        {/* Card Section: White surface */}
-        <Card
-          style={[styles.card, { backgroundColor: "#ffffff" }]}
-          elevation={0}
-        >
-          <Card.Content>
-            {initialValues ? (
-              <Formik
-                innerRef={formikRef}
-                initialValues={initialValues}
-                validationSchema={validationSchema}
-                onSubmit={async (values: any, formikHelpers: any) => {
-                  formikHelpers.setSubmitting(true);
-                  try {
-                    const accountId = await userDetails.getAccountId();
-                    const payload = accountId
-                      ? { ...values, accountId }
-                      : values;
-
-                    let response: any = null;
-
-                    if (externalOnSubmit) {
-                      // If caller provided an onSubmit, let it handle the save.
-                      response = await (externalOnSubmit as any)(
-                        payload,
-                        formikHelpers
-                      );
-                    } else {
-                      // Fallback: use saveUrl/updateUrl if provided (mirror legacy behavior)
-                      if (id) {
-                        if (!updateUrl)
-                          throw new Error("updateUrl not provided");
-                        response = await api.put(updateUrl, { id, ...payload });
-                      } else {
-                        if (!saveUrl) throw new Error("saveUrl not provided");
-                        response = await api.post(saveUrl, payload);
-                      }
-                    }
-
-                    // Call optional onSuccess callback
-                    if (onSuccess) {
+          <ScrollView
+            ref={scrollRef}
+            style={{ flex: 1 }}
+            contentContainerStyle={[styles.scrollContent]} 
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode={Platform.OS === "ios" ? "interactive" : "on-drag"}
+            showsVerticalScrollIndicator={false}
+          >
+            {/* Card Section: White surface with rounded corners and elevated feel */}
+            <Card
+              style={[styles.card, { backgroundColor: "#ffffff" }]}
+              elevation={4} // Increased elevation for a floating effect
+            >
+              <Card.Content>
+                {initialValues ? (
+                  <Formik
+                    innerRef={formikRef}
+                    initialValues={initialValues}
+                    validationSchema={validationSchema}
+                    onSubmit={async (values: any, formikHelpers: any) => {
+                      setSubmitting(true);
+                      formikHelpers.setSubmitting(true);
+                      // ... submission logic (kept simple) ...
                       try {
-                        onSuccess(response?.data ?? response);
-                      } catch (err) {
-                        console.error("onSuccess handler failed:", err);
-                      }
-                    }
-
-                    // Notify user and navigate
-                    Alert.alert(
-                      "Success",
-                      `${entityName} ${id ? "updated" : "saved"} successfully!`,
-                      [
-                        {
+                        const accountId = await userDetails.getAccountId();
+                        const payload = accountId ? { ...values, accountId } : values;
+                        let response: any = null;
+                        if (externalOnSubmit) {
+                          response = await (externalOnSubmit as any)(payload, formikHelpers);
+                        } else {
+                          if (id) {
+                            if (!updateUrl) throw new Error("updateUrl not provided");
+                            response = await api.put(updateUrl, { id, ...payload });
+                          } else {
+                            if (!saveUrl) throw new Error("saveUrl not provided");
+                            response = await api.post(saveUrl, payload);
+                          }
+                        }
+                        if (onSuccess) onSuccess(response?.data ?? response);
+                        Alert.alert("Success", `${entityName} ${id ? "updated" : "saved"} successfully!`, [{
                           text: "OK",
                           onPress: () => {
-                            if (onSuccessUrl) {
-                              navigation.navigate(onSuccessUrl as never);
-                            } else {
-                              navigation.goBack();
-                            }
+                            if (onSuccessRoute) (navigation as any).navigate(onSuccessRoute.name, onSuccessRoute.params);
+                            else if (onSuccessUrl) navigation.navigate(onSuccessUrl as never);
+                            else navigation.goBack();
                           },
-                        },
-                      ]
-                    );
-                  } catch (err: any) {
-                    console.error("Form submission failed:", err);
-                    Alert.alert(
-                      "Error",
-                      err?.response?.data?.message ||
-                        `Failed to ${id ? "update" : "save"} ${entityName}.`
-                    );
-                  } finally {
-                    formikHelpers.setSubmitting(false);
-                  }
-                }}
-                enableReinitialize
-              >
-                {(formikProps) => (
-                  <>
-                    {fields.map((field) => (
-                      <View key={field.name} style={styles.inputContainer}>
-                        {renderField(field, formikProps)}
-                        {field.helper && (
-                          <View style={{ marginTop: 6 }}>
-                            <Text
-                              variant="bodySmall"
-                              style={{ color: "#6b6b6b" }}
-                            >
-                              {field.helper}{" "}
-                              {field.helperValue ? (
+                        },]);
+                      } catch (err: any) {
+                        console.error("Form submission failed:", err);
+                        Alert.alert("Error", err?.response?.data?.message || `Failed to ${id ? "update" : "save"} ${entityName}.`);
+                      } finally {
+                        formikHelpers.setSubmitting(false);
+                        setSubmitting(false);
+                      }
+                    }}
+                    enableReinitialize
+                  >
+                    {(formikProps) => (
+                      <>
+                            {fields.map((field) => (
+                              <View key={field.name} style={styles.inputContainer} onLayout={(e) => {
+                                const y = e?.nativeEvent?.layout?.y;
+                                setFieldLayouts((s) => ({ ...s, [field.name]: typeof y === 'number' ? y : 0 }));
+                              }}>
+                            {renderField(field, formikProps)}
+                            {field.helper && (
+                              <View style={{ marginTop: 6 }}>
                                 <Text
-                                  style={{
-                                    color: theme.colors.primary,
-                                    fontWeight: "700",
-                                  }}
+                                  variant="bodySmall"
+                                  style={{ color: TEXT_MUTED }}
                                 >
-                                  {field.helperValue}
+                                  {field.helper}{" "}
+                                  {field.helperValue ? (
+                                    <Text
+                                      style={{
+                                        color: SKY_BLUE, // Sky Blue for highlight values
+                                        fontWeight: "700",
+                                      }}
+                                    >
+                                      {field.helperValue}
+                                    </Text>
+                                  ) : null}
                                 </Text>
-                              ) : null}
+                              </View>
+                            )}
+
+                            {formikProps.touched[field.name] &&
+                              formikProps.errors[field.name] && (
+                                <HelperText
+                                  type="error"
+                                  visible
+                                  style={[
+                                    styles.errorText,
+                                    { color: theme.colors.error || "red" },
+                                  ]}
+                                >
+                                  {String(formikProps.errors[field.name])}
+                                </HelperText>
+                              )}
+                          </View>
+                        ))}
+
+                        {showSCDSelector && !disableSCD && (
+                          <View
+                            style={[
+                              styles.scdContainer,
+                              { borderTopColor: BACKGROUND_LIGHT },
+                            ]}
+                          >
+                            <Text
+                              variant="labelLarge"
+                              style={[styles.scdLabel, { color: TEXT_DARK }]}
+                            >
+                              Assign to School/Class/Division:
                             </Text>
+                            <SCDSelectorNative
+                              formik={{
+                                values: formikProps.values,
+                                setFieldValue: (field: string, value: any) =>
+                                  formikProps.setFieldValue(field, value),
+                                touched: formikProps.touched,
+                                errors: formikProps.errors || {},
+                              }}
+                            />
                           </View>
                         )}
-
-                        {formikProps.touched[field.name] &&
-                          formikProps.errors[field.name] && (
-                            <HelperText
-                              type="error"
-                              visible
-                              style={[
-                                styles.errorText,
-                                { color: theme.colors.error || "red" },
-                              ]}
-                            >
-                              {String(formikProps.errors[field.name])}
-                            </HelperText>
-                          )}
-                      </View>
-                    ))}
-
-                    {showSCDSelector && !disableSCD && (
-                      <View
-                        style={[
-                          styles.scdContainer,
-                          { borderTopColor: "#f0f0f0" },
-                        ]}
-                      >
-                        <Text
-                          variant="labelLarge"
-                          style={[styles.scdLabel, { color: "#6b6b6b" }]}
-                        >
-                          Assign to School/Class/Division:
-                        </Text>
-                        <SCDSelectorNative
-                          formik={{
-                            values: formikProps.values,
-                            setFieldValue: (field: string, value: any) =>
-                              formikProps.setFieldValue(field, value),
-                            touched: formikProps.touched,
-                            errors: formikProps.errors || {},
-                          }}
-                        />
-                      </View>
+                      </>
                     )}
-                  </>
-                )}
-              </Formik>
-            ) : (
-              fields.map((field) => (
-                <View key={field.name} style={styles.inputContainer}>
-                  {renderField(field)}
-                  {field.helper && (
-                    <View style={{ marginTop: 6 }}>
-                      <Text variant="bodySmall" style={{ color: "#6b6b6b" }}>
-                        {field.helper}{" "}
-                        {field.helperValue ? (
-                          <Text
-                            style={{
-                              color: theme.colors.primary,
-                              fontWeight: "700",
-                            }}
-                          >
-                            {field.helperValue}
+                  </Formik>
+                ) : (
+                  // ... Legacy Form Logic (structure remains the same)
+                  fields.map((field) => (
+                    <View key={field.name} style={styles.inputContainer} onLayout={(e) => {
+                      const y = e?.nativeEvent?.layout?.y;
+                      setFieldLayouts((s) => ({ ...s, [field.name]: typeof y === 'number' ? y : 0 }));
+                    }}>
+                      {renderField(field)}
+                      {field.helper && (
+                        <View style={{ marginTop: 6 }}>
+                          <Text variant="bodySmall" style={{ color: TEXT_MUTED }}>
+                            {field.helper}{" "}
+                            {field.helperValue ? (
+                              <Text
+                                style={{
+                                  color: SKY_BLUE,
+                                  fontWeight: "700",
+                                }}
+                              >
+                                {field.helperValue}
+                              </Text>
+                            ) : null}
                           </Text>
-                        ) : null}
-                      </Text>
+                        </View>
+                      )}
+                      {errors[field.name] && (
+                        <HelperText
+                          type="error"
+                          visible
+                          style={[
+                            styles.errorText,
+                            { color: theme.colors.error || "red" },
+                          ]}
+                        >
+                          {errors[field.name]}
+                        </HelperText>
+                      )}
                     </View>
-                  )}
-                  {errors[field.name] && (
-                    <HelperText
-                      type="error"
-                      visible
-                      style={[
-                        styles.errorText,
-                        { color: theme.colors.error || "red" },
-                      ]}
-                    >
-                      {errors[field.name]}
-                    </HelperText>
-                  )}
-                </View>
-              ))
-            )}
-          </Card.Content>
-        </Card>
-      </ScrollView>
+                  ))
+                )}
+              </Card.Content>
+            </Card>
+          </ScrollView>
 
-      {/* Sticky Footer with full-width primary action (rounded) */}
-      <View
-        style={[
-          styles.footer,
-          { backgroundColor: "transparent", borderTopColor: "#f0f0f0" },
-        ]}
-      >
-        {showCancelButton && (
-          <Button
-            mode="outlined"
-            onPress={() =>
-              cancelAction ? cancelAction() : navigation.goBack()
-            }
+          {/* Overlay loader (unchanged) */}
+          {submitting ? (
+            <View style={styles.submitOverlay} pointerEvents="auto">
+              <View style={[styles.submitOverlayInner,]}>
+                <LoadingSpinner color="#ffffff" />
+                <Text style={{ marginTop: 8, color: "#ffffff", fontWeight: '600' }}>Saving...</Text>
+              </View>
+            </View>
+          ) : null}
+
+          {/* Footer (Sleek, transparent background, pushed up by keyboard) */}
+          <View
             style={[
-              styles.cancelButton,
-              { borderColor: "#e6e6e6", backgroundColor: "#ffffff" },
+              styles.footer,
+              { backgroundColor: "#ffffff", borderTopColor: '#e0e0e0' },
             ]}
-            labelStyle={[styles.cancelButtonLabel]}
-            compact
-            disabled={loading}
-            textColor={theme.colors.secondary || "#6b6b6b"}
-            buttonColor={"transparent"}
           >
-            Cancel
-          </Button>
-        )}
+            {showCancelButton && (
+              <Button
+                mode="text" // Use text mode for a cleaner ghost button
+                onPress={() =>
+                  cancelAction ? cancelAction() : navigation.goBack()
+                }
+                style={[
+                  styles.cancelButton,
+                  { borderWidth: 0, backgroundColor: "#ffffff" },
+                ]}
+                labelStyle={[styles.cancelButtonLabel, {color: SKY_BLUE}]} // Sky Blue text
+                compact
+                disabled={loading}
+                textColor={SKY_BLUE}
+              >
+                Cancel
+              </Button>
+            )}
 
-        <Button
-          mode="contained"
-          onPress={() => {
-            // If Formik is being used, trigger Formik's submitForm(), otherwise use legacy handler
-            if (
-              formikRef &&
-              formikRef.current &&
-              typeof formikRef.current.submitForm === "function"
-            ) {
-              formikRef.current.submitForm();
-            } else {
-              handleSubmit();
-            }
-          }}
-          style={styles.fullWidthAction}
-          contentStyle={styles.fullWidthActionContent}
-          labelStyle={styles.fullWidthActionLabel}
-          loading={loading || (formikRef?.current?.isSubmitting ?? false)}
-          disabled={loading || (formikRef?.current?.isSubmitting ?? false)}
-          buttonColor={theme.colors.primary}
-          textColor={theme.colors.onPrimary || "#ffffff"}
-        >
-          {submitLabel ?? (id ? "Update" : "Save")}
-        </Button>
-      </View>
-    </View>
+            <Button
+              mode="contained"
+              onPress={() => {
+                if (
+                  formikRef &&
+                  formikRef.current &&
+                  typeof formikRef.current.submitForm === "function"
+                ) {
+                  formikRef.current.submitForm();
+                } else {
+                  handleSubmit();
+                }
+              }}
+              style={styles.fullWidthAction}
+              contentStyle={styles.fullWidthActionContent}
+              labelStyle={[styles.fullWidthActionLabel, {color: '#ffffff'}]}
+              loading={submitting || loading}
+              disabled={submitting || loading}
+              buttonColor={SKY_BLUE} // Sky Blue primary action
+              textColor={'#ffffff'}
+            >
+              {submitLabel ?? (id ? "Update" : "Save")}
+            </Button>
+          </View>
+        </View>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -716,19 +742,41 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
   },
+  headerShadow: {
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+      },
+      android: {
+        elevation: 1,
+      },
+    }),
+  },
   scrollContent: {
     padding: 16,
-    paddingBottom: 100, // Ensure space for the sticky footer
+    paddingBottom: 20, 
   },
   card: {
-    borderRadius: 12,
+    borderRadius: 16, // Increased roundness
   },
   inputContainer: {
     marginBottom: 0,
     marginTop: 16,
   },
   input: {
-    // We remove the default background override here and let RNP handle it based on the theme prop in renderField
+    // Height is often set implicitly by RNP, but custom style for margin/padding if needed
+  },
+  inputOutlineStyle: {
+    borderRadius: 12, // High rounding for the input border
+  },
+  selectField: {
+    padding: 16,
+    borderRadius: 12, // High rounding
+    borderWidth: 1,
+    borderColor: '#E5E7EB', // Lighter default border
   },
   errorText: {
     fontSize: 12,
@@ -745,57 +793,39 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   footer: {
-    position: "absolute",
-    bottom: 0,
+    // No absolute positioning here (fix for keyboard covering buttons)
     width: "100%",
     flexDirection: "row",
     justifyContent: "flex-end",
     alignItems: "center",
     paddingVertical: 10,
     paddingHorizontal: 16,
-    borderTopWidth: 1,
+    borderTopWidth: StyleSheet.hairlineWidth,
     ...Platform.select({
       ios: {
         shadowColor: "#000",
         shadowOffset: { width: 0, height: -2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
       },
       android: {
         elevation: 8,
       },
     }),
   },
-  saveButton: {
-    flex: 1,
-    borderRadius: 8,
-    marginLeft: 12,
-    minHeight: 50,
-  },
-  saveButtonContent: {
-    height: 50,
-  },
-  saveButtonLabel: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
   cancelButton: {
     flex: 0.5,
-    borderRadius: 8,
-    minHeight: 50,
-    borderWidth: 1,
+    minHeight: 56, // Match height of primary button
+    marginRight: 8,
   },
   cancelButtonLabel: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "700",
   },
   fullWidthAction: {
     flex: 1,
-    borderRadius: 28,
-    marginLeft: 0,
-    marginRight: 0,
-    marginVertical: 12,
-    marginHorizontal: 16,
+    borderRadius: 28, // Pill shape
+    marginVertical: 0,
     minHeight: 56,
     justifyContent: "center",
   },
@@ -806,4 +836,41 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "700",
   },
+  submitOverlay: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 9999,
+  },
+  submitOverlayInner: {
+    padding: 20,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  modalOverlay: {
+    flex: 1,
+    // backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "flex-end", // Slide up from the bottom
+  },
+  modalContent: {
+    backgroundColor: "white",
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    maxHeight: "70%",
+  },
+  modalItem: {
+    padding: 16,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderColor: '#F3F4F6',
+  },
+  modalCloseButton: {
+    padding: 16,
+    backgroundColor: BACKGROUND_LIGHT,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderColor: '#E5E7EB',
+  }
 });

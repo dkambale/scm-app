@@ -28,15 +28,55 @@ const NEW_INSTITUTE_INITIAL_VALUES = {
 const INSTITUTE_FIELDS: FormField[] = [
   { name: "name", label: "Institute Name", required: true, widthMultiplier: 1 },
   { name: "code", label: "Institute Code", required: true, widthMultiplier: 1 },
-  { name: "address", label: "Address Line 1", required: true, widthMultiplier: 1 },
-  { name: "addressLine2", label: "Address Line 2", required: false, widthMultiplier: 1 },
+  {
+    name: "address",
+    label: "Address Line 1",
+    required: true,
+    widthMultiplier: 1,
+  },
+  {
+    name: "addressLine2",
+    label: "Address Line 2",
+    required: false,
+    widthMultiplier: 1,
+  },
   { name: "city", label: "City", required: true, widthMultiplier: 0.5 },
   { name: "state", label: "State", required: true, widthMultiplier: 0.5 },
-  { name: "zipCode", label: "Zip Code", type: "number", required: true, widthMultiplier: 0.5 },
-  { name: "mobileNumber", label: "Mobile Number", type: "tel", required: true, widthMultiplier: 0.5 },
-  { name: "telephoneNumber", label: "Telephone Number", type: "tel", required: false, widthMultiplier: 0.5 },
-  { name: "email", label: "Email", type: "email", required: true, widthMultiplier: 0.5 },
-  { name: "faxNumber", label: "Fax Number", type: "tel", required: true, widthMultiplier: 0.5 },
+  {
+    name: "zipCode",
+    label: "Zip Code",
+    type: "number",
+    required: true,
+    widthMultiplier: 0.5,
+  },
+  {
+    name: "mobileNumber",
+    label: "Mobile Number",
+    type: "tel",
+    required: true,
+    widthMultiplier: 0.5,
+  },
+  {
+    name: "telephoneNumber",
+    label: "Telephone Number",
+    type: "tel",
+    required: false,
+    widthMultiplier: 0.5,
+  },
+  {
+    name: "email",
+    label: "Email",
+    type: "email",
+    required: true,
+    widthMultiplier: 0.5,
+  },
+  {
+    name: "faxNumber",
+    label: "Fax Number",
+    type: "tel",
+    required: true,
+    widthMultiplier: 0.5,
+  },
 ];
 
 // Define validation schema based on the web component
@@ -53,7 +93,10 @@ const InstituteValidationSchema = Yup.object().shape({
   mobileNumber: Yup.string()
     .matches(/^[0-9]{10}$/, "Mobile number must be 10 digits")
     .required("Mobile Number is required"),
-  email: Yup.string().email("Must be a valid email").max(255).required("Email is required"),
+  email: Yup.string()
+    .email("Must be a valid email")
+    .max(255)
+    .required("Email is required"),
   faxNumber: Yup.string().required("Fax Number is required"),
   code: Yup.string().max(255).required("Code is required"),
   telephoneNumber: Yup.string(),
@@ -64,7 +107,9 @@ const AddEditInstitute = () => {
   const route = useRoute();
   const { id } = (route.params as { id?: string }) || {};
 
-  const [initialData, setInitialData] = useState<any | null>(id ? {} : NEW_INSTITUTE_INITIAL_VALUES);
+  const [initialData, setInitialData] = useState<any | null>(
+    id ? {} : NEW_INSTITUTE_INITIAL_VALUES
+  );
   const [loading, setLoading] = useState(!!id);
 
   // Fetch data for edit mode
@@ -95,10 +140,10 @@ const AddEditInstitute = () => {
   const handleSubmit = async (values: any, { setSubmitting }: any) => {
     setSubmitting(true);
     const isUpdate = !!id;
-    const institutePayload = { 
-      ...values, 
-         id: isUpdate ?  id :  null,
-    //   accountId: 'MOCK_ACCOUNT_ID' 
+    const institutePayload = {
+      ...values,
+      id: isUpdate ? id : null,
+      //   accountId: 'MOCK_ACCOUNT_ID'
     };
 
     try {
@@ -109,11 +154,10 @@ const AddEditInstitute = () => {
 
       Alert.alert(
         "Success",
-        isUpdate ? "Institute updated successfully!" : "Institute created successfully!"
+        isUpdate
+          ? "Institute updated successfully!"
+          : "Institute created successfully!"
       );
-
-      // Navigate back to the list screen (assuming 'InstituteList' is the screen name)
-      navigation.navigate("InstituteList" as never); 
     } catch (error) {
       console.error("Submission Error:", error);
       Alert.alert("Error", "Failed to save institute. Please try again.");
@@ -132,7 +176,10 @@ const AddEditInstitute = () => {
       fields={INSTITUTE_FIELDS}
       initialValues={initialData}
       validationSchema={InstituteValidationSchema}
-      onSubmit={handleSubmit}
+      // onSubmit={handleSubmit}
+      saveUrl="api/institutes/save"
+      updateUrl="api/institutes/update"
+      onSuccessRoute={{ name: "MainDrawer", params: { screen: "INSTITUTE" } }}
       isEditMode={!!id}
       disableSCD={true}
     />

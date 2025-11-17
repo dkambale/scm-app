@@ -303,6 +303,15 @@ export const RootNavigation: React.FC = () => {
       entity: "STUDENT",
       action: "add",
     });
+    
+    const canAddInstitute = useHasPermission({
+      entity: "INSTITUTE",
+      action: "add",
+    });
+    const canAddSchool = useHasPermission({
+      entity: "SCHOOL",
+      action: "add",
+    });
     const canAddDivision = useHasPermission({
       entity: "DIVISION",
       action: "add",
@@ -326,6 +335,8 @@ export const RootNavigation: React.FC = () => {
 
     const addPermMap: Record<string, boolean> = {
       STUDENT: Boolean(canAddStudent),
+      INSTITUTE: Boolean(canAddInstitute),
+      SCHOOL: Boolean(canAddSchool),
       DIVISION: Boolean(canAddDivision),
       CLASSES: Boolean(canAddClasses),
       TEACHER: Boolean(canAddTeacher),

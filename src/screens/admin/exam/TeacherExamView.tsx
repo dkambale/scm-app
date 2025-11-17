@@ -264,9 +264,7 @@ const TeacherExamView: React.FC = () => {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
       style={{ flex: 1 }}
     >
-      {/* <HeaderBar title={t("title") ||/ "Grade Exams"} /> */}
-      {/* Use a VirtualizedList-backed parent (FlatList) to avoid nesting VirtualizedLists
-          inside a plain ScrollView. The header contains the SCD selector and exam picker. */}
+     
       <FlatList
         data={students}
         keyExtractor={(it) => String(it.studentId)}
@@ -430,17 +428,17 @@ const styles = StyleSheet.create({
     elevation: 12,
   },
   studentTitle: {
-    color: "#0b2b55",
+    color: "#ffffffff",
     fontWeight: "800",
     fontSize: 16,
   },
   studentSubtitle: {
-    color: "#333",
+    color: "#ffffffff",
     fontSize: 13,
   },
-  subjectLabel: { flex: 1, fontWeight: "700", color: "#0b2b55", fontSize: 15 },
-  noticeText: { color: "#0b2b55", fontWeight: "700", textAlign: "center" },
-  sectionTitle: { marginBottom: 8, color: "#0b2b55", fontWeight: "700" },
+  subjectLabel: { flex: 1, fontWeight: "700", color: "#ffffffff", fontSize: 15 },
+  noticeText: { color: "#ffffffff", fontWeight: "700", textAlign: "center" },
+  sectionTitle: { marginBottom: 8, color: "#ffffffff", fontWeight: "700" },
   noStudentsText: { color: "#333", fontSize: 15, textAlign: "center" },
   graderTitle: { color: "#0b2b55", fontWeight: "800" },
   graderText: { color: "#111" },

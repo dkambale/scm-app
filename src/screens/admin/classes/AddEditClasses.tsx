@@ -7,11 +7,10 @@ import {
   FormField,
 } from "../../../components/common/ReusableForm";
 import { LoadingSpinner } from "../../../components/common/LoadingSpinner"; // Adjust path
-import api from "../../../api"; 
+import api from "../../../api";
 const NEW_CLASS_INITIAL_VALUES = {
   name: "",
   schoolbranchId: "",
-
 };
 
 // Define fields based on the web component and ReusableForm interface
@@ -32,21 +31,21 @@ const CLASS_FIELDS: FormField[] = [
     optionsValueKey: "id",
     placeholder: "Select school",
   },
-
 ];
 
 // Define validation schema based on the web component
 const ClassValidationSchema = Yup.object().shape({
   name: Yup.string().max(255).required("Class Name is required"),
   schoolbranchId: Yup.string().required("School is required"),
- 
 });
 const AddEditClasses = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { id } = (route.params as { id?: string }) || {};
 
-  const [initialData, setInitialData] = useState<any | null>(id ? {} : NEW_CLASS_INITIAL_VALUES);
+  const [initialData, setInitialData] = useState<any | null>(
+    id ? {} : NEW_CLASS_INITIAL_VALUES
+  );
   const [loading, setLoading] = useState(!!id);
 
   // Fetch data for edit mode
@@ -61,8 +60,8 @@ const AddEditClasses = () => {
             ...NEW_CLASS_INITIAL_VALUES,
             ...data,
             // Ensure ID fields are strings for consistency with TextInput field handling
-            schoolbranchId: String(data.schoolbranchId || ''), 
-            instituteId: String(data.instituteId || ''),
+            schoolbranchId: String(data.schoolbranchId || ""),
+            instituteId: String(data.instituteId || ""),
             id: data.id,
           });
         } catch (error) {
@@ -80,27 +79,22 @@ const AddEditClasses = () => {
   const handleSubmit = async (values: any, { setSubmitting }: any) => {
     setSubmitting(true);
     const isUpdate = !!id;
-    const classPayload = { 
-      ...values, 
+    const classPayload = {
+      ...values,
       id: isUpdate ? id : undefined,
       // accountId: 'MOCK_ACCOUNT_ID',
       // Convert select IDs back to number for API
-      schoolbranchId: Number(values.schoolbranchId), 
-      instituteId: Number(values.instituteId) 
+      schoolbranchId: Number(values.schoolbranchId),
+      instituteId: Number(values.instituteId),
     };
 
     try {
-      const url = isUpdate ? `/api/schoolClasses/update` : `/api/schoolClasses/save`;
+      const url = isUpdate
+        ? `/api/schoolClasses/update`
+        : `/api/schoolClasses/save`;
       const method = isUpdate ? api.put : api.post;
 
       await method(url, classPayload);
-
-      Alert.alert(
-        "Success",
-        isUpdate ? "Class updated successfully!" : "Class added successfully!"
-      );
-
-      navigation.navigate("ClassesList" as never);
     } catch (error) {
       console.error("Submission Error:", error);
       Alert.alert("Error", "Failed to save class. Please try again.");
@@ -112,14 +106,17 @@ const AddEditClasses = () => {
   if (loading || !initialData) {
     return <LoadingSpinner />;
   }
-  
+
   return (
     <ReusableForm
       entityName="Class"
       fields={CLASS_FIELDS}
       initialValues={initialData}
       validationSchema={ClassValidationSchema}
-      onSubmit={handleSubmit}
+      // onSubmit={handleSubmit}
+      saveUrl="api/schoolClasses/save"
+      updateUrl="api/schoolClasses/update"
+      onSuccessRoute={{ name: "MainDrawer", params: { screen: "CLASSES" } }}
       isEditMode={!!id}
       disableSCD={true}
     />

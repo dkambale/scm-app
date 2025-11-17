@@ -177,10 +177,15 @@ const AddEditSchool = () => {
           ? "School updated successfully!"
           : "School created successfully!"
       );
+      Alert.alert(
+        "Success",
+        isUpdate
+          ? "School updated successfully!"
+          : "School created successfully!"
+      );
 
       // Navigate to the drawer's School list screen. AddEditSchool is within the
       // Stack navigator, so navigate into the MainDrawer and target the SCHOOL route.
-      navigation.navigate("MainDrawer" as never, { screen: "SCHOOL" } as any);
     } catch (error) {
       console.error("Submission Error:", error);
       Alert.alert("Error", "Failed to save school. Please try again.");
@@ -199,7 +204,10 @@ const AddEditSchool = () => {
       fields={SCHOOL_FIELDS}
       initialValues={initialData}
       validationSchema={SchoolValidationSchema}
-      onSubmit={handleSubmit}
+      // onSubmit={handleSubmit}
+      saveUrl="api/schoolBranches/save"
+      updateUrl="api/schoolBranches/update"
+      onSuccessRoute={{ name: "MainDrawer", params: { screen: "SCHOOL" } }}
       isEditMode={!!id}
       disableSCD={true}
     />

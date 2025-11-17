@@ -345,8 +345,21 @@ export const ReusableDataGrid: React.FC<ReusableDataGridProps> = ({
   };
 
   const showDeleteDialog = (id: string) => {
+    // Use native Alert for faster, more responsive mobile confirmation
     setDeleteItemId(id);
-    setDeleteDialogVisible(true);
+    Alert.alert(
+      `Delete ${entityName || "item"}?`,
+      `Are you sure you want to delete this ${entityName || "item"}?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => performDelete(id),
+        },
+      ],
+      { cancelable: true }
+    );
   };
   const hideDeleteDialog = () => setDeleteDialogVisible(false);
   // DELETE
@@ -354,38 +367,47 @@ export const ReusableDataGrid: React.FC<ReusableDataGridProps> = ({
   // can you please add at last of this api {accountId}/{id} in delete deleteUrl
 
   const handleDelete = async () => {
-    if (deleteUrl && deleteItemId) {
-      try {
-        // Resolve accountId and build a URL of the form
-        // /api/.../delete/{accountId}/{id}
-        const { userDetails } = await import("../../utils/apiService");
-        const accountId = await userDetails.getAccountId();
+    // Backwards-compatible handler in case Dialog action is used.
+    if (deleteItemId) {
+      await performDelete(deleteItemId);
+    }
+  };
 
-        let finalUrl = deleteUrl;
-        // If the template contains placeholders, replace them
-        if (finalUrl.includes("{accountId}")) {
-          finalUrl = finalUrl.replace("{accountId}", String(accountId ?? ""));
-        }
-        if (finalUrl.includes("{id}")) {
-          finalUrl = finalUrl.replace("{id}", String(deleteItemId));
-        }
+  // Centralized delete logic used by Alert and dialog flows
+  const performDelete = async (id: string) => {
+    if (!deleteUrl) return;
+    try {
+      setLoading(true);
+      const { userDetails } = await import("../../utils/apiService");
+      const accountId = await userDetails.getAccountId();
 
-        // If no placeholders, append accountId/id to the end
-        if (!finalUrl.includes("{accountId}") && !finalUrl.includes("{id}")) {
-          // ensure no trailing slash duplication
-          if (!finalUrl.endsWith("/")) finalUrl = finalUrl + "/";
-          finalUrl = finalUrl + `${accountId}/${deleteItemId}`;
-        }
-
-        await api.delete(finalUrl);
-        Alert.alert("Success", `${entityName} deleted successfully.`);
-        fetchData();
-      } catch (error: any) {
-        console.error("Delete failed:", error);
-        Alert.alert("Delete Error", error.message || "Failed to delete item.");
-      } finally {
-        hideDeleteDialog();
+      let finalUrl = deleteUrl;
+      if (finalUrl.includes("{accountId}")) {
+        finalUrl = finalUrl.replace("{accountId}", String(accountId ?? ""));
       }
+      if (finalUrl.includes("{id}")) {
+        finalUrl = finalUrl.replace("{id}", String(id));
+      }
+
+      if (!finalUrl.includes("{accountId}") && !finalUrl.includes("{id}")) {
+        if (!finalUrl.endsWith("/")) finalUrl = finalUrl + "/";
+        finalUrl = finalUrl + `${accountId}/${id}`;
+      }
+
+      await api.delete(finalUrl);
+      Alert.alert("Success", `${entityName} deleted successfully.`);
+      fetchData();
+    } catch (error: any) {
+      console.error("Delete failed:", error);
+      Alert.alert(
+        "Delete Error",
+        error?.response?.data?.message ||
+          error.message ||
+          "Failed to delete item."
+      );
+    } finally {
+      setLoading(false);
+      hideDeleteDialog();
     }
   };
 
