@@ -6,13 +6,7 @@ import { userDetails } from "../../../utils/apiService";
 
 const columnsConfig = [
   { key: 'name', header: 'Role Name' },
-  { key: 'status', header: 'status' },
-  { key: 'maxMarksOverall', header: 'Max Marks Overall' },
-  { key: 'roleType', header: 'Type' },
-  { key: 'academicYear', header: 'academic Year' },
-  { key: 'schoolName', header: 'School' },
-  { key: 'className', header: 'Class' },
-  { key: 'divisionName', header: 'Division' },
+
 ];
 
 const transformRoleData = (role: any) => ({
@@ -46,9 +40,11 @@ export const RoleList: React.FC = () => {
         fetchUrl={fetchUrl}
         columns={columnsConfig}
         isPostRequest={true}
-    
-        
-        viewUrl='StudentRoleResult'
+
+        // editUrl='AddEdit'
+        addActionUrl='AddEditRole'
+        editUrl="AddEditRole"
+
         entityName="Role"
         searchPlaceholder="Search roles..."
         transformData={transformRoleData}

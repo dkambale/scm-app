@@ -31,6 +31,7 @@ import AddEditDivision from "../screens/admin/divisions/AddEditDivision";
 import AddEditInstitute from "../screens/admin/institutes/AddEditInstitute";
 import AddEditSchool from "../screens/admin/schools/AddEditSchool";
 import AddEditClasses from "../screens/admin/classes/AddEditClasses";
+import AddEditSubject from "../screens/admin/subjects/AddEditSubject";
 import { AddEditTeacher } from "../screens/admin/teachers/AddEditTeacher";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Avatar } from "react-native-paper";
@@ -176,6 +177,10 @@ export const RootNavigation: React.FC = () => {
     entity: "DIVISION",
     action: "view",
   });
+  const canViewSUBJECT = useHasPermission({
+    entity: "SUBJECT",
+    action: "view",
+  });
   const canViewSTUDENT = useHasPermission({
     entity: "STUDENT",
     action: "view",
@@ -231,6 +236,8 @@ export const RootNavigation: React.FC = () => {
   if (canViewSCHOOL) visibleEntries.push(entityRegistry.SCHOOL);
   if (canViewCLASSES) visibleEntries.push(entityRegistry.CLASSES);
   if (canViewDIVISION) visibleEntries.push(entityRegistry.DIVISION);
+  if (canViewSUBJECT) visibleEntries.push(entityRegistry.SUBJECT);
+  if (canViewROLE) visibleEntries.push(entityRegistry.ROLE);
   if (canViewSTUDENT) visibleEntries.push(entityRegistry.STUDENT);
 
   if (canViewTEACHER) visibleEntries.push(entityRegistry.TEACHER);
@@ -247,12 +254,22 @@ export const RootNavigation: React.FC = () => {
 
   if (canViewEXAM_TEACHER_VIEW)
     visibleEntries.push(entityRegistry.EXAM_TEACHER_VIEW);
-  
-  if (canViewROLE) visibleEntries.push(entityRegistry.ROLE);
+
   if (canViewPROFILE) visibleEntries.push(entityRegistry.PROFILE);
   if (loading) {
     return <LoadingSpinner />;
   }
+
+  // Grouping helpers for drawer sections
+  const instituteGroupIds = [
+    "INSTITUTE",
+    "SCHOOL",
+    "CLASSES",
+    "DIVISION",
+    "SUBJECT",
+    "ROLE",
+  ];
+  const usersGroupIds = ["STUDENT", "TEACHER"];
 
   if (!user) {
     const AuthStack = createNativeStackNavigator();
@@ -299,6 +316,8 @@ export const RootNavigation: React.FC = () => {
     INSTITUTE: "AddEditInstitute",
     SCHOOL: "AddEditSchool",
     CLASSES: "AddEditClasses",
+
+    SUBJECT: "AddEditSubject",
     TEACHER: "AddTeacher",
     TIMETABLE: "AddEditTimetable",
     ATTENDANCE: "AddAttendance",
@@ -332,6 +351,10 @@ export const RootNavigation: React.FC = () => {
       entity: "CLASS",
       action: "add",
     });
+    const canAddSubject = useHasPermission({
+      entity: "SUBJECT",
+      action: "add",
+    });
     const canAddTeacher = useHasPermission({
       entity: "TEACHER",
       action: "add",
@@ -351,6 +374,7 @@ export const RootNavigation: React.FC = () => {
       INSTITUTE: Boolean(canAddInstitute),
       SCHOOL: Boolean(canAddSchool),
       DIVISION: Boolean(canAddDivision),
+      SUBJECT: Boolean(canAddSubject),
       CLASSES: Boolean(canAddClasses),
       TEACHER: Boolean(canAddTeacher),
       TIMETABLE: Boolean(canAddTimetable),
@@ -388,55 +412,184 @@ export const RootNavigation: React.FC = () => {
           {...props}
           contentContainerStyle={styles.listContent}
         >
-          {visibleEntries.map((entry) => {
-            const showAdd = Boolean(
-              addRouteMap[entry.id] && addPermMap[entry.id]
-            );
-            const iconMap: Record<string, string> = {
-              STUDENT: "👩‍🎓",
-              TEACHER: "👨‍🏫",
-              CLASSES: "🏫",
-              TIMETABLE: "📅",
-              ATTENDANCE: "📝",
-              FEE: "💰",
-              ANNOUNCEMENT: "📢",
-              EXAM: "🧾",
-              PROFILE: "👤",
-              TEACHER_DASHBOARD: "📊",
-              STUDENT_DASHBOARD: "🎓",
-            };
-            const entryIcon = iconMap[entry.id] ?? "•";
+          {/* Institute group (INSTITUTE, SCHOOL, CLASSES, DIVISION, SUBJECT, ROLE) */}
+          {visibleEntries.filter((e) => instituteGroupIds.includes(e.id))
+            .length > 0 && (
+            <>
+              <Text
+                style={{ marginVertical: 8, marginLeft: 6, fontWeight: "700" }}
+              >
+                Institute
+              </Text>
+              {visibleEntries
+                .filter((entry) => instituteGroupIds.includes(entry.id))
+                .map((entry) => {
+                  const showAdd = Boolean(
+                    addRouteMap[entry.id] && addPermMap[entry.id]
+                  );
+                  const iconMap: Record<string, string> = {
+                    STUDENT: "👩‍🎓",
+                    TEACHER: "👨‍🏫",
+                    CLASSES: "🏫",
+                    TIMETABLE: "📅",
+                    ATTENDANCE: "📝",
+                    FEE: "💰",
+                    ANNOUNCEMENT: "📢",
+                    EXAM: "🧾",
+                    PROFILE: "👤",
+                    TEACHER_DASHBOARD: "📊",
+                    STUDENT_DASHBOARD: "🎓",
+                  };
+                  const entryIcon = iconMap[entry.id] ?? "•";
+                  return (
+                    <View style={styles.entryRow} key={entry.id}>
+                      <TouchableOpacity
+                        style={styles.entryTouchable}
+                        onPress={() => navigation.navigate(entry.id)}
+                      >
+                        <View style={styles.entryInner}>
+                          <View style={styles.iconBox}>
+                            <Avatar.Icon
+                              size={28}
+                              icon={entry.icon ?? entryIcon}
+                            />
+                          </View>
+                          <Text style={styles.entryLabel}>
+                            {entry.title ?? entry.id}
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
 
-            return (
-              <View style={styles.entryRow} key={entry.id}>
-                <TouchableOpacity
-                  style={styles.entryTouchable}
-                  onPress={() => navigation.navigate(entry.id)}
-                >
-                  <View style={styles.entryInner}>
-                    <View style={styles.iconBox}>
-                      {/* Render a MaterialCommunity icon using Avatar.Icon so it looks polished */}
-                      <Avatar.Icon size={28} icon={entry.icon ?? entryIcon} />
+                      {showAdd ? (
+                        <TouchableOpacity
+                          style={styles.addButton}
+                          onPress={() =>
+                            navigation.navigate(addRouteMap[entry.id])
+                          }
+                        >
+                          <Text style={styles.addButtonText}>+</Text>
+                        </TouchableOpacity>
+                      ) : (
+                        <View style={styles.addButtonPlaceholder} />
+                      )}
                     </View>
-                    <Text style={styles.entryLabel}>
-                      {entry.title ?? entry.id}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
+                  );
+                })}
+            </>
+          )}
 
-                {showAdd ? (
+          {/* Users group (STUDENT, TEACHER) */}
+          {visibleEntries.filter((e) => usersGroupIds.includes(e.id)).length >
+            0 && (
+            <>
+              <Text
+                style={{ marginVertical: 8, marginLeft: 6, fontWeight: "700" }}
+              >
+                Users
+              </Text>
+              {visibleEntries
+                .filter((entry) => usersGroupIds.includes(entry.id))
+                .map((entry) => {
+                  const showAdd = Boolean(
+                    addRouteMap[entry.id] && addPermMap[entry.id]
+                  );
+                  const iconMap: Record<string, string> = {
+                    STUDENT: "👩‍🎓",
+                    TEACHER: "👨‍🏫",
+                    CLASSES: "🏫",
+                  };
+                  const entryIcon = iconMap[entry.id] ?? "•";
+                  return (
+                    <View style={styles.entryRow} key={entry.id}>
+                      <TouchableOpacity
+                        style={styles.entryTouchable}
+                        onPress={() => navigation.navigate(entry.id)}
+                      >
+                        <View style={styles.entryInner}>
+                          <View style={styles.iconBox}>
+                            <Avatar.Icon
+                              size={28}
+                              icon={entry.icon ?? entryIcon}
+                            />
+                          </View>
+                          <Text style={styles.entryLabel}>
+                            {entry.title ?? entry.id}
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
+
+                      {showAdd ? (
+                        <TouchableOpacity
+                          style={styles.addButton}
+                          onPress={() =>
+                            navigation.navigate(addRouteMap[entry.id])
+                          }
+                        >
+                          <Text style={styles.addButtonText}>+</Text>
+                        </TouchableOpacity>
+                      ) : (
+                        <View style={styles.addButtonPlaceholder} />
+                      )}
+                    </View>
+                  );
+                })}
+            </>
+          )}
+
+          {/* Remaining entries */}
+          {visibleEntries
+            .filter(
+              (e) =>
+                !instituteGroupIds.includes(e.id) &&
+                !usersGroupIds.includes(e.id)
+            )
+            .map((entry) => {
+              const showAdd = Boolean(
+                addRouteMap[entry.id] && addPermMap[entry.id]
+              );
+              const iconMap: Record<string, string> = {
+                STUDENT: "👩‍🎓",
+                TEACHER: "👨‍🏫",
+                CLASSES: "🏫",
+                TIMETABLE: "📅",
+                ATTENDANCE: "📝",
+                FEE: "💰",
+                ANNOUNCEMENT: "📢",
+                EXAM: "🧾",
+                PROFILE: "👤",
+                TEACHER_DASHBOARD: "📊",
+                STUDENT_DASHBOARD: "🎓",
+              };
+              const entryIcon = iconMap[entry.id] ?? "•";
+              return (
+                <View style={styles.entryRow} key={entry.id}>
                   <TouchableOpacity
-                    style={styles.addButton}
-                    onPress={() => navigation.navigate(addRouteMap[entry.id])}
+                    style={styles.entryTouchable}
+                    onPress={() => navigation.navigate(entry.id)}
                   >
-                    <Text style={styles.addButtonText}>+</Text>
+                    <View style={styles.entryInner}>
+                      <View style={styles.iconBox}>
+                        <Avatar.Icon size={28} icon={entry.icon ?? entryIcon} />
+                      </View>
+                      <Text style={styles.entryLabel}>
+                        {entry.title ?? entry.id}
+                      </Text>
+                    </View>
                   </TouchableOpacity>
-                ) : (
-                  <View style={styles.addButtonPlaceholder} />
-                )}
-              </View>
-            );
-          })}
+
+                  {showAdd ? (
+                    <TouchableOpacity
+                      style={styles.addButton}
+                      onPress={() => navigation.navigate(addRouteMap[entry.id])}
+                    >
+                      <Text style={styles.addButtonText}>+</Text>
+                    </TouchableOpacity>
+                  ) : (
+                    <View style={styles.addButtonPlaceholder} />
+                  )}
+                </View>
+              );
+            })}
         </DrawerContentScrollView>
       </View>
     );
@@ -496,10 +649,7 @@ export const RootNavigation: React.FC = () => {
         />
         <Stack.Screen
           name="AddEditRole"
-          component={makeProtectedScreen(
-            AddEditRole,
-            permFrom("ROLE", "add")
-          )}
+          component={makeProtectedScreen(AddEditRole, permFrom("ROLE", "add"))}
         />
         <Stack.Screen
           name="EditStudent"
@@ -513,6 +663,13 @@ export const RootNavigation: React.FC = () => {
           component={makeProtectedScreen(
             AddEditDivision,
             permFrom("DIVISION", "add")
+          )}
+        />
+        <Stack.Screen
+          name="EditDivision"
+          component={makeProtectedScreen(
+            AddEditDivision,
+            permFrom("DIVISION", "edit")
           )}
         />
         <Stack.Screen
@@ -537,13 +694,20 @@ export const RootNavigation: React.FC = () => {
           )}
         />
         <Stack.Screen
-          name="EditDivision"
+          name="editSubject"
           component={makeProtectedScreen(
-            AddEditDivision,
-            permFrom("DIVISION", "edit")
+            AddEditSubject,
+            permFrom("SUBJECT", "edit")
           )}
         />
-        <Stack.Screen 
+        <Stack.Screen
+          name="AddEditSubject"
+          component={makeProtectedScreen(
+            AddEditSubject,
+            permFrom("SUBJECT", "add")
+          )}
+        />
+        <Stack.Screen
           name="EditInstitute"
           component={makeProtectedScreen(
             AddEditInstitute,

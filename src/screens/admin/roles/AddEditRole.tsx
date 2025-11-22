@@ -6,8 +6,9 @@ import {
   Alert,
   Modal,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
-import { Text, TextInput, Card, Checkbox, useTheme } from "react-native-paper";
+import { Text, TextInput, Card, Checkbox } from "react-native-paper";
 import MainLayout from "../../../layout/MainLayout";
 import ReusableLoader from "../../../ui-component/loader/ReusableLoader";
 import Button from "../../../ui-component/Button";
@@ -22,6 +23,9 @@ const AddEditRole: React.FC = () => {
   const nav = useNavigation();
   const route: any = useRoute();
   const id = route.params?.id;
+
+  const ACCENT = "#007AFF";
+  const TEXT_DARK = "#000000ff";
 
   const [loading, setLoading] = useState<boolean>(false);
   const [role, setRole] = useState<any>({
@@ -120,56 +124,85 @@ const AddEditRole: React.FC = () => {
       title={role.id ? "Edit Role" : "Create Role"}
       onBack={() => (nav as any).goBack()}
     >
-      <View style={styles.row}>
-        <TextInput
-          label="Role Name"
-          value={role.name}
-          onChangeText={(text) => setRole({ ...role, name: text })}
-          style={styles.input}
-        />
-      </View>
+      <ScrollView
+        style={{ backgroundColor: "#ffffff", flex: 1 }}
+        contentContainerStyle={{ paddingBottom: 120 }}
+      >
+        <View style={styles.row}>
+          <TextInput
+            label="Role Name"
+            value={role.name}
+            onChangeText={(text) => setRole({ ...role, name: text })}
+            style={{
+              textTransform: "capitalize",
+              color: TEXT_DARK,
+              backgroundColor: '#ffffffff',
+            }}
+            mode="outlined"
+            outlineStyle={{ borderRadius: 10 }}
+          />
+        </View>
 
-      <View style={styles.row}>
-        <Text style={{ marginBottom: 8 }}>School</Text>
-        <TouchableOpacity
-          onPress={() => setSchoolPickerVisible(true)}
-          style={styles.pickerButton}
-        >
-          <Text>{role.schoolName || "Select school"}</Text>
-        </TouchableOpacity>
-      </View>
+        <View style={styles.row}>
+          <Text style={[styles.label, { color: TEXT_DARK }]}>School</Text>
+          <TouchableOpacity
+            onPress={() => setSchoolPickerVisible(true)}
+            style={styles.pickerButton}
+            activeOpacity={0.8}
+          >
+            <Text style={{ color: TEXT_DARK, fontWeight: "600" }}>
+              {role.schoolName || "Select school"}
+            </Text>
+            <Text style={{ color: ACCENT, marginLeft: 12, fontWeight: "700" }}>
+              Choose
+            </Text>
+          </TouchableOpacity>
+        </View>
 
-      <View style={{ marginTop: 16 }}>
-        <Text style={{ fontWeight: "700", marginBottom: 8 }}>
-          Configure Permissions
-        </Text>
-        <FlatList
-          data={entities}
-          keyExtractor={(it) => String(it.id)}
-          renderItem={({ item }) => (
-            <Card style={styles.entityCard}>
-              <Card.Title title={item.name} />
-              <Card.Content>
-                <View style={styles.actionsRow}>
-                  {defaultActions.map((action) => (
-                    <View key={action} style={styles.actionItem}>
-                      <Checkbox.Android
-                        status={
-                          isChecked(item.name, action) ? "checked" : "unchecked"
-                        }
-                        onPress={() => handleToggle(item.name, action)}
-                      />
-                      <Text style={{ textTransform: "capitalize" }}>
-                        {action}
-                      </Text>
-                    </View>
-                  ))}
-                </View>
-              </Card.Content>
-            </Card>
-          )}
-        />
-      </View>
+        <View style={{ marginTop: 16 }}>
+          <Text style={{ fontWeight: "700", marginBottom: 8 }}>
+            Configure Permissions
+          </Text>
+          <FlatList
+            data={entities}
+            keyExtractor={(it) => String(it.id)}
+            renderItem={({ item }) => (
+              <Card style={[styles.entityCard, { backgroundColor: "#ffffff" }]}>
+                <Card.Title
+                  title={item.name}
+                  titleStyle={{ color: TEXT_DARK, fontWeight: "700" }}
+                />
+                <Card.Content>
+                  <View style={styles.actionsRow}>
+                    {defaultActions.map((action) => (
+                      <View key={action} style={styles.actionItem}>
+                        <Checkbox.Android
+                          status={
+                            isChecked(item.name, action)
+                              ? "checked"
+                              : "unchecked"
+                          }
+                          onPress={() => handleToggle(item.name, action)}
+                          color={ACCENT}
+                        />
+                        <Text
+                          style={{
+                            textTransform: "capitalize",
+                            color: TEXT_DARK,
+                          }}
+                          onPress={() => handleToggle(item.name, action)}
+                        >
+                          {action}
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
+                </Card.Content>
+              </Card>
+            )}
+          />
+        </View>
+      </ScrollView>
 
       <View style={styles.footer}>
         <BackButton />
@@ -179,11 +212,13 @@ const AddEditRole: React.FC = () => {
       </View>
 
       <Modal visible={schoolPickerVisible} transparent animationType="slide">
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={() => setSchoolPickerVisible(false)}
-        >
+        <View style={styles.modalOverlay}>
+          {/* Backdrop: only closes when tapped outside modalContent */}
+          <TouchableOpacity
+            style={styles.modalBackdrop}
+            activeOpacity={1}
+            onPress={() => setSchoolPickerVisible(false)}
+          />
           <View style={styles.modalContent}>
             <FlatList
               data={schools}
@@ -200,12 +235,12 @@ const AddEditRole: React.FC = () => {
                     setSchoolPickerVisible(false);
                   }}
                 >
-                  <Text>{item.name}</Text>
+                  <Text style={{ color: TEXT_DARK }}>{item.name}</Text>
                 </TouchableOpacity>
               )}
             />
           </View>
-        </TouchableOpacity>
+        </View>
       </Modal>
     </MainLayout>
   );
@@ -213,7 +248,8 @@ const AddEditRole: React.FC = () => {
 
 const styles = StyleSheet.create({
   row: { marginBottom: 12 },
-  input: { backgroundColor: "transparent" },
+  input: { backgroundColor: "" },
+  label: { marginBottom: 8, fontSize: 14, fontWeight: "600" },
   pickerButton: {
     padding: 12,
     backgroundColor: "#fff",
@@ -221,9 +257,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#eee",
   },
+
   entityCard: { marginBottom: 10 },
   actionsRow: { flexDirection: "row", flexWrap: "wrap" },
   actionItem: { flexDirection: "row", alignItems: "center", marginRight: 12 },
+
   footer: {
     flexDirection: "row",
     alignItems: "center",
@@ -233,7 +271,7 @@ const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
     justifyContent: "flex-end",
-    backgroundColor: "rgba(0,0,0,0.4)",
+    backgroundColor: "transparent",
   },
   modalContent: {
     maxHeight: "50%",
@@ -241,6 +279,10 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 12,
     borderTopRightRadius: 12,
     padding: 12,
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
   },
   schoolItem: {
     paddingVertical: 12,

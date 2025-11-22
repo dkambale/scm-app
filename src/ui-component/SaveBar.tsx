@@ -1,6 +1,6 @@
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import { Button, useTheme } from 'react-native-paper';
+import React from "react";
+import { StyleSheet, View } from "react-native";
+import { Button, useTheme } from "react-native-paper";
 
 interface Props {
   label?: string;
@@ -8,9 +8,13 @@ interface Props {
   loading?: boolean;
 }
 
-const SaveBar: React.FC<Props> = ({ label = 'Save', onPress, loading = false }) => {
+const SaveBar: React.FC<Props> = ({
+  label = "Save",
+  onPress,
+  loading = false,
+}) => {
   const theme = useTheme();
-  const ACCENT = '#007AFF';
+  const ACCENT = "#007AFF";
   return (
     <View style={styles.container}>
       <Button
@@ -30,11 +34,11 @@ const SaveBar: React.FC<Props> = ({ label = 'Save', onPress, loading = false }) 
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
+    width: "100%",
     padding: 12,
-    backgroundColor: '#ffffff',
+    backgroundColor: "#ffffff",
     borderTopWidth: 1,
-    borderColor: '#eef2ff',
+    borderColor: "#eef2ff",
   },
   button: {
     borderRadius: 10,
@@ -42,7 +46,7 @@ const styles = StyleSheet.create({
   },
   content: {
     height: 48,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
 });
 

@@ -16,15 +16,21 @@ const MainLayout: React.FC<MainLayoutProps> = ({
   onBack,
 }) => {
   const theme = useTheme();
+  // Use white background and dark text with accent back button for consistent mobile UI
+  const ACCENT = "#007AFF";
+  const TEXT_DARK = "#111827";
+
   return (
-    <SafeAreaView
-      style={[styles.safe, { backgroundColor: theme.colors.background }]}
-    >
-      <Appbar.Header>
-        {showBack ? <Appbar.BackAction onPress={onBack ?? (() => {})} /> : null}
-        <Appbar.Content title={title} />
+    <SafeAreaView style={[styles.safe, { backgroundColor: "#ffffff" }]}>
+      <Appbar.Header style={{ backgroundColor: "#ffffff" }}>
+        {showBack ? (
+          <Appbar.BackAction onPress={onBack ?? (() => {})} color={ACCENT} />
+        ) : null}
+        <Appbar.Content title={title ?? ""} titleStyle={{ color: TEXT_DARK }} />
       </Appbar.Header>
-      <View style={styles.container}>{children}</View>
+      <View style={[styles.container, { backgroundColor: "#ffffff" }]}>
+        {children}
+      </View>
     </SafeAreaView>
   );
 };

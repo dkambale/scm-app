@@ -20,6 +20,7 @@ import SchoolList from "../screens/admin/schools/SchoolList";
 import ClassList from "../screens/admin/classes/ClassList";
 import InstituteList from "../screens/admin/institutes/InstituteList";
 import DivisionsList from "../screens/admin/divisions/divisionsList";
+import SubjectsList from "../screens/admin/subjects/SubjectList";
 // import TeacherTimetableCard from
 // Map permission entity names to a screen component and a friendly title.
 const entityRegistry: Record<
@@ -49,6 +50,12 @@ const entityRegistry: Record<
     title: "DIVISIONS",
     component: DivisionsList ,
     icon: "account-group",
+  },
+  SUBJECT: {
+    id: "SUBJECT",
+    title: "SUBJECTS",
+    component: SubjectsList , // Placeholder, replace with actual SubjectList component
+    icon: "book-open-variant",
   },
   STUDENT: {
     id: "STUDENT",
@@ -107,7 +114,7 @@ const entityRegistry: Record<
   },
   TEACHER_DASHBOARD: {
     id: "TEACHER_DASHBOARD",
-    title: "Admin Dashboard",
+    title: "Dashboard",
     component: TeacherDashboardScreen,
     icon: "view-dashboard",
   },

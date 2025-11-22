@@ -5,10 +5,12 @@ import { useNavigation } from "@react-navigation/native";
 
 const BackButton: React.FC<{ backUrl?: string }> = ({ backUrl }) => {
   const nav = useNavigation();
+  const ACCENT = "#007AFF";
   return (
     <IconButton
       icon="arrow-left"
       size={24}
+      color={ACCENT}
       onPress={() => {
         if (backUrl) {
           // try navigate to named route, else goBack
