@@ -12,6 +12,7 @@ import TeacherDashboardScreen from "../screens/teacher/TeacherDashboardScreen";
 import { StudentDashboardScreen } from "../dashboard/studentDashboard/StudentDashboardScreen";
 import StudentExamResultScreen from "../screens/admin/exam/StudentExamResult";
 import StudentExamListScreen from "../screens/admin/exam/StudentExamListScreen";
+import RoleList from "../screens/admin/roles/roleslist";
 import { StudentFeeView } from "../screens/admin/fees/MyFees";
 import TeacherExamView from "../screens/admin/exam/TeacherExamView";
 
@@ -121,6 +122,12 @@ const entityRegistry: Record<
     title: "Examinations",
     component: StudentExamListScreen, // Placeholder for Examination Screen
     icon: "file-document-outline",
+  },
+  ROLE: {
+    id: "ROLE",
+    title: "Roles",
+    component: RoleList,
+    icon: "account-key",
   },
   EXAM_TEACHER_VIEW: {
     id: "EXAM_TEACHER_VIEW",

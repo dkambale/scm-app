@@ -36,6 +36,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Avatar } from "react-native-paper";
 import { SignupScreen } from "../screens/auth/SignupScreen";
 import NotificationScreen from "../components/common/NotificationScreen";
+import AddEditRole from "../screens/admin/roles/AddEditRole";
 
 const styles = StyleSheet.create({
   drawerContainer: {
@@ -208,6 +209,10 @@ export const RootNavigation: React.FC = () => {
     entity: "EXAM",
     action: "view",
   });
+  const canViewROLE = useHasPermission({
+    entity: "ROLE",
+    action: "view",
+  });
   const canViewEXAM_TEACHER_VIEW = useHasPermission({
     entity: "EXAM_TEACHER_VIEW",
     action: "view",
@@ -239,8 +244,11 @@ export const RootNavigation: React.FC = () => {
 
   // if (canViewANNOUNCEMENT) visibleEntries.push(entityRegistry.ANNOUNCEMENT);
   if (canViewEXAM) visibleEntries.push(entityRegistry.EXAM);
+
   if (canViewEXAM_TEACHER_VIEW)
     visibleEntries.push(entityRegistry.EXAM_TEACHER_VIEW);
+  
+  if (canViewROLE) visibleEntries.push(entityRegistry.ROLE);
   if (canViewPROFILE) visibleEntries.push(entityRegistry.PROFILE);
   if (loading) {
     return <LoadingSpinner />;
@@ -286,6 +294,7 @@ export const RootNavigation: React.FC = () => {
   // will get the little + (add) button in the sidebar.
   const addRouteMap: Record<string, string> = {
     STUDENT: "AddStudent",
+    ROLE: "AddEditRole",
     DIVISION: "AddEditDivision",
     INSTITUTE: "AddEditInstitute",
     SCHOOL: "AddEditSchool",
@@ -303,7 +312,10 @@ export const RootNavigation: React.FC = () => {
       entity: "STUDENT",
       action: "add",
     });
-    
+    const canAddROLE = useHasPermission({
+      entity: "ROLE",
+      action: "add",
+    });
     const canAddInstitute = useHasPermission({
       entity: "INSTITUTE",
       action: "add",
@@ -335,6 +347,7 @@ export const RootNavigation: React.FC = () => {
 
     const addPermMap: Record<string, boolean> = {
       STUDENT: Boolean(canAddStudent),
+      ROLE: Boolean(canAddROLE),
       INSTITUTE: Boolean(canAddInstitute),
       SCHOOL: Boolean(canAddSchool),
       DIVISION: Boolean(canAddDivision),
@@ -479,6 +492,13 @@ export const RootNavigation: React.FC = () => {
           component={makeProtectedScreen(
             AddEditStudent,
             permFrom("STUDENT", "add")
+          )}
+        />
+        <Stack.Screen
+          name="AddEditRole"
+          component={makeProtectedScreen(
+            AddEditRole,
+            permFrom("ROLE", "add")
           )}
         />
         <Stack.Screen
