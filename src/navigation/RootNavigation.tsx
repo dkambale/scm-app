@@ -34,7 +34,7 @@ import AddEditClasses from "../screens/admin/classes/AddEditClasses";
 import AddEditSubject from "../screens/admin/subjects/AddEditSubject";
 import { AddEditTeacher } from "../screens/admin/teachers/AddEditTeacher";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { Avatar } from "react-native-paper";
+import { Avatar, useTheme } from "react-native-paper";
 import { SignupScreen } from "../screens/auth/SignupScreen";
 import NotificationScreen from "../components/common/NotificationScreen";
 import AddEditRole from "../screens/admin/roles/AddEditRole";
@@ -51,110 +51,128 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
     marginHorizontal: 12,
     padding: 12,
-    borderRadius: 8,
+    borderRadius: 12,
     shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: "#f0f0f0",
   },
   avatarPlaceholder: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: "#87CEEB",
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: "#6200ee",
     alignItems: "center",
     justifyContent: "center",
   },
   avatarLabel: {
-    color: "#0A0A0A",
+    color: "#ffffff",
     fontWeight: "700",
-    fontSize: 18,
+    fontSize: 20,
   },
   name: {
-    color: "#0A0A0A",
+    color: "#1a1a1a",
     fontWeight: "700",
     fontSize: 16,
+    marginBottom: 2,
   },
   role: {
-    color: "#6b6b6b",
+    color: "#666",
     fontSize: 12,
-    marginTop: 2,
+    fontWeight: "500",
+    backgroundColor: "#f0f0f0",
+    alignSelf: "flex-start",
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
+    overflow: "hidden",
   },
   divider: {
     height: 1,
     backgroundColor: "#f0f0f0",
     marginVertical: 12,
-  },
-  listContainer: {
-    paddingHorizontal: 6,
+    marginHorizontal: 12,
   },
   entryRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: 10,
-    paddingHorizontal: 8,
-    marginHorizontal: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    marginHorizontal: 8,
+    marginVertical: 2,
+    borderRadius: 8,
   },
   entryInner: {
     flexDirection: "row",
     alignItems: "center",
   },
   iconBox: {
-    width: 34,
-    height: 34,
-    borderRadius: 8,
-    backgroundColor: "#f2f8fb",
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: "#f5f7fa",
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 10,
-  },
-  iconText: {
-    fontSize: 16,
+    marginRight: 12,
   },
   entryTouchable: {
     flex: 1,
-    paddingVertical: 6,
-    paddingHorizontal: 6,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 4,
   },
   entryLabel: {
-    color: "#0A0A0A",
-    fontSize: 15,
+    color: "#333",
+    fontSize: 14,
     fontWeight: "600",
+    letterSpacing: 0.2,
   },
   addButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: "#87CEEB",
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "#e8f0fe",
     alignItems: "center",
     justifyContent: "center",
   },
   addButtonText: {
-    color: "#0A0A0A",
-    fontSize: 22,
+    color: "#1976d2",
+    fontSize: 20,
     lineHeight: 22,
-    fontWeight: "700",
+    fontWeight: "600",
+    marginTop: -2,
   },
   addButtonPlaceholder: {
-    width: 36,
-    height: 36,
+    width: 32,
+    height: 32,
   },
   listContent: {
-    paddingHorizontal: 6,
     paddingBottom: 24,
+  },
+  sectionHeader: {
+    marginTop: 16,
+    marginBottom: 8,
+    marginLeft: 20,
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#888",
+    textTransform: "uppercase",
+    letterSpacing: 1,
   },
 });
 
 export const RootNavigation: React.FC = () => {
   const { user, loading } = useAuth();
+  const theme = useTheme();
 
   const Drawer = createDrawerNavigator();
   const Stack = createNativeStackNavigator();
 
-  // Build top-level drawer entries directly from the entity registry.
-  // Show the appropriate dashboard depending on the authenticated user's type.
-  // (User is present here because we returned earlier when !user.)
+  // Permission Checks
   const userType = ((user as any)?.type || (user as any)?.role || "")
     .toString()
     .toUpperCase();
@@ -189,7 +207,6 @@ export const RootNavigation: React.FC = () => {
     entity: "TEACHER",
     action: "view",
   });
-  // const canViewCLASSES is unused; omit to avoid lint warnings
   const canViewTIMETABLE = useHasPermission({
     entity: "TIMETABLE",
     action: "view",
@@ -222,12 +239,14 @@ export const RootNavigation: React.FC = () => {
     entity: "EXAM_TEACHER_VIEW",
     action: "view",
   });
+
   const visibleEntries = [] as {
     id: string;
     title?: string;
     component: any;
     icon?: string;
   }[];
+
   if (canViewTEACHER_DASHBOARD)
     visibleEntries.push(entityRegistry.TEACHER_DASHBOARD);
   if (canViewSTUDENT_DASHBOARD)
@@ -241,26 +260,22 @@ export const RootNavigation: React.FC = () => {
   if (canViewSTUDENT) visibleEntries.push(entityRegistry.STUDENT);
 
   if (canViewTEACHER) visibleEntries.push(entityRegistry.TEACHER);
-  // if (canViewCLASSES) visibleEntries.push(entityRegistry.CLASSES);
   if (canViewTIMETABLE) visibleEntries.push(entityRegistry.TIMETABLE);
   if (canViewASSIGNMENT) visibleEntries.push(entityRegistry.ASSIGNMENT);
   if (canViewATTENDANCE) visibleEntries.push(entityRegistry.ATTENDANCE);
-  // if (canViewFEE) visibleEntries.push(entityRegistry.FEE);
-  // if (canViewFEE_MANAGEMENT) visibleEntries.push(entityRegistry.FEE_MANAGEMENT);
   if (canViewFEE_MANAGEMENT) visibleEntries.push(entityRegistry.MYFEE);
 
-  // if (canViewANNOUNCEMENT) visibleEntries.push(entityRegistry.ANNOUNCEMENT);
   if (canViewEXAM) visibleEntries.push(entityRegistry.EXAM);
-
   if (canViewEXAM_TEACHER_VIEW)
     visibleEntries.push(entityRegistry.EXAM_TEACHER_VIEW);
 
   if (canViewPROFILE) visibleEntries.push(entityRegistry.PROFILE);
+  
   if (loading) {
     return <LoadingSpinner />;
   }
 
-  // Grouping helpers for drawer sections
+  // Grouping helpers
   const instituteGroupIds = [
     "INSTITUTE",
     "SCHOOL",
@@ -275,9 +290,7 @@ export const RootNavigation: React.FC = () => {
     const AuthStack = createNativeStackNavigator();
     const AuthHost: React.FC = () => (
       <AuthStack.Navigator screenOptions={{ headerShown: false }}>
-        {/* Added route for LoginScreen */}
         <AuthStack.Screen name="LoginScreen" component={LoginScreen} />
-        {/* Added route for SignupScreen */}
         <AuthStack.Screen name="SignupScreen" component={SignupScreen} />
       </AuthStack.Navigator>
     );
@@ -288,13 +301,18 @@ export const RootNavigation: React.FC = () => {
       </NavigationContainer>
     );
   }
-  console.log("User Role:", user.role);
 
   const DrawerHost: React.FC = () => (
     <Drawer.Navigator
       initialRouteName={
         visibleEntries.length ? visibleEntries[0].id : undefined
       }
+      screenOptions={{
+        headerTintColor: theme.colors.primary,
+        drawerActiveBackgroundColor: theme.colors.primaryContainer,
+        drawerActiveTintColor: theme.colors.primary,
+        drawerType: "slide",
+      }}
       drawerContent={(props) => <CustomDrawerContent {...props} />}
     >
       {visibleEntries.map((entry: { id: string; component: any }) => (
@@ -302,13 +320,16 @@ export const RootNavigation: React.FC = () => {
           key={entry.id}
           name={entry.id}
           component={entry.component}
+          options={{
+             title: entry.title || entry.id,
+             // Hiding default drawer item since we render custom list
+             drawerItemStyle: { display: 'none' } 
+          }}
         />
       ))}
     </Drawer.Navigator>
   );
 
-  // Map some common entity ids to their Add-route names. Only entities listed here
-  // will get the little + (add) button in the sidebar.
   const addRouteMap: Record<string, string> = {
     STUDENT: "AddStudent",
     ROLE: "AddEditRole",
@@ -316,7 +337,6 @@ export const RootNavigation: React.FC = () => {
     INSTITUTE: "AddEditInstitute",
     SCHOOL: "AddEditSchool",
     CLASSES: "AddEditClasses",
-
     SUBJECT: "AddEditSubject",
     TEACHER: "AddTeacher",
     TIMETABLE: "AddEditTimetable",
@@ -326,47 +346,17 @@ export const RootNavigation: React.FC = () => {
   function CustomDrawerContent(props: DrawerContentComponentProps) {
     const { navigation } = props;
 
-    // Hook-based permission checks for Add buttons
-    const canAddStudent = useHasPermission({
-      entity: "STUDENT",
-      action: "add",
-    });
-    const canAddROLE = useHasPermission({
-      entity: "ROLE",
-      action: "add",
-    });
-    const canAddInstitute = useHasPermission({
-      entity: "INSTITUTE",
-      action: "add",
-    });
-    const canAddSchool = useHasPermission({
-      entity: "SCHOOL",
-      action: "add",
-    });
-    const canAddDivision = useHasPermission({
-      entity: "DIVISION",
-      action: "add",
-    });
-    const canAddClasses = useHasPermission({
-      entity: "CLASS",
-      action: "add",
-    });
-    const canAddSubject = useHasPermission({
-      entity: "SUBJECT",
-      action: "add",
-    });
-    const canAddTeacher = useHasPermission({
-      entity: "TEACHER",
-      action: "add",
-    });
-    const canAddTimetable = useHasPermission({
-      entity: "TIMETABLE",
-      action: "add",
-    });
-    const canAddAttendance = useHasPermission({
-      entity: "ATTENDANCE",
-      action: "add",
-    });
+    // Check permissions
+    const canAddStudent = useHasPermission({ entity: "STUDENT", action: "add" });
+    const canAddROLE = useHasPermission({ entity: "ROLE", action: "add" });
+    const canAddInstitute = useHasPermission({ entity: "INSTITUTE", action: "add" });
+    const canAddSchool = useHasPermission({ entity: "SCHOOL", action: "add" });
+    const canAddDivision = useHasPermission({ entity: "DIVISION", action: "add" });
+    const canAddClasses = useHasPermission({ entity: "CLASS", action: "add" });
+    const canAddSubject = useHasPermission({ entity: "SUBJECT", action: "add" });
+    const canAddTeacher = useHasPermission({ entity: "TEACHER", action: "add" });
+    const canAddTimetable = useHasPermission({ entity: "TIMETABLE", action: "add" });
+    const canAddAttendance = useHasPermission({ entity: "ATTENDANCE", action: "add" });
 
     const addPermMap: Record<string, boolean> = {
       STUDENT: Boolean(canAddStudent),
@@ -381,19 +371,102 @@ export const RootNavigation: React.FC = () => {
       ATTENDANCE: Boolean(canAddAttendance),
     };
 
-    // Friendly display name for the profile card — try several common fields on user
+    // Centralized Icon Map using Material Community Icons
+    const iconMap: Record<string, string> = {
+      // Dashboards
+      TEACHER_DASHBOARD: "view-dashboard",
+      STUDENT_DASHBOARD: "view-dashboard-outline",
+
+      // Institute
+      INSTITUTE: "bank",
+      SCHOOL: "office-building",
+      CLASSES: "google-classroom", // or "domain"
+      DIVISION: "chart-pie",
+      SUBJECT: "book-open-page-variant",
+      ROLE: "shield-account",
+
+      // Users
+      STUDENT: "account-school",
+      TEACHER: "human-male-board",
+
+      // Operations
+      TIMETABLE: "calendar-clock",
+      ASSIGNMENT: "clipboard-text-outline",
+      ATTENDANCE: "calendar-check",
+      FEE: "cash-multiple",
+      MYFEE: "cash-multiple",
+      ANNOUNCEMENT: "bullhorn",
+      EXAM: "file-certificate-outline",
+      EXAM_TEACHER_VIEW: "file-document-edit-outline",
+      
+      // Misc
+      PROFILE: "account-circle-outline",
+    };
+
     const displayName: string = ((user as any)?.name ||
       (user as any)?.firstName ||
       (user as any)?.username ||
       user?.role ||
       "User") as string;
+    
     const notificationUnreadCount = 5;
+
+    const renderDrawerItem = (entry: any) => {
+      const showAdd = Boolean(addRouteMap[entry.id] && addPermMap[entry.id]);
+      const entryIcon = iconMap[entry.id] ?? "circle-small";
+      const isFocused = props.state.index === props.state.routes.findIndex(r => r.name === entry.id);
+
+      return (
+        <View 
+            style={[
+                styles.entryRow, 
+                isFocused && { backgroundColor: '#f0ebf8' }
+            ]} 
+            key={entry.id}
+        >
+          <TouchableOpacity
+            style={styles.entryTouchable}
+            onPress={() => navigation.navigate(entry.id)}
+          >
+              <View style={[styles.iconBox, isFocused && { backgroundColor: '#fff' }]}>
+                <Avatar.Icon
+                  size={24}
+                  icon={entryIcon}
+                  color={isFocused ? theme.colors.primary : "#555"}
+                  style={{ backgroundColor: "transparent" }}
+                />
+              </View>
+              <Text 
+                style={[
+                    styles.entryLabel, 
+                    isFocused && { color: theme.colors.primary, fontWeight: '700' }
+                ]}
+              >
+                {entry.title ?? entry.id}
+              </Text>
+          </TouchableOpacity>
+
+          {showAdd ? (
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={() => navigation.navigate(addRouteMap[entry.id])}
+            >
+              <Text style={styles.addButtonText}>+</Text>
+            </TouchableOpacity>
+          ) : (
+            <View style={styles.addButtonPlaceholder} />
+          )}
+        </View>
+      );
+    };
+
     return (
       <View style={styles.drawerContainer}>
         <LanguageSelector />
-        <View style={{ marginBottom: 12 }}>
+        <View style={{ marginBottom: 4 }}>
           <NotificationDrawerItem unreadCount={notificationUnreadCount} />
         </View>
+        
         <View style={styles.profileCard}>
           <View style={styles.avatarPlaceholder}>
             <Text style={styles.avatarLabel}>
@@ -401,7 +474,7 @@ export const RootNavigation: React.FC = () => {
             </Text>
           </View>
           <View style={{ marginLeft: 12, flex: 1 }}>
-            <Text style={styles.name}>{displayName}</Text>
+            <Text style={styles.name} numberOfLines={1}>{displayName}</Text>
             <Text style={styles.role}>{(user as any)?.role ?? "-"}</Text>
           </View>
         </View>
@@ -412,184 +485,39 @@ export const RootNavigation: React.FC = () => {
           {...props}
           contentContainerStyle={styles.listContent}
         >
-          {/* Institute group (INSTITUTE, SCHOOL, CLASSES, DIVISION, SUBJECT, ROLE) */}
-          {visibleEntries.filter((e) => instituteGroupIds.includes(e.id))
-            .length > 0 && (
+          {/* 1. Institute Group */}
+          {visibleEntries.filter((e) => instituteGroupIds.includes(e.id)).length > 0 && (
             <>
-              <Text
-                style={{ marginVertical: 8, marginLeft: 6, fontWeight: "700" }}
-              >
-                Institute
-              </Text>
+              <Text style={styles.sectionHeader}>Administration</Text>
               {visibleEntries
                 .filter((entry) => instituteGroupIds.includes(entry.id))
-                .map((entry) => {
-                  const showAdd = Boolean(
-                    addRouteMap[entry.id] && addPermMap[entry.id]
-                  );
-                  const iconMap: Record<string, string> = {
-                    STUDENT: "👩‍🎓",
-                    TEACHER: "👨‍🏫",
-                    CLASSES: "🏫",
-                    TIMETABLE: "📅",
-                    ATTENDANCE: "📝",
-                    FEE: "💰",
-                    ANNOUNCEMENT: "📢",
-                    EXAM: "🧾",
-                    PROFILE: "👤",
-                    TEACHER_DASHBOARD: "📊",
-                    STUDENT_DASHBOARD: "🎓",
-                  };
-                  const entryIcon = iconMap[entry.id] ?? "•";
-                  return (
-                    <View style={styles.entryRow} key={entry.id}>
-                      <TouchableOpacity
-                        style={styles.entryTouchable}
-                        onPress={() => navigation.navigate(entry.id)}
-                      >
-                        <View style={styles.entryInner}>
-                          <View style={styles.iconBox}>
-                            <Avatar.Icon
-                              size={28}
-                              icon={entry.icon ?? entryIcon}
-                            />
-                          </View>
-                          <Text style={styles.entryLabel}>
-                            {entry.title ?? entry.id}
-                          </Text>
-                        </View>
-                      </TouchableOpacity>
-
-                      {showAdd ? (
-                        <TouchableOpacity
-                          style={styles.addButton}
-                          onPress={() =>
-                            navigation.navigate(addRouteMap[entry.id])
-                          }
-                        >
-                          <Text style={styles.addButtonText}>+</Text>
-                        </TouchableOpacity>
-                      ) : (
-                        <View style={styles.addButtonPlaceholder} />
-                      )}
-                    </View>
-                  );
-                })}
+                .map(renderDrawerItem)}
             </>
           )}
 
-          {/* Users group (STUDENT, TEACHER) */}
-          {visibleEntries.filter((e) => usersGroupIds.includes(e.id)).length >
-            0 && (
+          {/* 2. Users Group */}
+          {visibleEntries.filter((e) => usersGroupIds.includes(e.id)).length > 0 && (
             <>
-              <Text
-                style={{ marginVertical: 8, marginLeft: 6, fontWeight: "700" }}
-              >
-                Users
-              </Text>
+              <Text style={styles.sectionHeader}>People</Text>
               {visibleEntries
                 .filter((entry) => usersGroupIds.includes(entry.id))
-                .map((entry) => {
-                  const showAdd = Boolean(
-                    addRouteMap[entry.id] && addPermMap[entry.id]
-                  );
-                  const iconMap: Record<string, string> = {
-                    STUDENT: "👩‍🎓",
-                    TEACHER: "👨‍🏫",
-                    CLASSES: "🏫",
-                  };
-                  const entryIcon = iconMap[entry.id] ?? "•";
-                  return (
-                    <View style={styles.entryRow} key={entry.id}>
-                      <TouchableOpacity
-                        style={styles.entryTouchable}
-                        onPress={() => navigation.navigate(entry.id)}
-                      >
-                        <View style={styles.entryInner}>
-                          <View style={styles.iconBox}>
-                            <Avatar.Icon
-                              size={28}
-                              icon={entry.icon ?? entryIcon}
-                            />
-                          </View>
-                          <Text style={styles.entryLabel}>
-                            {entry.title ?? entry.id}
-                          </Text>
-                        </View>
-                      </TouchableOpacity>
-
-                      {showAdd ? (
-                        <TouchableOpacity
-                          style={styles.addButton}
-                          onPress={() =>
-                            navigation.navigate(addRouteMap[entry.id])
-                          }
-                        >
-                          <Text style={styles.addButtonText}>+</Text>
-                        </TouchableOpacity>
-                      ) : (
-                        <View style={styles.addButtonPlaceholder} />
-                      )}
-                    </View>
-                  );
-                })}
+                .map(renderDrawerItem)}
             </>
           )}
 
-          {/* Remaining entries */}
-          {visibleEntries
-            .filter(
-              (e) =>
-                !instituteGroupIds.includes(e.id) &&
-                !usersGroupIds.includes(e.id)
-            )
-            .map((entry) => {
-              const showAdd = Boolean(
-                addRouteMap[entry.id] && addPermMap[entry.id]
-              );
-              const iconMap: Record<string, string> = {
-                STUDENT: "👩‍🎓",
-                TEACHER: "👨‍🏫",
-                CLASSES: "🏫",
-                TIMETABLE: "📅",
-                ATTENDANCE: "📝",
-                FEE: "💰",
-                ANNOUNCEMENT: "📢",
-                EXAM: "🧾",
-                PROFILE: "👤",
-                TEACHER_DASHBOARD: "📊",
-                STUDENT_DASHBOARD: "🎓",
-              };
-              const entryIcon = iconMap[entry.id] ?? "•";
-              return (
-                <View style={styles.entryRow} key={entry.id}>
-                  <TouchableOpacity
-                    style={styles.entryTouchable}
-                    onPress={() => navigation.navigate(entry.id)}
-                  >
-                    <View style={styles.entryInner}>
-                      <View style={styles.iconBox}>
-                        <Avatar.Icon size={28} icon={entry.icon ?? entryIcon} />
-                      </View>
-                      <Text style={styles.entryLabel}>
-                        {entry.title ?? entry.id}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-
-                  {showAdd ? (
-                    <TouchableOpacity
-                      style={styles.addButton}
-                      onPress={() => navigation.navigate(addRouteMap[entry.id])}
-                    >
-                      <Text style={styles.addButtonText}>+</Text>
-                    </TouchableOpacity>
-                  ) : (
-                    <View style={styles.addButtonPlaceholder} />
-                  )}
-                </View>
-              );
-            })}
+          {/* 3. Remaining Entries (Academics/Operations) */}
+          {visibleEntries.some((e) => !instituteGroupIds.includes(e.id) && !usersGroupIds.includes(e.id)) && (
+             <>
+             <Text style={styles.sectionHeader}>Academics & Operations</Text>
+             {visibleEntries
+                .filter(
+                  (e) =>
+                    !instituteGroupIds.includes(e.id) &&
+                    !usersGroupIds.includes(e.id)
+                )
+                .map(renderDrawerItem)}
+             </>
+          )}
         </DrawerContentScrollView>
       </View>
     );
@@ -600,7 +528,7 @@ export const RootNavigation: React.FC = () => {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="MainDrawer" component={DrawerHost} />
 
-        {/* Global hidden screens (Add/Edit/View) so navigation.navigate(...) always resolves */}
+        {/* Global hidden screens */}
         <Stack.Screen
           name="NotificationScreen"
           component={NotificationScreen}
@@ -619,7 +547,6 @@ export const RootNavigation: React.FC = () => {
             return <TimetableView id={String(id)} />;
           }}
         </Stack.Screen>
-        {/* Backward-compatible alias used in some parts of the app */}
         <Stack.Screen name="ViewTimetable">
           {({ route }: any) => {
             const id = route?.params?.id ?? route?.params?.timetableId ?? "";

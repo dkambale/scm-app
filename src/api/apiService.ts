@@ -19,6 +19,21 @@ class ApiService {
     const res = await publicApiClient.post(endpoints.auth.signup, payload);
     return res.data;
   }
+
+  // ADDED: Change Password Method matching: POST /api/users/changepassword/{accountId}
+  async changePassword(
+    accountId: string, 
+    payload: { 
+      userId: number | string; 
+      oldPassword: string; 
+      newPassword: string 
+    }
+  ): Promise<any> {
+    // Construct URL: api/users/changepassword/123
+    const url = `${endpoints.users.changePassword}/${accountId}`;
+    const res = await api.post(url, payload);
+    return res.data;
+  }
     async getStudentsPaged(params: {
     accountId: string;
     page?: number;
@@ -335,5 +350,8 @@ class ApiService {
     return res.data;
   }
 }
+export const changePassword = async (payload) => {
+  return apiClient.post('api/users/change-password', payload);
+};
 
 export const apiService = new ApiService();

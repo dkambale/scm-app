@@ -12,7 +12,7 @@ const endpoints = {
   users: {
     base: 'api/users',
     getAllByType: 'api/users/getAllBy',
-    delete: 'api/users/delete'
+    delete: 'api/users/delete',changePassword: 'api/users/changepassword' // <--- ADDED THIS
   },
   subjects: {
     base: 'api/subjects',
