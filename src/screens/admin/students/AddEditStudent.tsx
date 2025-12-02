@@ -1,201 +1,153 @@
-import React, { useState, useEffect } from "react";
-// no local StyleSheet used
-import { useNavigation, useRoute } from "@react-navigation/native"; // <--- NEW IMPORTS
-import {
-  ReusableForm,
-  IFormField as FormField,
-} from "../../../components/common/ReusableForm";
-import * as Yup from "yup";
+import React, { useState, useEffect, useCallback } from "react";
+import { View, StyleSheet, Alert } from "react-native";
+import { Text, useTheme, Button, ActivityIndicator } from "react-native-paper";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { ReusableForm, FormField } from "../../../components/common/ReusableForm";
+import UserDocumentManager from "../../../views/UserDocumentManager";
 import api from "../../../api";
 import { userDetails } from "../../../utils/apiService";
-// fields defined inside component
+import * as Yup from "yup";
 
-// Transformation function to match the API payload
+// --- HELPERS ---
 const transformStudentData = (data: any, isUpdate: boolean) => {
-  const transformed = {
+  return {
     ...data,
-    // Enforce fixed API fields
     type: "STUDENT",
     status: "active",
-    // If the form provided a role (id or object), use it; otherwise keep default Student role
-    role:
-      data.role && typeof data.role === "object" && "id" in data.role
-        ? { id: data.role.id, name: data.role.name }
-        : data.role
-        ? { id: parseInt(String(data.role), 10), name: undefined }
-        : { id: 2, name: "Student" },
-
-    // Map DOB field (API payload had 'bateOfBirth' and 'dob', using 'dob' for consistency)
+    role: data.role && typeof data.role === 'object' ? data.role.id : data.role || 2,
     dob: data.dob,
     bateOfBirth: data.dob,
-
-    // Ensure IDs/numbers are converted to integers for the API
     rollNo: data.rollNo ? parseInt(data.rollNo, 10) : null,
     classId: data.classId ? parseInt(data.classId, 10) : null,
     divisionId: data.divisionId ? parseInt(data.divisionId, 10) : null,
     schoolId: data.schoolId ? parseInt(data.schoolId, 10) : null,
   };
-
-  // Remove password if we are updating and the password field is empty
-  if (isUpdate && !data.password) {
-    delete transformed.password;
-  }
-
-  return transformed;
 };
+
+// --- TAB COMPONENT ---
+const CustomTabBar = ({ activeTab, onTabChange, theme }: any) => (
+  <View style={styles.tabBar}>
+    {[{ key: "details", label: "Details" }, { key: "documents", label: "Documents" }, { key: "profile_image", label: "Image" }].map((tab) => (
+      <Text
+        key={tab.key}
+        onPress={() => onTabChange(tab.key)}
+        style={[styles.tabItem, activeTab === tab.key && { color: theme.colors.primary, borderBottomWidth: 2, borderBottomColor: theme.colors.primary }]}
+      >
+        {tab.label}
+      </Text>
+    ))}
+  </View>
+);
 
 export const AddEditStudent: React.FC = () => {
   const navigation = useNavigation();
   const route = useRoute();
+  const theme = useTheme();
   const { id } = (route.params as { id?: string }) || {};
   const isEditMode = !!id;
+
+  const [activeTab, setActiveTab] = useState("details");
+  const [studentData, setStudentData] = useState<any>(null);
   const [roles, setRoles] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    (async () => {
+    const init = async () => {
+      setLoading(true);
       try {
+        // 1. Fetch Roles
         const acc = await userDetails.getAccountId();
-        console.log("Account ID in AddEditStudent:", acc);
-        if (!acc) return;
-        const url = `/api/roles/getAll/${acc}`;
-        const resp = await api.post(url, {
-          page: 0,
-          size: 1000,
-          sortBy: "id",
-          sortDir: "asc",
-          search: "",
-        });
-        setRoles(resp.data?.content || []);
-      } catch (err) {
-        console.error("Failed to fetch roles", err);
-      }
-    })();
-  }, []);
+        if (acc) {
+            const roleResp = await api.post(`/api/roles/getAll/${acc}`, { page:0, size:100, sortBy:"id", sortDir:"asc" });
+            setRoles(roleResp.data?.content || []);
+        }
 
-  // Custom transformation function for ReusableForm
-  const handleTransform = (data: any) => {
-    return transformStudentData(data, !!id);
-  };
-  // Define fields for ReusableForm (use labelKey as i18n key), include fetched roles
+        // 2. Fetch Student if Edit
+        if (id) {
+            const userResp = await api.get(`/api/users/getById?id=${id}`);
+            const d = userResp.data?.data || userResp.data;
+            setStudentData({
+                ...d,
+                role: d.role?.id || d.role, // Ensure we pass ID for Select
+                classId: d.classId || "",
+                divisionId: d.divisionId || "",
+            });
+        } else {
+            setStudentData({
+                userName: "", firstName: "", lastName: "", mobile: "", email: "", dob: "", rollNo: "",
+                role: 2, // Default student role ID
+                classId: "", divisionId: ""
+            });
+        }
+      } catch (e) {
+          console.error(e);
+      } finally {
+          setLoading(false);
+      }
+    };
+    init();
+  }, [id]);
+
   const studentFormFields: FormField[] = [
-    {
-      name: "userName",
-      labelKey: "userName",
-      type: "text",
-      widthMultiplier: 0.5,
-    },
-    {
-      name: "password",
-      labelKey: "password",
-      type: "password",
-      widthMultiplier: 0.5,
-      disabled: isEditMode,
-    },
-    {
-      name: "firstName",
-      labelKey: "firstName",
-      type: "text",
-      widthMultiplier: 0.5,
-    },
-    {
-      name: "lastName",
-      labelKey: "lastName",
-      type: "text",
-      widthMultiplier: 0.5,
-    },
-    { name: "mobile", labelKey: "mobile", type: "tel", widthMultiplier: 0.5 },
-    { name: "email", labelKey: "email", type: "email", widthMultiplier: 0.5 },
-    {
-      name: "dob",
-      labelKey: "dateOfBirth",
-      type: "date",
-      widthMultiplier: 0.5,
-    },
-    {
-      name: "rollNo",
-      labelKey: "rollNo",
-      type: "number",
-      widthMultiplier: 0.5,
-    },
-    {
-      name: "address",
-      labelKey: "address",
-      type: "textarea",
-      widthMultiplier: 1.0,
-      multiline: true,
-      inputProps: { numberOfLines: 3 },
-    },
-    {
-      name: "role",
-      labelKey: "role",
-      type: "select",
-      widthMultiplier: 1.0,
-      options: roles,
-    },
+    { name: "userName", label: "User Name", type: "text", widthMultiplier: 0.5, required: true },
+    { name: "password", label: "Password", type: "password", widthMultiplier: 0.5, disabled: isEditMode },
+    { name: "firstName", label: "First Name", type: "text", widthMultiplier: 0.5, required: true },
+    { name: "lastName", label: "Last Name", type: "text", widthMultiplier: 0.5, required: true },
+    { name: "mobile", label: "Mobile", type: "tel", widthMultiplier: 0.5, required: true },
+    { name: "email", label: "Email", type: "email", widthMultiplier: 0.5, required: true },
+    { name: "dob", label: "Date of Birth (YYYY-MM-DD)", type: "date", widthMultiplier: 0.5, required: true },
+    { name: "rollNo", label: "Roll No", type: "number", widthMultiplier: 0.5, required: true },
+    { name: "address", label: "Address", type: "textarea", multiline: true, widthMultiplier: 1.0 },
+    // Role will now show up because we're using the grid layout and explicit options
+    { name: "role", label: "Role", type: "select", options: roles, widthMultiplier: 1.0, optionsLabelKey: "name", optionsValueKey: "id", required: true },
   ];
 
-  // Build initialValues object for ReusableForm based on fields
-  const initialValues: any = {};
-  studentFormFields.forEach((f) => {
-    if (f.type === "select") initialValues[f.name] = null;
-    else initialValues[f.name] = "";
-  });
-
   const validationSchema = Yup.object().shape({
-    userName: Yup.string().required("User Name is required"),
-    firstName: Yup.string().required("First Name is required"),
-    lastName: Yup.string().required("Last Name is required"),
-    email: Yup.string().email("Invalid email").required("Email is required"),
-    mobile: Yup.string().required("Mobile is required"),
-    rollNo: Yup.string().required("Roll No is required"),
-    dob: Yup.string().required("Date of Birth is required"),
-    role: Yup.mixed().required("Role is required"),
+    userName: Yup.string().required("Required"),
+    firstName: Yup.string().required("Required"),
+    lastName: Yup.string().required("Required"),
+    email: Yup.string().email().required("Required"),
+    mobile: Yup.string().required("Required"),
+    rollNo: Yup.string().required("Required"),
+    role: Yup.mixed().required("Required"),
   });
 
-  const onSubmit = async (values: any, formikHelpers: any) => {
-    const payload = handleTransform(values);
-    try {
-      if (isEditMode) {
-        await api.put("/api/users/update", payload);
-      } else {
-        await api.post("/api/users/save", payload);
-      }
-      // After save/update, prefer to go back if possible (works for nested navigators).
-      if ((navigation as any).canGoBack && (navigation as any).canGoBack()) {
-        (navigation as any).goBack();
-      } else {
-        // Fallback: try to navigate to a known Students route in app root.
-        try {
-          navigation.navigate("Students" as never);
-        } catch (e) {
-          // Last resort: navigate to main drawer root so user ends up at a safe place
-          navigation.navigate("MainDrawer" as never);
-        }
-      }
-    } catch (err) {
-      console.error("Save failed", err);
-    } finally {
-      formikHelpers.setSubmitting(false);
-    }
-  };
+  if (loading || !studentData) return <View style={styles.center}><ActivityIndicator size="large" /></View>;
 
   return (
-    <ReusableForm
-      initialValues={initialValues}
-      validationSchema={validationSchema}
-      onSubmit={onSubmit}
-      fields={studentFormFields as FormField[]}
-      isEditMode={isEditMode}
-      cancelAction={() => {
-        if ((navigation as any).canGoBack && (navigation as any).canGoBack()) {
-          (navigation as any).goBack();
-        } else {
-          navigation.navigate("MainDrawer" as never);
-        }
-      }}
-      tNamespace="student"
-    />
+    <View style={styles.container}>
+      <CustomTabBar activeTab={activeTab} onTabChange={setActiveTab} theme={theme} />
+      <View style={styles.content}>
+        {activeTab === "details" && (
+          <ReusableForm
+            initialValues={studentData}
+            fields={studentFormFields}
+            validationSchema={validationSchema}
+            saveUrl="/api/users/save"
+            updateUrl="/api/users/update"
+            transformForSubmit={transformStudentData}
+            onSuccess={(res) => {
+                if(!id && res?.data?.id) navigation.replace("AddEditStudent", { id: res.data.id });
+                else navigation.goBack();
+            }}
+            showSCDSelector={true}
+            cancelAction={() => navigation.goBack()}
+            submitLabel={isEditMode ? "Update" : "Create"}
+            isEditMode={isEditMode}
+          />
+        )}
+        {activeTab === "documents" && id && <UserDocumentManager userId={id} userType="STUDENT" />}
+        {activeTab === "profile_image" && <View><Text>Profile Image Component Here</Text></View>}
+        {activeTab !== "details" && !id && <View style={styles.center}><Text>Please save details first.</Text></View>}
+      </View>
+    </View>
   );
 };
 
-// no local styles needed
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: "#f5f5f5" },
+  center: { flex: 1, justifyContent: "center", alignItems: "center" },
+  tabBar: { flexDirection: "row", backgroundColor: "#fff", paddingHorizontal: 16, elevation: 2 },
+  tabItem: { paddingVertical: 12, paddingHorizontal: 16, fontWeight: "600", color: "#666" },
+  content: { flex: 1 },
+});

@@ -5,13 +5,21 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  SafeAreaView,
 } from "react-native";
-import { TextInput, Button, Text, Card, Snackbar } from "react-native-paper";
+import {
+  TextInput,
+  Button,
+  Text,
+  Card,
+  HelperText,
+  useTheme,
+} from "react-native-paper";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { useNavigation } from "@react-navigation/native";
 import { apiService } from "../../api/apiService";
-import { useAuth } from "../../context/AuthContext"; // ADDED: Import useAuth
+import { useAuth } from "../../context/AuthContext";
 
 const signupSchema = Yup.object().shape({
   userName: Yup.string().required("User Name is required"),
@@ -41,27 +49,30 @@ interface SignupValues {
 
 export const SignupScreen: React.FC = () => {
   const navigation = useNavigation();
-  const { login } = useAuth(); // ADDED: Get login function from AuthContext
+  const theme = useTheme();
+  const { login } = useAuth();
+  
+  // Logic States
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [showSnackbar, setShowSnackbar] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [apiError, setApiError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
+  // Toggle Password Visibility
+  const handleClickShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
 
   const handleSignup = async (values: SignupValues) => {
     setLoading(true);
-    setError("");
-    setSuccess(false);
+    setApiError("");
+    
     try {
       // 1. API call to register the user
-      // ensure payload contains email and phoneNumber
-      const payload = {
-        ...values,
-      };
+      const payload = { ...values };
       const response = await apiService.signup(payload);
 
-      // 2. Extract necessary data for automatic login from the successful signup response
+      // 2. Extract necessary data for automatic login
       const accountId = response.user?.accountId;
-      // API returns 'Admin', 'Teacher', or 'Student', but login function expects uppercase 'ADMIN', 'TEACHER', 'STUDENT'
       const type = response.user?.type?.toUpperCase() as
         | "ADMIN"
         | "TEACHER"
@@ -69,51 +80,53 @@ export const SignupScreen: React.FC = () => {
 
       if (!accountId || !type) {
         throw new Error(
-          "Registration succeeded but response is missing account or user type for auto-login."
+          "Registration succeeded but response is missing account details for auto-login."
         );
       }
 
-      // 3. Automatically log in the user, saving credentials and user details in AuthContext/storage.
-      // This state change handles the redirection to the main app (DrawerHost).
+      // 3. Automatically log in the user
       await login(values.userName, values.password, String(accountId), type);
-
-      setSuccess(true);
-      setError("Registration successful and signed in!");
-      setShowSnackbar(true);
-
-      // NOTE: No manual navigation/timeout needed here. The change in authentication state
-      // in AuthContext automatically triggers navigation in RootNavigation.
+      
+      // Navigation is handled automatically by AuthContext state change
     } catch (err: any) {
       console.error("[Signup Error]", err.response?.data || err);
-      // Adjusted error message handling based on typical API response structure
       const errorMessage =
         err.response?.data?.message ||
         err.response?.data?.error ||
         "Registration failed. Please check your data and try again.";
-      setError(errorMessage);
-      setSuccess(false);
-      setShowSnackbar(true);
+      setApiError(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.container}
-    >
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.content}>
-          <Text variant="headlineLarge" style={styles.title}>
-            KoolERP
-          </Text>
-          <Text variant="titleMedium" style={styles.subtitle}>
-            Create your new account
-          </Text>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: "#ffffff" }]}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.container}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          {/* Header Section */}
+          <View style={styles.headerContainer}>
+            <Text
+              variant="headlineMedium"
+              style={[styles.title, { color: theme.colors.primary }]}
+            >
+              KoolERP
+            </Text>
+            <Text variant="bodyLarge" style={styles.subtitle}>
+              Create your new account
+            </Text>
+          </View>
 
-          <Card style={styles.card}>
-            <Card.Content>
+          {/* Main Form Card */}
+          <Card style={[styles.card, { backgroundColor: "#ffffff" }]}>
+            <Card.Content style={styles.cardContent}>
               <Formik
                 initialValues={{
                   userName: "",
@@ -136,109 +149,174 @@ export const SignupScreen: React.FC = () => {
                   touched,
                 }) => (
                   <View>
-                    <TextInput
-                      label="User Name"
-                      value={values.userName}
-                      onChangeText={handleChange("userName")}
-                      onBlur={handleBlur("userName")}
-                      autoCapitalize="none"
-                      style={styles.input}
-                      mode="outlined"
-                    />
-                    {touched.userName && errors.userName && (
-                      <Text style={styles.errorText}>{errors.userName}</Text>
-                    )}
+                    {/* First Name & Last Name Row */}
+                    <View style={styles.row}>
+                      <View style={[styles.inputContainer, { flex: 1, marginRight: 8 }]}>
+                        <TextInput
+                          label="First Name"
+                          value={values.firstName}
+                          onChangeText={handleChange("firstName")}
+                          onBlur={handleBlur("firstName")}
+                          autoCapitalize="words"
+                          mode="outlined"
+                          style={styles.input}
+                          outlineStyle={styles.inputOutline}
+                          error={touched.firstName && !!errors.firstName}
+                        />
+                        {touched.firstName && errors.firstName && (
+                          <HelperText type="error" visible={true}>{errors.firstName}</HelperText>
+                        )}
+                      </View>
+                      
+                      <View style={[styles.inputContainer, { flex: 1, marginLeft: 8 }]}>
+                        <TextInput
+                          label="Last Name"
+                          value={values.lastName}
+                          onChangeText={handleChange("lastName")}
+                          onBlur={handleBlur("lastName")}
+                          autoCapitalize="words"
+                          mode="outlined"
+                          style={styles.input}
+                          outlineStyle={styles.inputOutline}
+                          error={touched.lastName && !!errors.lastName}
+                        />
+                        {touched.lastName && errors.lastName && (
+                          <HelperText type="error" visible={true}>{errors.lastName}</HelperText>
+                        )}
+                      </View>
+                    </View>
 
-                    <TextInput
-                      label="Password"
-                      value={values.password}
-                      onChangeText={handleChange("password")}
-                      onBlur={handleBlur("password")}
-                      secureTextEntry
-                      style={styles.input}
-                      mode="outlined"
-                    />
-                    {touched.password && errors.password && (
-                      <Text style={styles.errorText}>{errors.password}</Text>
-                    )}
+                    {/* Username */}
+                    <View style={styles.inputContainer}>
+                      <TextInput
+                        label="User Name"
+                        value={values.userName}
+                        onChangeText={(text) => {
+                          handleChange("userName")(text);
+                          if (apiError) setApiError("");
+                        }}
+                        onBlur={handleBlur("userName")}
+                        autoCapitalize="none"
+                        mode="outlined"
+                        style={styles.input}
+                        outlineStyle={styles.inputOutline}
+                        left={<TextInput.Icon icon="account" color="#9e9e9e" />}
+                        error={touched.userName && !!errors.userName}
+                      />
+                      {touched.userName && errors.userName && (
+                        <HelperText type="error" visible={true}>{errors.userName}</HelperText>
+                      )}
+                    </View>
 
-                    <TextInput
-                      label="First Name"
-                      value={values.firstName}
-                      onChangeText={handleChange("firstName")}
-                      onBlur={handleBlur("firstName")}
-                      autoCapitalize="words"
-                      style={styles.input}
-                      mode="outlined"
-                    />
-                    {touched.firstName && errors.firstName && (
-                      <Text style={styles.errorText}>{errors.firstName}</Text>
-                    )}
+                    {/* Password */}
+                    <View style={styles.inputContainer}>
+                      <TextInput
+                        label="Password"
+                        value={values.password}
+                        onChangeText={(text) => {
+                          handleChange("password")(text);
+                          if (apiError) setApiError("");
+                        }}
+                        onBlur={handleBlur("password")}
+                        secureTextEntry={!showPassword}
+                        mode="outlined"
+                        style={styles.input}
+                        outlineStyle={styles.inputOutline}
+                        left={<TextInput.Icon icon="lock" color="#9e9e9e" />}
+                        right={
+                          <TextInput.Icon
+                            icon={showPassword ? "eye" : "eye-off"}
+                            onPress={handleClickShowPassword}
+                            color="#9e9e9e"
+                          />
+                        }
+                        error={touched.password && !!errors.password}
+                      />
+                      {touched.password && errors.password && (
+                        <HelperText type="error" visible={true}>{errors.password}</HelperText>
+                      )}
+                    </View>
 
-                    <TextInput
-                      label="Last Name"
-                      value={values.lastName}
-                      onChangeText={handleChange("lastName")}
-                      onBlur={handleBlur("lastName")}
-                      autoCapitalize="words"
-                      style={styles.input}
-                      mode="outlined"
-                    />
-                    {touched.lastName && errors.lastName && (
-                      <Text style={styles.errorText}>{errors.lastName}</Text>
-                    )}
+                    {/* Email */}
+                    <View style={styles.inputContainer}>
+                      <TextInput
+                        label="Email"
+                        value={values.email}
+                        onChangeText={handleChange("email")}
+                        onBlur={handleBlur("email")}
+                        autoCapitalize="none"
+                        keyboardType="email-address"
+                        mode="outlined"
+                        style={styles.input}
+                        outlineStyle={styles.inputOutline}
+                        left={<TextInput.Icon icon="email" color="#9e9e9e" />}
+                        error={touched.email && !!errors.email}
+                      />
+                      {touched.email && errors.email && (
+                        <HelperText type="error" visible={true}>{errors.email}</HelperText>
+                      )}
+                    </View>
 
-                    <TextInput
-                      label="Address"
-                      value={values.address}
-                      onChangeText={handleChange("address")}
-                      onBlur={handleBlur("address")}
-                      multiline={true}
-                      numberOfLines={3}
-                      style={styles.input}
-                      mode="outlined"
-                    />
-                    {touched.address && errors.address && (
-                      <Text style={styles.errorText}>{errors.address}</Text>
-                    )}
+                    {/* Phone Number */}
+                    <View style={styles.inputContainer}>
+                      <TextInput
+                        label="Phone Number"
+                        value={values.phoneNumber}
+                        onChangeText={handleChange("phoneNumber")}
+                        onBlur={handleBlur("phoneNumber")}
+                        keyboardType="phone-pad"
+                        mode="outlined"
+                        style={styles.input}
+                        outlineStyle={styles.inputOutline}
+                        left={<TextInput.Icon icon="phone" color="#9e9e9e" />}
+                        error={touched.phoneNumber && !!errors.phoneNumber}
+                      />
+                      {touched.phoneNumber && errors.phoneNumber && (
+                        <HelperText type="error" visible={true}>{errors.phoneNumber}</HelperText>
+                      )}
+                    </View>
 
-                    <TextInput
-                      label="Email"
-                      value={values.email}
-                      onChangeText={handleChange("email")}
-                      onBlur={handleBlur("email")}
-                      autoCapitalize="none"
-                      keyboardType="email-address"
-                      style={styles.input}
-                      mode="outlined"
-                    />
-                    {touched.email && errors.email && (
-                      <Text style={styles.errorText}>{errors.email}</Text>
-                    )}
+                    {/* Address */}
+                    <View style={styles.inputContainer}>
+                      <TextInput
+                        label="Address"
+                        value={values.address}
+                        onChangeText={handleChange("address")}
+                        onBlur={handleBlur("address")}
+                        multiline={true}
+                        numberOfLines={2}
+                        mode="outlined"
+                        style={[styles.input, { height: 80 }]} // Slightly taller for address
+                        outlineStyle={styles.inputOutline}
+                        left={<TextInput.Icon icon="map-marker" color="#9e9e9e" />}
+                        error={touched.address && !!errors.address}
+                      />
+                      {touched.address && errors.address && (
+                        <HelperText type="error" visible={true}>{errors.address}</HelperText>
+                      )}
+                    </View>
 
-                    <TextInput
-                      label="Phone Number"
-                      value={values.phoneNumber}
-                      onChangeText={handleChange("phoneNumber")}
-                      onBlur={handleBlur("phoneNumber")}
-                      keyboardType="phone-pad"
-                      style={styles.input}
-                      mode="outlined"
-                    />
-                    {touched.phoneNumber && errors.phoneNumber && (
-                      <Text style={styles.errorText}>
-                        {errors.phoneNumber as any}
-                      </Text>
-                    )}
+                    {/* API Error Display */}
+                    {apiError ? (
+                      <View style={styles.errorContainer}>
+                        <HelperText type="error" visible={true} style={styles.apiErrorText}>
+                          {apiError}
+                        </HelperText>
+                      </View>
+                    ) : null}
 
+                    {/* Submit Button */}
                     <Button
                       mode="contained"
                       onPress={() => handleSubmit()}
                       loading={loading}
                       disabled={loading}
                       style={styles.button}
+                      contentStyle={styles.buttonContent}
+                      labelStyle={styles.buttonLabel}
+                      buttonColor={theme.colors.primary}
                     >
-                      Sign Up
+                      {loading ? "Creating Account..." : "Sign Up"}
                     </Button>
                   </View>
                 )}
@@ -246,87 +324,111 @@ export const SignupScreen: React.FC = () => {
             </Card.Content>
           </Card>
 
-          <View style={styles.footerNav}>
-            <Text variant="bodyMedium" style={styles.footerText}>
+          {/* Footer / Login Link */}
+          <View style={styles.footerContainer}>
+            <Text variant="bodyMedium" style={{ color: "#666" }}>
               Already have an account?
             </Text>
             <Button
               mode="text"
               onPress={() => navigation.navigate("LoginScreen" as never)}
               compact
-              labelStyle={styles.textButtonLabel}
+              labelStyle={{ fontWeight: "bold" }}
             >
               Sign In
             </Button>
           </View>
-        </View>
-
-        <Snackbar
-          visible={showSnackbar}
-          onDismiss={() => setShowSnackbar(false)}
-          duration={3000}
-          style={{ backgroundColor: success ? "#4CAF50" : "#F44336" }}
-        >
-          {error}
-        </Snackbar>
-      </ScrollView>
-    </KeyboardAvoidingView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
   },
   scrollContainer: {
     flexGrow: 1,
-  },
-  content: {
-    flex: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 30,
     justifyContent: "center",
-    padding: 20,
+  },
+  headerContainer: {
+    marginBottom: 24,
+    alignItems: "center",
   },
   title: {
-    textAlign: "center",
-    marginBottom: 8,
-    fontWeight: "bold",
-    color: "#6200ee",
+    fontWeight: "800",
+    letterSpacing: 0.5,
+    marginBottom: 4,
   },
   subtitle: {
+    color: "#666666",
     textAlign: "center",
-    marginBottom: 32,
-    color: "#666",
   },
   card: {
-    elevation: 4,
+    borderRadius: 16,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+  },
+  cardContent: {
+    paddingVertical: 24,
+    paddingHorizontal: 16,
+  },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  inputContainer: {
+    marginBottom: 4,
   },
   input: {
-    marginBottom: 8,
+    backgroundColor: "#fff",
   },
-  footerText: {
-    color: "#0A0A0A",
-    fontSize: 14,
-    marginRight: 8,
+  inputOutline: {
+    borderRadius: 8,
+    borderColor: "#e0e0e0",
   },
-  errorText: {
-    color: "red",
-    fontSize: 12,
-    marginBottom: 8,
-    marginLeft: 12,
+  errorContainer: {
+    marginBottom: 16,
+    marginTop: 8,
+    backgroundColor: "#ffebee",
+    borderRadius: 8,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderWidth: 1,
+    borderColor: "#ef9a9a",
+  },
+  apiErrorText: {
+    fontSize: 13,
+    textAlign: "center",
+    color: "#c62828",
   },
   button: {
-    marginTop: 16,
+    borderRadius: 8,
+    elevation: 2,
+    marginTop: 12,
+  },
+  buttonContent: {
     paddingVertical: 6,
   },
-  footerNav: {
+  buttonLabel: {
+    fontSize: 16,
+    fontWeight: "bold",
+    letterSpacing: 0.5,
+  },
+  footerContainer: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 20,
-  },
-  textButtonLabel: {
-    fontSize: 14,
-    fontWeight: "bold",
+    marginTop: 24,
+    marginBottom: 20,
   },
 });

@@ -5,25 +5,28 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  SafeAreaView,
+  TouchableOpacity,
 } from "react-native";
 import {
   TextInput,
   Button,
   Text,
   Card,
-  Snackbar,
   RadioButton,
+  useTheme,
+  Checkbox,
+  HelperText,
 } from "react-native-paper";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { useAuth } from "../../context/AuthContext";
-import { useNavigation } from "@react-navigation/native"; // ADDED: Import useNavigation
+import { useNavigation } from "@react-navigation/native";
 
+// Define validation schema
 const loginSchema = Yup.object().shape({
-  userName: Yup.string().required("User Name is required"),
-  password: Yup.string()
-    .min(6, "Password must be at least 6 characters")
-    .required("Password is required"),
+  userName: Yup.string().max(255).required("User Name is required"),
+  password: Yup.string().max(255).required("Password is required"),
   accountId: Yup.string().required("Account ID is required"),
   type: Yup.mixed<"ADMIN" | "TEACHER" | "STUDENT">()
     .oneOf(["ADMIN", "TEACHER", "STUDENT"])
@@ -32,10 +35,19 @@ const loginSchema = Yup.object().shape({
 
 export const LoginScreen: React.FC = () => {
   const { login } = useAuth();
-  const navigation = useNavigation(); // ADDED: Initialize navigation hook
+  const navigation = useNavigation();
+  const theme = useTheme();
+
+  // Logic States
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [showSnackbar, setShowSnackbar] = useState(false);
+  const [apiError, setApiError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
+
+  // Toggle Password Visibility
+  const handleClickShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
 
   const handleLogin = async (values: {
     userName: string;
@@ -44,38 +56,59 @@ export const LoginScreen: React.FC = () => {
     type: "ADMIN" | "TEACHER" | "STUDENT";
   }) => {
     setLoading(true);
-    setError("");
+    setApiError(""); // Clear previous errors
+
     try {
+      // The login function in AuthContext calls the API.
+      // If the server returns a non-success status, AuthContext throws an error.
       await login(
         values.userName,
         values.password,
         values.accountId,
         values.type
       );
-    } catch (err) {
-      setError("Invalid username, password, or account ID.");
-      setShowSnackbar(true);
+      // Navigation is handled automatically by the navigation container watching the 'user' state,
+      // or we can explicitly navigate if your flow requires it.
+    } catch (err: any) {
+      console.error("Login Error:", err);
+      // Capture the error message from the server response if available
+      const message =
+        err.response?.data?.message ||
+        err.message ||
+        "An unexpected error occurred. Please try again.";
+      setApiError(message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.container}
-    >
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.content}>
-          <Text variant="headlineLarge" style={styles.title}>
-            KoolERP
-          </Text>
-          <Text variant="titleMedium" style={styles.subtitle}>
-            Sign in to continue
-          </Text>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: "#ffffff" }]}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.container}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          {/* Header Section */}
+          <View style={styles.headerContainer}>
+            <Text
+              variant="headlineMedium"
+              style={[styles.title, { color: theme.colors.primary }]}
+            >
+              KoolERP
+            </Text>
+            <Text variant="bodyLarge" style={styles.subtitle}>
+              Sign in to continue
+            </Text>
+          </View>
 
-          <Card style={styles.card}>
-            <Card.Content>
+          {/* Main Form Card */}
+          <Card style={[styles.card, { backgroundColor: "#ffffff" }]}>
+            <Card.Content style={styles.cardContent}>
               <Formik
                 initialValues={{
                   userName: "",
@@ -93,105 +126,207 @@ export const LoginScreen: React.FC = () => {
                   values,
                   errors,
                   touched,
+                  setFieldValue,
                 }) => (
                   <View>
-                    <TextInput
-                      label="User Name"
-                      value={values.userName}
-                      onChangeText={handleChange("userName")}
-                      onBlur={handleBlur("userName")}
-                      autoCapitalize="none"
-                      style={styles.input}
-                      mode="outlined"
-                    />
-                    {touched.userName && errors.userName && (
-                      <Text style={styles.errorText}>{errors.userName}</Text>
-                    )}
-
-                    <TextInput
-                      label="Password"
-                      value={values.password}
-                      onChangeText={handleChange("password")}
-                      onBlur={handleBlur("password")}
-                      secureTextEntry
-                      style={styles.input}
-                      mode="outlined"
-                    />
-                    {touched.password && errors.password && (
-                      <Text style={styles.errorText}>{errors.password}</Text>
-                    )}
-
-                    <TextInput
-                      label="Account ID"
-                      value={values.accountId}
-                      onChangeText={handleChange("accountId")}
-                      onBlur={handleBlur("accountId")}
-                      autoCapitalize="none"
-                      style={styles.input}
-                      mode="outlined"
-                    />
-                    {touched.accountId && errors.accountId && (
-                      <Text style={styles.errorText}>{errors.accountId}</Text>
-                    )}
-
-                    <View style={{ marginTop: 8, marginBottom: 8 }}>
-                      <Text variant="bodyMedium" style={{ marginBottom: 8 }}>
-                        User Type
-                      </Text>
-                      <RadioButton.Group
-                        onValueChange={(value) => handleChange("type")(value)}
-                        value={values.type}
-                      >
-                        <View
-                          style={{
-                            flexDirection: "row",
-                            justifyContent: "space-between",
-                          }}
-                        >
-                          <View
-                            style={{
-                              flexDirection: "row",
-                              alignItems: "center",
-                            }}
-                          >
-                            <RadioButton value="ADMIN" />
-                            <Text>Admin</Text>
-                          </View>
-                          <View
-                            style={{
-                              flexDirection: "row",
-                              alignItems: "center",
-                            }}
-                          >
-                            <RadioButton value="TEACHER" />
-                            <Text>Teacher</Text>
-                          </View>
-                          <View
-                            style={{
-                              flexDirection: "row",
-                              alignItems: "center",
-                            }}
-                          >
-                            <RadioButton value="STUDENT" />
-                            <Text>Student</Text>
-                          </View>
-                        </View>
-                      </RadioButton.Group>
-                      {touched.type && errors.type && (
-                        <Text style={styles.errorText}>
-                          {errors.type as any}
-                        </Text>
+                    {/* Username Input */}
+                    <View style={styles.inputContainer}>
+                      <TextInput
+                        label="User Name"
+                        value={values.userName}
+                        onChangeText={(text) => {
+                          handleChange("userName")(text);
+                          if (apiError) setApiError(""); // Clear global error on type
+                        }}
+                        onBlur={handleBlur("userName")}
+                        autoCapitalize="none"
+                        mode="outlined"
+                        style={styles.input}
+                        outlineStyle={styles.inputOutline}
+                        left={<TextInput.Icon icon="account" color="#9e9e9e" />}
+                        error={touched.userName && !!errors.userName}
+                      />
+                      {touched.userName && errors.userName && (
+                        <HelperText type="error" visible={true}>
+                          {errors.userName}
+                        </HelperText>
                       )}
                     </View>
 
+                    {/* Password Input */}
+                    <View style={styles.inputContainer}>
+                      <TextInput
+                        label="Password"
+                        value={values.password}
+                        onChangeText={(text) => {
+                          handleChange("password")(text);
+                          if (apiError) setApiError("");
+                        }}
+                        onBlur={handleBlur("password")}
+                        secureTextEntry={!showPassword}
+                        mode="outlined"
+                        style={styles.input}
+                        outlineStyle={styles.inputOutline}
+                        left={<TextInput.Icon icon="lock" color="#9e9e9e" />}
+                        right={
+                          <TextInput.Icon
+                            icon={showPassword ? "eye" : "eye-off"}
+                            onPress={handleClickShowPassword}
+                            color="#9e9e9e"
+                          />
+                        }
+                        error={touched.password && !!errors.password}
+                      />
+                      {touched.password && errors.password && (
+                        <HelperText type="error" visible={true}>
+                          {errors.password}
+                        </HelperText>
+                      )}
+                    </View>
+
+                    {/* Account ID Input */}
+                    <View style={styles.inputContainer}>
+                      <TextInput
+                        label="Account ID"
+                        value={values.accountId}
+                        onChangeText={(text) => {
+                          handleChange("accountId")(text);
+                          if (apiError) setApiError("");
+                        }}
+                        onBlur={handleBlur("accountId")}
+                        autoCapitalize="none"
+                        mode="outlined"
+                        style={styles.input}
+                        outlineStyle={styles.inputOutline}
+                        left={<TextInput.Icon icon="domain" color="#9e9e9e" />}
+                        error={touched.accountId && !!errors.accountId}
+                      />
+                      {touched.accountId && errors.accountId && (
+                        <HelperText type="error" visible={true}>
+                          {errors.accountId}
+                        </HelperText>
+                      )}
+                    </View>
+
+                    {/* User Type Selection */}
+                    <View style={styles.roleContainer}>
+                      <Text variant="labelLarge" style={styles.roleLabel}>
+                        User Type
+                      </Text>
+                      <RadioButton.Group
+                        onValueChange={(value) => {
+                          setFieldValue("type", value);
+                          if (apiError) setApiError("");
+                        }}
+                        value={values.type}
+                      >
+                        <View style={styles.radioGroup}>
+                          {["ADMIN", "TEACHER", "STUDENT"].map((role) => (
+                            <TouchableOpacity
+                              key={role}
+                              style={[
+                                styles.radioItem,
+                                values.type === role && styles.radioItemActive,
+                                {
+                                  borderColor:
+                                    values.type === role
+                                      ? theme.colors.primary
+                                      : "transparent",
+                                },
+                              ]}
+                              onPress={() => setFieldValue("type", role)}
+                            >
+                              <RadioButton.Android
+                                value={role}
+                                color={theme.colors.primary}
+                                uncheckedColor="#9e9e9e"
+                              />
+                              <Text
+                                variant="bodyMedium"
+                                style={{
+                                  color:
+                                    values.type === role
+                                      ? theme.colors.primary
+                                      : "#555",
+                                  fontWeight:
+                                    values.type === role ? "700" : "400",
+                                }}
+                              >
+                                {role.charAt(0) +
+                                  role.slice(1).toLowerCase()}
+                              </Text>
+                            </TouchableOpacity>
+                          ))}
+                        </View>
+                      </RadioButton.Group>
+                      {touched.type && errors.type && (
+                        <HelperText type="error" visible={true}>
+                          {errors.type as any}
+                        </HelperText>
+                      )}
+                    </View>
+
+                    {/* Remember Me & Forgot Password Row */}
+                    <View style={styles.optionsRow}>
+                      <TouchableOpacity
+                        style={styles.rememberMeContainer}
+                        onPress={() => setRememberMe(!rememberMe)}
+                        activeOpacity={0.7}
+                      >
+                        <Checkbox.Android
+                          status={rememberMe ? "checked" : "unchecked"}
+                          onPress={() => setRememberMe(!rememberMe)}
+                          color={theme.colors.primary}
+                        />
+                        <Text variant="bodyMedium" style={{ color: "#555" }}>
+                          Remember me
+                        </Text>
+                      </TouchableOpacity>
+
+                      {/* <TouchableOpacity
+                        onPress={() => {
+                          // Navigate to ForgotPassword or show modal
+                          // navigation.navigate("ForgotPassword" as never);
+                          console.log("Forgot Password Clicked");
+                        }}
+                      >
+                        <Text
+                          variant="bodyMedium"
+                          style={{ color: theme.colors.secondary }}
+                        >
+                          Forgot Password?
+                        </Text>
+                      </TouchableOpacity> */}
+                    </View>
+
+                    {/* API Error Display */}
+                    {apiError ? (
+                      <View style={styles.errorContainer}>
+                        <HelperText
+                          type="error"
+                          visible={true}
+                          style={styles.apiErrorText}
+                        >
+                          {apiError}
+                        </HelperText>
+                      </View>
+                    ) : null}
+
+                    {/* Submit Button */}
                     <Button
                       mode="contained"
                       onPress={() => handleSubmit()}
                       loading={loading}
                       disabled={loading}
                       style={styles.button}
+                      contentStyle={styles.buttonContent}
+                      labelStyle={styles.buttonLabel}
+                      buttonColor={theme.colors.secondary}
+                      // change bg color of button in sky blue
+                      rippleColor={theme.colors.primary}
+
                     >
-                      Sign In
+                      {loading ? "Signing in..." : "Sign In"}
                     </Button>
                   </View>
                 )}
@@ -199,104 +334,149 @@ export const LoginScreen: React.FC = () => {
             </Card.Content>
           </Card>
 
-          {/* ADDED: Link to Signup Screen */}
-          <View style={styles.footerNav}>
-            <Text variant="bodyMedium" style={styles.footerText}>
+          {/* Footer / Sign Up Link */}
+          <View style={styles.footerContainer}>
+            <Text variant="bodyMedium" style={{ color: "#666" }}>
               Don't have an account?
             </Text>
             <Button
               mode="text"
               onPress={() => navigation.navigate("SignupScreen" as never)}
               compact
-              labelStyle={styles.textButtonLabel}
+              labelStyle={{ fontWeight: "bold" }}
             >
               Sign Up
             </Button>
           </View>
-          {/* END: Link to Signup Screen */}
-        </View>
-
-        <Snackbar
-          visible={showSnackbar}
-          onDismiss={() => setShowSnackbar(false)}
-          duration={3000}
-        >
-          {error}
-        </Snackbar>
-      </ScrollView>
-    </KeyboardAvoidingView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
   },
   scrollContainer: {
     flexGrow: 1,
-  },
-  content: {
-    flex: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 30,
     justifyContent: "center",
-    padding: 20,
+  },
+  headerContainer: {
+    marginBottom: 24,
+    alignItems: "center",
   },
   title: {
-    textAlign: "center",
-    marginBottom: 8,
-    fontWeight: "bold",
-    color: "#6200ee",
+    fontWeight: "800",
+    letterSpacing: 0.5,
+    marginBottom: 4,
   },
   subtitle: {
+    color: "#666666",
     textAlign: "center",
-    marginBottom: 32,
-    color: "#666",
   },
   card: {
-    elevation: 4,
+    borderRadius: 16,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+  },
+  cardContent: {
+    paddingVertical: 24,
+    paddingHorizontal: 16,
+  },
+  inputContainer: {
+    marginBottom: 6, // HelperText handles the spacing if error exists
   },
   input: {
-    marginBottom: 8,
+    backgroundColor: "#fff",
   },
-  errorText: {
-    color: "red",
-    fontSize: 12,
-    marginBottom: 8,
-    marginLeft: 12,
+  inputOutline: {
+    borderRadius: 8,
+    borderColor: "#e0e0e0",
   },
+  roleContainer: {
+    marginTop: 12,
+    marginBottom: 16,
+  },
+  roleLabel: {
+    marginBottom: 8,
+    color: "#333",
+    fontWeight: "600",
+  },
+  radioGroup: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    backgroundColor: "#f5f5f5",
+    padding: 6,
+    borderRadius: 12,
+  },
+  radioItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingRight: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "transparent",
+  },
+  radioItemActive: {
+    backgroundColor: "#fff",
+    elevation: 1,
+  },
+  optionsRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+    marginTop: 4,
+  },
+  rememberMeContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginLeft: -6, // Align checkbox visually with input start
+  },
+  errorContainer: {
+    marginBottom: 16,
+    backgroundColor: "#ffebee",
+    borderRadius: 8,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderWidth: 1,
+    borderColor: "#ef9a9a",
+  },
+  apiErrorText: {
+    fontSize: 13,
+    textAlign: "center",
+    color: "#c62828", // Darker red for text
+  },
+                        // change bg color of button in sky blue
+
+
   button: {
-    marginTop: 16,
+    borderRadius: 8,
+    elevation: 2,
+    marginTop: 4,
+    backgroundColor: "#03a9f4",
+  },
+  buttonContent: {
     paddingVertical: 6,
   },
-  footerNav: {
-    // ADDED
+  buttonLabel: {
+    fontSize: 16,
+    fontWeight: "bold",
+    letterSpacing: 0.5,
+  },
+  footerContainer: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 20,
-  },
-  textButtonLabel: {
-    // ADDED
-    fontSize: 14,
-    fontWeight: "bold",
-  },
-  footerText: {
-    color: "#0A0A0A",
-    fontSize: 14,
-    marginRight: 8,
-  },
-  demoContainer: {
     marginTop: 24,
-    padding: 12,
-    backgroundColor: "#f0f0f0",
-    borderRadius: 8,
-  },
-  demoTitle: {
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  demoText: {
-    color: "#000000ff",
-    marginBottom: 2,
   },
 });

@@ -51,8 +51,8 @@ export const StudentList: React.FC = () => {
         columns={columnsConfig}
         isPostRequest={true}
         addActionUrl="AddStudent"
-        // editUrl="EditStudent"
-        // deleteUrl="/api/users/delete"
+        editUrl="EditStudent"
+        deleteUrl="/api/users/delete"
         entityName="Student"
         searchPlaceholder="Search students..."
         transformData={transformStudentData}
