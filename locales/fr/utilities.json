@@ -1,5 +1,35 @@
 {
   "menu": {
+    "dashboards": {
+      "groupTitle": "Tableaux de Bord",
+      "adminDashboard": "Tableau de Bord Admin",
+      "teacherDashboard": "Tableau de Bord Enseignant",
+      "studentDashboard": "Tableau de Bord Élève"
+    },
+    "administration": {
+      "groupTitle": "Administration",
+      "institutes": "Instituts",
+      "schools": "Écoles",
+      "classes": "Classes",
+      "divisions": "Divisions",
+      "subjects": "Matières",
+      "roles": "Rôles"
+    },
+    "people": {
+      "groupTitle": "Personnes",
+      "students": "Élèves",
+      "teachers": "Enseignants",
+      "users": "Utilisateurs"
+    },
+    "academics": {
+      "groupTitle": "Éducation & Opérations",
+      "timetables": "Emplois du Temps",
+      "assignments": "Devoirs",
+      "attendance": "Présence",
+      "exams": "Examens",
+      "examsTeacherView": "Vue Enseignant",
+      "examsStudentView": "Vue Élève"
+    },
     "masters": {
       "groupTitle": "Maîtres",
       "users": "Utilisateurs",
@@ -31,6 +61,38 @@
       "availableQuizzes": "Quiz Disponibles",
       "idCardManagement": "Gestion des Cartes d'Identité",
       "leavingCertificateManagement": "Gestion des Certificats de Départ"
+    },
+    "actions": {
+      "add": "Ajouter",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "view": "Afficher",
+      "save": "Enregistrer",
+      "cancel": "Annuler",
+      "submit": "Soumettre",
+      "download": "Télécharger",
+      "upload": "Téléverser",
+      "refresh": "Actualiser",
+      "search": "Rechercher",
+      "filter": "Filtrer",
+      "export": "Exporter",
+      "import": "Importer"
+    },
+    "common": {
+      "ok": "OK",
+      "yes": "Oui",
+      "no": "Non",
+      "close": "Fermer",
+      "loading": "Chargement...",
+      "error": "Erreur",
+      "success": "Succès",
+      "warning": "Avertissement",
+      "info": "Information",
+      "noData": "Aucune donnée disponible",
+      "back": "Retour",
+      "next": "Suivant",
+      "previous": "Précédent",
+      "finish": "Terminer"
     }
   }
 }
