@@ -1,5 +1,5 @@
 {
-   "student": {
+  "student": {
     "title": {
       "add": "Ajouter un Étudiant",
       "edit": "Modifier l'Étudiant"
@@ -83,7 +83,7 @@
       }
     }
   },
-"teacher": {
+  "teacher": {
     "title": {
       "add": "Ajouter Professeur/Personnel",
       "edit": "Modifier Professeur/Personnel"
@@ -92,7 +92,8 @@
       "basic": "Détails de Base",
       "education": "Éducation",
       "allocation": "Affectation des Classes",
-      "documents": "Documents"
+      "documents": "Documents",
+      "profileImage": "Image de Profil"
     },
     "fields": {
       "userName": "Nom d'Utilisateur",
@@ -109,7 +110,17 @@
       "school": "École",
       "type": "Type",
       "class": "Classe",
-      "division": "Division"
+      "division": "Division",
+      "subject": "Sujet"
+    },
+    "genderOptions": {
+      "male": "Masculin",
+      "female": "Féminin"
+    },
+    "typeOptions": {
+      "teacher": "Professeur",
+      "admin": "Admin",
+      "staff": "Personnel"
     },
     "education": {
       "heading": "Éducation {0}",
@@ -130,6 +141,13 @@
       "addAllocation": "Ajouter Affectation"
     },
     "validation": {
+      "userNameRequired": "Le Nom d'Utilisateur est obligatoire",
+      "firstNameRequired": "Le Prénom est obligatoire",
+      "lastNameRequired": "Le Nom de Famille est obligatoire",
+      "mobileRequired": "Le Numéro de Mobile est obligatoire",
+      "dobRequired": "La Date de Naissance est obligatoire",
+      "roleRequired": "Le Rôle est obligatoire",
+      "typeRequired": "Le Type est obligatoire",
       "emailRequired": "L'E-mail est obligatoire",
       "passwordRequired": "Le Mot de Passe est obligatoire",
       "hqRequired": "La Qualification Supérieure est obligatoire",
@@ -146,9 +164,16 @@
       "loading": "Chargement des données Professeur/Personnel...",
       "updateSuccess": "Professeur mis à jour avec succès",
       "createSuccess": "Professeur créé avec succès",
-      "saveError": "Échec de la soumission des données du professeur."
+      "saveError": "Échec de la soumission des données du professeur.",
+      "saveFirst": "Veuillez d'abord enregistrer le professeur."
+    },
+    "media": {
+      "noImageSelected": "Aucune image sélectionnée",
+      "selectImage": "Sélectionner une image",
+      "upload": "Téléverser"
     }
-  },"documentManager": {
+  },
+  "documentManager": {
     "title": "Documents Utilisateur",
     "addModalTitle": "Ajouter Nouveau Document",
     "table": {
@@ -182,7 +207,11 @@
   },
   "role": {
     "title": { "add": "Ajouter un Rôle", "edit": "Modifier le Rôle" },
-    "fields": { "name": "Nom du Rôle", "permissions": "Permissions", "school": "École" },
+    "fields": {
+      "name": "Nom du Rôle",
+      "permissions": "Permissions",
+      "school": "École"
+    },
     "messages": {
       "fetchFailed": "Échec de la récupération des données initiales.",
       "createSuccess": "Rôle créé avec succès !",
@@ -192,12 +221,21 @@
       "updateLabel": "Mettre à jour"
     },
     "table": { "entity": "Entité" },
-    "actions": { "add": "Ajouter", "edit": "Modifier", "view": "Voir", "delete": "Supprimer" },
+    "actions": {
+      "add": "Ajouter",
+      "edit": "Modifier",
+      "view": "Voir",
+      "delete": "Supprimer"
+    },
     "headings": { "configurePermissions": "Configurer les autorisations" }
   },
   "class": {
     "title": { "add": "Ajouter une Classe", "edit": "Modifier la Classe" },
-    "fields": { "name": "Nom de la Classe", "school": "École", "institute": "Institut" },
+    "fields": {
+      "name": "Nom de la Classe",
+      "school": "École",
+      "institute": "Institut"
+    },
     "messages": {
       "loading": "Chargement de la classe...",
       "savedAdd": "Classe ajoutée avec succès !",
@@ -213,9 +251,13 @@
   },
   "course": {
     "title": { "add": "Ajouter un Cours", "edit": "Modifier le Cours" },
-    "fields": { "name": "Nom du Cours", "description": "Description", "school": "École" }
+    "fields": {
+      "name": "Nom du Cours",
+      "description": "Description",
+      "school": "École"
+    }
   },
- "school": {
+  "school": {
     "title": {
       "add": "Ajouter une École",
       "edit": "Modifier l'École"
@@ -262,7 +304,7 @@
       "saveError": "Une erreur est survenue lors de l'enregistrement de l'école. Veuillez réessayer."
     }
   },
-"subject": {
+  "subject": {
     "title": {
       "add": "Ajouter une Matière",
       "edit": "Modifier la Matière"
@@ -284,7 +326,12 @@
   },
   "assignment": {
     "title": { "add": "Ajouter un Devoir", "edit": "Modifier le Devoir" },
-    "fields": { "name": "Nom", "deadline": "Date Limite", "subject": "Matière", "message": "Message" },
+    "fields": {
+      "name": "Nom",
+      "deadline": "Date Limite",
+      "subject": "Matière",
+      "message": "Message"
+    },
     "messages": {
       "loading": "Chargement du devoir...",
       "saved": "Devoir enregistré avec succès",
@@ -340,7 +387,12 @@
   },
   "attendance": {
     "title": { "add": "Ajouter une Présence", "edit": "Modifier la Présence" },
-    "fields": { "date": "Date", "class": "Classe", "division": "Division", "subject": "Matière" },
+    "fields": {
+      "date": "Date",
+      "class": "Classe",
+      "division": "Division",
+      "subject": "Matière"
+    },
     "messages": {
       "selectPlaceholder": "Sélectionnez la classe, la division et la matière",
       "updated": "Présence mise à jour avec succès"
@@ -402,8 +454,16 @@
     }
   },
   "timetable": {
-    "title": { "add": "Ajouter un Emploi du Temps", "edit": "Modifier l'Emploi du Temps" },
-    "fields": { "school": "École", "class": "Classe", "division": "Division", "dayTimeTable": "Emploi du Temps du Jour" }
+    "title": {
+      "add": "Ajouter un Emploi du Temps",
+      "edit": "Modifier l'Emploi du Temps"
+    },
+    "fields": {
+      "school": "École",
+      "class": "Classe",
+      "division": "Division",
+      "dayTimeTable": "Emploi du Temps du Jour"
+    }
   },
   "institute": {
     "title": { "add": "Ajouter un Institut", "edit": "Modifier l'Institut" },
@@ -446,7 +506,10 @@
     "fields": { "name": "Nom", "mobile": "N° de Mobile", "email": "E-mail" }
   },
   "notifications": {
-    "title": { "create": "Créer une Notification", "edit": "Modifier la Notification" },
+    "title": {
+      "create": "Créer une Notification",
+      "edit": "Modifier la Notification"
+    },
     "fields": { "title": "Titre", "message": "Message", "sendTo": "Envoyer à" }
   },
   "common": {

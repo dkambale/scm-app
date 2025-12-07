@@ -1,5 +1,5 @@
 {
-    "student": {
+  "student": {
     "title": {
       "add": "विद्यार्थी जोडा",
       "edit": "विद्यार्थी संपादित करा"
@@ -83,7 +83,7 @@
       }
     }
   },
-"teacher": {
+  "teacher": {
     "title": {
       "add": "शिक्षक/कर्मचारी जोडा",
       "edit": "शिक्षक/कर्मचारी संपादित करा"
@@ -108,62 +108,94 @@
       "gender": "लिंग",
       "school": "शाळा",
       "type": "प्रकार",
-      "class": "वर्ग",
-      "division": "विभाग"
-    },
-    "education": {
-      "heading": "शिक्षण {0}",
-      "qualification": "उच्च पात्रता",
-      "institution": "शाळा/महाविद्यालयाचे नाव",
-      "board": "बोर्ड/विद्यापीठाचे नाव",
-      "year": "उत्तीर्ण वर्ष",
-      "percentage": "टक्केवारी",
-      "noRecords": "शिक्षणाचे रेकॉर्ड नाहीत. खाली एक जोडा."
-    },
-    "action": {
-      "addEducation": "शिक्षण जोडा",
-      "removeAllocation": "काढा",
-      "addAllocation": "वाटप जोडा"
-    },
-    "allocation": {
-      "noAllocations": "कोणतेही वाटप जोडलेले नाही.",
-      "addAllocation": "वाटप जोडा"
-    },
-    "validation": {
-      "emailRequired": "ईमेल आवश्यक आहे",
-      "passwordRequired": "पासवर्ड आवश्यक आहे",
-      "hqRequired": "उच्च पात्रता आवश्यक आहे",
-      "institutionRequired": "शाळा/महाविद्यालयाचे नाव आवश्यक आहे",
-      "boardRequired": "बोर्ड/विद्यापीठाचे नाव आवश्यक आहे",
-      "yearRequired": "उत्तीर्ण वर्ष आवश्यक आहे",
-      "yearTypeError": "उत्तीर्ण वर्ष संख्या असणे आवश्यक आहे",
-      "percentageRequired": "टक्केवारी आवश्यक आहे",
-      "percentageTypeError": "टक्केवारी संख्या असणे आवश्यक आहे",
-      "percentageRange": "टक्केवारी 0 ते 100 दरम्यान असणे आवश्यक आहे",
-      "yearInvalid": "वर्ष चालू किंवा मागील असणे आवश्यक आहे"
-    },
-    "messages": {
-      "loading": "शिक्षक/कर्मचारी डेटा लोड होत आहे...",
-      "updateSuccess": "शिक्षक यशस्वीरित्या अद्यतनित झाला",
-      "createSuccess": "शिक्षक यशस्वीरित्या तयार झाला",
-      "saveError": "शिक्षक डेटा सबमिट करण्यात अयशस्वी."
-    }
-  },"documentManager": {
-    "title": "वापरकर्ता दस्तऐवज",
-    "addModalTitle": "नवीन दस्तऐवज जोडा",
-    "table": {
-      "name": "दस्तऐवजाचे नाव",
-      "uploadedOn": "अपलोड केले",
-      "actions": "क्रिया",
-      "noDocuments": "या वापरकर्त्यासाठी कोणतेही दस्तऐवज आढळले नाहीत."
-    },
-    "action": {
-      "add": "दस्तऐवज जोडा",
-      "download": "डाउनलोड करा",
-      "delete": "हटवा",
-      "save": "जतन करा",
-      "cancel": "रद्द करा",
-      "selectFile": "फाइल निवडा"
+      "title": {
+        "add": "शिक्षक/कर्मचारी जोडा",
+        "edit": "शिक्षक/कर्मचारी संपादित करा"
+      },
+      "tabs": {
+        "basic": "मूलभूत तपशील",
+        "education": "शिक्षण",
+        "allocation": "वर्ग वाटप",
+        "documents": "दस्तऐवज",
+        "profileImage": "प्रोफाइल प्रतिमा"
+      },
+      "fields": {
+        "userName": "वापरकर्ता नाव",
+        "password": "पासवर्ड",
+        "firstName": "पहिले नाव",
+        "middleName": "मध्य नाव",
+        "lastName": "अंतिम नाव",
+        "mobile": "मोबाइल क्र.",
+        "email": "ईमेल",
+        "address": "पत्ता",
+        "dob": "जन्म तारीख",
+        "role": "भूमिका",
+        "gender": "लिंग",
+        "school": "शाळा",
+        "type": "प्रकार",
+        "class": "वर्ग",
+        "division": "विभाग",
+        "subject": "विषय"
+      },
+      "genderOptions": {
+        "male": "पुरुष",
+        "female": "स्त्री"
+      },
+      "typeOptions": {
+        "teacher": "शिक्षक",
+        "admin": "प्रशासक",
+        "staff": "कर्मचारी"
+      },
+      "education": {
+        "heading": "शिक्षण {0}",
+        "qualification": "उच्च पात्रता",
+        "institution": "शाळा/महाविद्यालयाचे नाव",
+        "board": "बोर्ड/विद्यापीठाचे नाव",
+        "year": "उत्तीर्ण वर्ष",
+        "percentage": "टक्केवारी",
+        "noRecords": "शिक्षणाचे रेकॉर्ड नाहीत. खाली एक जोडा."
+      },
+      "action": {
+        "addEducation": "शिक्षण जोडा",
+        "removeAllocation": "काढा",
+        "addAllocation": "वाटप जोडा"
+      },
+      "allocation": {
+        "noAllocations": "कोणतेही वाटप जोडलेले नाही.",
+        "addAllocation": "वाटप जोडा"
+      },
+      "validation": {
+        "userNameRequired": "वापरकर्ता नाव आवश्यक आहे",
+        "firstNameRequired": "पहिले नाव आवश्यक आहे",
+        "lastNameRequired": "अंतिम नाव आवश्यक आहे",
+        "mobileRequired": "मोबाइल क्रमांक आवश्यक आहे",
+        "dobRequired": "जन्म तारीख आवश्यक आहे",
+        "roleRequired": "भूमिका आवश्यक आहे",
+        "typeRequired": "प्रकार आवश्यक आहे",
+        "emailRequired": "ईमेल आवश्यक आहे",
+        "passwordRequired": "पासवर्ड आवश्यक आहे",
+        "hqRequired": "उच्च पात्रता आवश्यक आहे",
+        "institutionRequired": "शाळा/महाविद्यालयाचे नाव आवश्यक आहे",
+        "boardRequired": "बोर्ड/विद्यापीठाचे नाव आवश्यक आहे",
+        "yearRequired": "उत्तीर्ण वर्ष आवश्यक आहे",
+        "yearTypeError": "उत्तीर्ण वर्ष संख्या असणे आवश्यक आहे",
+        "percentageRequired": "टक्केवारी आवश्यक आहे",
+        "percentageTypeError": "टक्केवारी संख्या असणे आवश्यक आहे",
+        "percentageRange": "टक्केवारी 0 ते 100 दरम्यान असणे आवश्यक आहे",
+        "yearInvalid": "वर्ष चालू किंवा मागील असणे आवश्यक आहे"
+      },
+      "messages": {
+        "loading": "शिक्षक/कर्मचारी डेटा लोड होत आहे...",
+        "updateSuccess": "शिक्षक यशस्वीरित्या अद्यतनित झाला",
+        "createSuccess": "शिक्षक यशस्वीरित्या तयार झाला",
+        "saveError": "शिक्षक डेटा सबमिट करण्यात अयशस्वी.",
+        "saveFirst": "कृपया प्रथम शिक्षक जतन करा."
+      },
+      "media": {
+        "noImageSelected": "कोणतीही प्रतिमा निवडलेली नाही",
+        "selectImage": "प्रतिमा निवडा",
+        "upload": "अपलोड करा"
+      }
     },
     "form": {
       "documentNameLabel": "दस्तऐवजाचे नाव"
@@ -182,7 +214,11 @@
   },
   "role": {
     "title": { "add": "नवीन भूमिका जोडा", "edit": "भूमिका संपादित करा" },
-    "fields": { "name": "भूमिका नाव", "permissions": "परवानग्या", "school": "शाळा" },
+    "fields": {
+      "name": "भूमिका नाव",
+      "permissions": "परवानग्या",
+      "school": "शाळा"
+    },
     "messages": {
       "fetchFailed": "प्रारंभिक डेटा आणताना अयशस्वी.",
       "createSuccess": "भूमिका यशस्वीरित्या तयार झाली!",
@@ -192,12 +228,21 @@
       "updateLabel": "अपडेट करा"
     },
     "table": { "entity": "सत्ता" },
-    "actions": { "add": "जोडा", "edit": "संपादित करा", "view": "पहा", "delete": "काढा" },
+    "actions": {
+      "add": "जोडा",
+      "edit": "संपादित करा",
+      "view": "पहा",
+      "delete": "काढा"
+    },
     "headings": { "configurePermissions": "परवानग्या कॉन्फिगर करा" }
   },
   "class": {
     "title": { "add": "नवीन वर्ग जोडा", "edit": "वर्ग संपादित करा" },
-    "fields": { "name": "वर्गाचे नाव", "school": "शाळा", "institute": "संस्था" },
+    "fields": {
+      "name": "वर्गाचे नाव",
+      "school": "शाळा",
+      "institute": "संस्था"
+    },
     "messages": {
       "loading": "वर्ग लोड होत आहे...",
       "savedAdd": "वर्ग यशस्वीरित्या जोडला गेला!",
@@ -213,7 +258,11 @@
   },
   "course": {
     "title": { "add": "नवीन कोर्स जोडा", "edit": "कोर्स संपादित करा" },
-    "fields": { "name": "कोर्सचे नाव", "description": "वर्णन", "school": "शाळा" }
+    "fields": {
+      "name": "कोर्सचे नाव",
+      "description": "वर्णन",
+      "school": "शाळा"
+    }
   },
   "school": {
     "title": {
@@ -262,7 +311,7 @@
       "saveError": "शाळा जतन करताना एक त्रुटी आली. कृपया पुन्हा प्रयत्न करा।"
     }
   },
-"subject": {
+  "subject": {
     "title": {
       "add": "विषय जोडा",
       "edit": "विषय संपादित करा"
@@ -284,13 +333,21 @@
   },
   "assignment": {
     "title": { "add": "नवीन असाइनमेंट जोडा", "edit": "असाइनमेंट संपादित करा" },
-    "fields": { "name": "नाव", "deadline": "अंतिम मुदत", "subject": "विषय", "message": "संदेश" },
+    "fields": {
+      "name": "नाव",
+      "deadline": "अंतिम मुदत",
+      "subject": "विषय",
+      "message": "संदेश"
+    },
     "messages": {
       "loading": "असाइनमेंट लोड होत आहे...",
       "saved": "असाइनमेंट यशस्वीरित्या जतन केले",
       "uploadTitle": "📁 असाइनमेंट फाइल अपलोड करा",
       "uploadSubtitle": "फाइल निवडण्यासाठी क्लिक करा किंवा ड्रॅग आणि ड्रॉप करा",
-      "submissionsTitle": { "student": "📋 माझी सबमिशन्स आणि शिक्षक अभिप्राय", "teacher": "📋 सर्व विद्यार्थी सबमिशन्स" },
+      "submissionsTitle": {
+        "student": "📋 माझी सबमिशन्स आणि शिक्षक अभिप्राय",
+        "teacher": "📋 सर्व विद्यार्थी सबमिशन्स"
+      },
       "submissionsSubtitle": {
         "student": "तुमचे सबमिट केलेले काम आणि शिक्षकांचे अभिप्राय पहा",
         "teacher": "विद्यार्थ्यांच्या सबमिशन्सचे परीक्षण आणि गुण द्या"
@@ -337,7 +394,12 @@
   },
   "attendance": {
     "title": { "add": "नवीन उपस्थिती जोडा", "edit": "उपस्थिती संपादित करा" },
-    "fields": { "date": "तारीख", "class": "वर्ग", "division": "विभाग", "subject": "विषय" },
+    "fields": {
+      "date": "तारीख",
+      "class": "वर्ग",
+      "division": "विभाग",
+      "subject": "विषय"
+    },
     "messages": {
       "selectPlaceholder": "वर्ग, विभाग आणि विषय निवडा",
       "updated": "हजेरी यशस्वीपणे अद्यतनित झाली"
@@ -400,7 +462,12 @@
   },
   "timetable": {
     "title": { "add": "नवीन वेळापत्रक जोडा", "edit": "वेळापत्रक संपादित करा" },
-    "fields": { "school": "शाळा", "class": "वर्ग", "division": "विभाग", "dayTimeTable": "दिवसाचे वेळापत्रक" }
+    "fields": {
+      "school": "शाळा",
+      "class": "वर्ग",
+      "division": "विभाग",
+      "dayTimeTable": "दिवसाचे वेळापत्रक"
+    }
   },
   "institute": {
     "title": { "add": "नवीन संस्था जोडा", "edit": "संस्था संपादित करा" },
@@ -439,7 +506,10 @@
     }
   },
   "studentParent": {
-    "title": { "add": "विद्यार्थी/पालक जोडा", "edit": "विद्यार्थी/पालक संपादित करा" },
+    "title": {
+      "add": "विद्यार्थी/पालक जोडा",
+      "edit": "विद्यार्थी/पालक संपादित करा"
+    },
     "fields": { "name": "नाव", "mobile": "मोबाइल क्रमांक", "email": "ईमेल" }
   },
   "notifications": {

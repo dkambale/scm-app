@@ -1,10 +1,10 @@
 {
-   "student": {
+  "student": {
     "title": {
       "add": "Add Student",
       "edit": "Edit Student"
     },
-   
+
     "tabs": {
       "details": "Student Details",
       "documents": "Documents"
@@ -84,7 +84,7 @@
       }
     }
   },
- "teacher": {
+  "teacher": {
     "title": {
       "add": "Add Teacher/Staff",
       "edit": "Edit Teacher/Staff"
@@ -93,7 +93,8 @@
       "basic": "Basic Details",
       "education": "Education",
       "allocation": "Class Allocation",
-      "documents": "Documents"
+      "documents": "Documents",
+      "profileImage": "Profile Image"
     },
     "fields": {
       "userName": "User Name",
@@ -110,7 +111,17 @@
       "school": "School",
       "type": "Type",
       "class": "Class",
-      "division": "Division"
+      "division": "Division",
+      "subject": "Subject"
+    },
+    "genderOptions": {
+      "male": "Male",
+      "female": "Female"
+    },
+    "typeOptions": {
+      "teacher": "Teacher",
+      "admin": "Admin",
+      "staff": "Staff"
     },
     "education": {
       "heading": "Education {0}",
@@ -131,6 +142,13 @@
       "addAllocation": "Add Allocation"
     },
     "validation": {
+      "userNameRequired": "User Name is required",
+      "firstNameRequired": "First Name is required",
+      "lastNameRequired": "Last Name is required",
+      "mobileRequired": "Mobile number is required",
+      "dobRequired": "Date of Birth is required",
+      "roleRequired": "Role is required",
+      "typeRequired": "Type is required",
       "emailRequired": "Email is required",
       "passwordRequired": "Password is required",
       "hqRequired": "Higher Qualification is required",
@@ -147,12 +165,22 @@
       "loading": "Loading Teacher/Staff data...",
       "updateSuccess": "Teacher updated successfully",
       "createSuccess": "Teacher created successfully",
-      "saveError": "Failed to submit teacher data."
+      "saveError": "Failed to submit teacher data.",
+      "saveFirst": "Please save teacher first."
+    },
+    "media": {
+      "noImageSelected": "No Image Selected",
+      "selectImage": "Select Image",
+      "upload": "Upload"
     }
   },
   "role": {
     "title": { "add": "Add Role", "edit": "Edit Role" },
-    "fields": { "name": "Role Name", "permissions": "Permissions", "school": "School" },
+    "fields": {
+      "name": "Role Name",
+      "permissions": "Permissions",
+      "school": "School"
+    },
     "messages": {
       "fetchFailed": "Failed to fetch initial data.",
       "createSuccess": "Role created successfully!",
@@ -162,10 +190,15 @@
       "updateLabel": "Update"
     },
     "table": { "entity": "Entity" },
-    "actions": { "add": "Add", "edit": "Edit", "view": "View", "delete": "Delete" },
+    "actions": {
+      "add": "Add",
+      "edit": "Edit",
+      "view": "View",
+      "delete": "Delete"
+    },
     "headings": { "configurePermissions": "Configure Permissions" }
   },
-"documentManager": {
+  "documentManager": {
     "title": "User Documents",
     "addModalTitle": "Add New Document",
     "table": {
@@ -196,10 +229,14 @@
       "deleteConfirm": "Are you sure you want to delete this document?",
       "deleteSuccess": "Document deleted successfully!"
     }
-  } ,
+  },
   "course": {
     "title": { "add": "Add Course", "edit": "Edit Course" },
-    "fields": { "name": "Course Name", "description": "Description", "school": "School" }
+    "fields": {
+      "name": "Course Name",
+      "description": "Description",
+      "school": "School"
+    }
   },
   "school": {
     "title": {
@@ -248,7 +285,7 @@
       "saveError": "Une erreur est survenue lors de l'enregistrement de l'école. Veuillez réessayer."
     }
   },
-"subject": {
+  "subject": {
     "title": {
       "add": "Add Subject",
       "edit": "Edit Subject"
@@ -270,13 +307,21 @@
   },
   "assignment": {
     "title": { "add": "Add Assignment", "edit": "Edit Assignment" },
-    "fields": { "name": "Name", "deadline": "Deadline", "subject": "Subject", "message": "Message" },
+    "fields": {
+      "name": "Name",
+      "deadline": "Deadline",
+      "subject": "Subject",
+      "message": "Message"
+    },
     "messages": {
       "loading": "Loading Assignment...",
       "saved": "Assignment saved successfully",
       "uploadTitle": "📁 Upload Assignment File",
       "uploadSubtitle": "Click to select file or drag & drop",
-      "submissionsTitle": { "student": "📋 My Submissions & Teacher Feedback", "teacher": "📋 All Student Submissions" },
+      "submissionsTitle": {
+        "student": "📋 My Submissions & Teacher Feedback",
+        "teacher": "📋 All Student Submissions"
+      },
       "submissionsSubtitle": {
         "student": "View your submitted work and teacher's comments",
         "teacher": "Review and grade student submissions"
@@ -323,7 +368,11 @@
   },
   "class": {
     "title": { "add": "Add Class", "edit": "Edit Class" },
-    "fields": { "name": "Class Name", "school": "School", "institute": "Institute" },
+    "fields": {
+      "name": "Class Name",
+      "school": "School",
+      "institute": "Institute"
+    },
     "messages": {
       "loading": "Loading Class...",
       "savedAdd": "Class added successfully!",
@@ -339,7 +388,12 @@
   },
   "attendance": {
     "title": { "add": "Add Attendance", "edit": "Edit Attendance" },
-    "fields": { "date": "Date", "class": "Class", "division": "Division", "subject": "Subject" },
+    "fields": {
+      "date": "Date",
+      "class": "Class",
+      "division": "Division",
+      "subject": "Subject"
+    },
     "messages": {
       "selectPlaceholder": "Select Class, Division and Subject",
       "updated": "Attendance updated successfully"
@@ -402,7 +456,12 @@
   },
   "timetable": {
     "title": { "add": "Add Timetable", "edit": "Edit Timetable" },
-    "fields": { "school": "School", "class": "Class", "division": "Division", "dayTimeTable": "Day Time Table" }
+    "fields": {
+      "school": "School",
+      "class": "Class",
+      "division": "Division",
+      "dayTimeTable": "Day Time Table"
+    }
   },
   "institute": {
     "title": { "add": "Add Institute", "edit": "Edit Institute" },

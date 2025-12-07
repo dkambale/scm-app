@@ -1,5 +1,4 @@
 {
- 
   "student": {
     "title": {
       "add": "छात्र जोड़ें",
@@ -26,15 +25,15 @@
     },
     "validation": {
       "emailRequired": "ईमेल आवश्यक है",
-      "emailInvalid": "एक वैध ईमेल होना चाहिए",
+      "emailInvalid": "मान्य ईमेल होना चाहिए",
       "passwordRequired": "पासवर्ड आवश्यक है",
       "userNameRequired": "उपयोगकर्ता नाम आवश्यक है",
       "firstNameRequired": "पहला नाम आवश्यक है",
       "lastNameRequired": "अंतिम नाम आवश्यक है",
       "mobileRequired": "मोबाइल नंबर आवश्यक है",
-      "mobileDigitsOnly": "मोबाइल नंबर केवल अंक होना चाहिए",
-      "mobileMin": "मोबाइल नंबर कम से कम 10 अंक का होना चाहिए",
-      "mobileMax": "मोबाइल नंबर 15 अंकों से अधिक नहीं हो सकता",
+      "mobileDigitsOnly": "मोबाइल नंबर केवल अंक होने चाहिए",
+      "mobileMin": "मोबाइल नंबर कम से कम 10 अंक होना चाहिए",
+      "mobileMax": "मोबाइल नंबर 15 अंक से अधिक नहीं हो सकता",
       "rollNoRequired": "रोल नंबर आवश्यक है",
       "dobRequired": "जन्म तिथि आवश्यक है",
       "dobFuture": "जन्म तिथि भविष्य में नहीं हो सकती",
@@ -44,47 +43,13 @@
     },
     "messages": {
       "loading": "छात्र डेटा लोड हो रहा है...",
-      "fetchFailed": "छात्र डेटा लोड करने में विफल रहा।",
+      "fetchFailed": "छात्र डेटा लोड करने में विफल।",
       "updateSuccess": "छात्र सफलतापूर्वक अपडेट किया गया",
       "createSuccess": "छात्र सफलतापूर्वक जोड़ा गया",
-      "saveError": "छात्र डेटा सहेजने में विफल रहा।"
-    },
-    "bulkUpload": {
-      "title": "थोक छात्र अपलोड",
-      "prompt": {
-        "selectSCD": "पहले स्कूल, कक्षा और विभाग का चयन करें। चयन के बाद, भरी हुई एक्सेल फ़ाइल अपलोड करें।",
-        "clickFile": "एक .xlsx फ़ाइल चुनने के लिए क्लिक करें",
-        "maxSize": "अधिकतम फ़ाइल आकार: 5एमबी",
-        "selectFileError": "कृपया अपलोड करने के लिए एक फ़ाइल चुनें।",
-        "selectSCDError": "अपलोड करने से पहले कृपया स्कूल, कक्षा और विभाग का चयन करें।"
-      },
-      "action": {
-        "downloadSample": "नमूना एक्सेल फ़ाइल डाउनलोड करें",
-        "downloading": "डाउनलोड हो रहा है...",
-        "upload": "अपलोड करें",
-        "uploading": "अपलोड हो रहा है...",
-        "close": "बंद करें"
-      },
-      "result": {
-        "summaryHeading": "अपलोड सारांश",
-        "createdUsers": "बनाए गए उपयोगकर्ता",
-        "successCount": "बनाए गए:",
-        "failCount": "विफल:",
-        "totalProcessed": "कुल संसाधित:",
-        "failureDetails": "विफलता विवरण",
-        "recordCreated": "बनाया गया",
-        "failed": "विफल",
-        "invalidFile": "कृपया एक वैध एक्सेल फ़ाइल (.xlsx) चुनें।",
-        "uploadFailed": "थोक अपलोड विफल रहा।"
-      },
-      "label": {
-        "school": "स्कूल",
-        "class": "कक्षा",
-        "division": "विभाग"
-      }
+      "saveError": "छात्र डेटा सहेजने में विफल।"
     }
   },
- "teacher": {
+  "teacher": {
     "title": {
       "add": "शिक्षक/कर्मचारी जोड़ें",
       "edit": "शिक्षक/कर्मचारी संपादित करें"
@@ -93,7 +58,8 @@
       "basic": "बुनियादी विवरण",
       "education": "शिक्षा",
       "allocation": "कक्षा आवंटन",
-      "documents": "दस्तावेज़"
+      "documents": "दस्तावेज़",
+      "profileImage": "प्रोफ़ाइल छवि"
     },
     "fields": {
       "userName": "उपयोगकर्ता नाम",
@@ -110,7 +76,17 @@
       "school": "स्कूल",
       "type": "प्रकार",
       "class": "कक्षा",
-      "division": "विभाग"
+      "division": "विभाग",
+      "subject": "विषय"
+    },
+    "genderOptions": {
+      "male": "पुरुष",
+      "female": "महिला"
+    },
+    "typeOptions": {
+      "teacher": "शिक्षक",
+      "admin": "प्रशासक",
+      "staff": "कर्मचारी"
     },
     "education": {
       "heading": "शिक्षा {0}",
@@ -131,6 +107,13 @@
       "addAllocation": "आवंटन जोड़ें"
     },
     "validation": {
+      "userNameRequired": "उपयोगकर्ता नाम आवश्यक है",
+      "firstNameRequired": "पहला नाम आवश्यक है",
+      "lastNameRequired": "अंतिम नाम आवश्यक है",
+      "mobileRequired": "मोबाइल नंबर आवश्यक है",
+      "dobRequired": "जन्म तिथि आवश्यक है",
+      "roleRequired": "भूमिका आवश्यक है",
+      "typeRequired": "प्रकार आवश्यक है",
       "emailRequired": "ईमेल आवश्यक है",
       "passwordRequired": "पासवर्ड आवश्यक है",
       "hqRequired": "उच्च योग्यता आवश्यक है",
@@ -147,9 +130,31 @@
       "loading": "शिक्षक/कर्मचारी डेटा लोड हो रहा है...",
       "updateSuccess": "शिक्षक सफलतापूर्वक अपडेट किया गया",
       "createSuccess": "शिक्षक सफलतापूर्वक बनाया गया",
-      "saveError": "शिक्षक डेटा सबमिट करने में विफल रहा।"
+      "saveError": "शिक्षक डेटा सबमिट करने में विफल रहा।",
+      "saveFirst": "कृपया पहले शिक्षक सहेजें।"
+    },
+    "media": {
+      "noImageSelected": "कोई छवि चयनित नहीं",
+      "selectImage": "छवि चुनें",
+      "upload": "अपलोड करें"
     }
-  },"documentManager": {
+  },
+  "role": {
+    "title": { "add": "भूमिका जोड़ें", "edit": "भूमिका संपादित करें" },
+    "fields": { "name": "भूमिका नाम", "permissions": "अनुमतियाँ", "school": "स्कूल" },
+    "messages": {
+      "fetchFailed": "प्रारंभिक डेटा लाने में विफल।",
+      "createSuccess": "भूमिका सफलतापूर्वक बनाई गई!",
+      "updateSuccess": "भूमिका सफलतापूर्वक अपडेट की गई!",
+      "saveFailed": "भूमिका सहेजने में विफल।",
+      "createLabel": "बनाएँ",
+      "updateLabel": "अपडेट करें"
+    },
+    "table": { "entity": "इकाई" },
+    "actions": { "add": "जोड़ें", "edit": "संपादित करें", "view": "देखें", "delete": "हटाएँ" },
+    "headings": { "configurePermissions": "अनुमतियाँ कॉन्फ़िगर करें" }
+  },
+  "documentManager": {
     "title": "उपयोगकर्ता दस्तावेज़",
     "addModalTitle": "नया दस्तावेज़ जोड़ें",
     "table": {
@@ -181,42 +186,11 @@
       "deleteSuccess": "दस्तावेज़ सफलतापूर्वक हटा दिया गया!"
     }
   },
-  "role": {
-    "title": { "add": "भूमिका जोड़ें", "edit": "भूमिका संपादित करें" },
-    "fields": { "name": "भूमिका नाम", "permissions": "अनुमतियाँ", "school": "स्कूल" },
-    "messages": {
-      "fetchFailed": "प्रारंभिक डेटा लाने में विफल।",
-      "createSuccess": "भूमिका सफलतापूर्वक बनाई गई!",
-      "updateSuccess": "भूमिका सफलतापूर्वक अपडेट की गई!",
-      "saveFailed": "भूमिका सहेजने में विफल।",
-      "createLabel": "बनाएँ",
-      "updateLabel": "अपडेट करें"
-    },
-    "table": { "entity": "इकाई" },
-    "actions": { "add": "जोड़ें", "edit": "संपादित करें", "view": "देखें", "delete": "हटाएँ" },
-    "headings": { "configurePermissions": "अनुमतियाँ कॉन्फ़िगर करें" }
-  },
-  "class": {
-    "title": { "add": "कक्षा जोड़ें", "edit": "कक्षा संपादित करें" },
-    "fields": { "name": "कक्षा का नाम", "school": "स्कूल", "institute": "संस्थान" },
-    "messages": {
-      "loading": "कक्षा लोड हो रही है...",
-      "savedAdd": "कक्षा सफलतापूर्वक जोड़ी गई!",
-      "savedUpdate": "कक्षा सफलतापूर्वक अपडेट की गई!",
-      "duplicate": "चयनित स्कूल के लिए यह कक्षा नाम पहले से मौजूद है।",
-      "instituteRequired": "संस्थान आवश्यक है",
-      "schoolRequired": "स्कूल आवश्यक है",
-      "saveLabel": "सहेजें",
-      "updateLabel": "अपडेट करें",
-      "unexpectedError": "एक अप्रत्याशित त्रुटि हुई। कृपया पुनः प्रयास करें।",
-      "saveFailed": "कक्षा सहेजने में विफल। कृपया पुनः प्रयास करें।"
-    }
-  },
   "course": {
     "title": { "add": "कोर्स जोड़ें", "edit": "कोर्स संपादित करें" },
     "fields": { "name": "कोर्स का नाम", "description": "विवरण", "school": "स्कूल" }
   },
- "school": {
+  "school": {
     "title": {
       "add": "स्कूल जोड़ें",
       "edit": "स्कूल संपादित करें"
@@ -230,10 +204,10 @@
       "state": "राज्य",
       "zipCode": "पिन कोड",
       "mobile": "मोबाइल नंबर",
-      "telephone": "टेलीफोन नंबर",
+      "telephone": "दूरभाष नंबर",
       "email": "ईमेल पता",
       "code": "स्कूल कोड",
-      "selectInstitute": "एक संस्थान चुनें"
+      "selectInstitute": "संस्थान चुनें"
     },
     "validation": {
       "nameRequired": "स्कूल का नाम आवश्यक है",
@@ -242,13 +216,13 @@
       "cityRequired": "शहर आवश्यक है",
       "stateRequired": "राज्य आवश्यक है",
       "zipCodeRequired": "पिन कोड आवश्यक है",
-      "zipCodeInvalid": "एक वैध पिन कोड होना चाहिए",
+      "zipCodeInvalid": "मान्य पिन कोड होना चाहिए",
       "mobileRequired": "मोबाइल नंबर आवश्यक है",
-      "mobileInvalid": "एक वैध 10 अंकों का मोबाइल नंबर दर्ज करें",
-      "telephoneRequired": "टेलीफोन नंबर आवश्यक है",
-      "telephoneInvalid": "एक वैध टेलीफोन नंबर दर्ज करें (उदाहरण: 020-12345678)",
+      "mobileInvalid": "10 अंकों का मान्य मोबाइल नंबर दर्ज करें",
+      "telephoneRequired": "दूरभाष नंबर आवश्यक है",
+      "telephoneInvalid": "मान्य दूरभाष नंबर दर्ज करें (उदा: 020-12345678)",
       "emailRequired": "ईमेल आवश्यक है",
-      "emailInvalid": "एक वैध ईमेल होना चाहिए",
+      "emailInvalid": "मान्य ईमेल पता होना चाहिए",
       "codeRequired": "स्कूल कोड आवश्यक है"
     },
     "action": {
@@ -256,14 +230,14 @@
       "update": "अपडेट करें"
     },
     "messages": {
-      "fetchInstitutesFailed": "संस्थान प्राप्त करने में विफल रहा।",
-      "fetchFailed": "स्कूल डेटा प्राप्त करने में विफल रहा।",
+      "fetchInstitutesFailed": "संस्थान प्राप्त करने में विफल।",
+      "fetchFailed": "स्कूल डेटा प्राप्त करने में विफल।",
       "updateSuccess": "स्कूल सफलतापूर्वक अपडेट किया गया!",
       "createSuccess": "स्कूल सफलतापूर्वक बनाया गया!",
-      "saveError": "स्कूल को सहेजते समय एक त्रुटि हुई। कृपया पुन: प्रयास करें।"
+      "saveError": "स्कूल सहेजते समय त्रुटि हुई। कृपया पुन: प्रयास करें।"
     }
   },
- "subject": {
+  "subject": {
     "title": {
       "add": "विषय जोड़ें",
       "edit": "विषय संपादित करें"
@@ -280,68 +254,101 @@
     "messages": {
       "loading": "विषय डेटा लोड हो रहा है...",
       "updateSuccess": "विषय सफलतापूर्वक सहेजा गया!",
-      "saveError": "विषय डेटा सहेजने में विफल रहा। कृपया पुन: प्रयास करें।"
+      "saveError": "विषय डेटा सहेजने में विफल। कृपया पुन: प्रयास करें।"
     }
   },
   "assignment": {
     "title": { "add": "असाइनमेंट जोड़ें", "edit": "असाइनमेंट संपादित करें" },
-    "fields": { "name": "नाम", "deadline": "समय सीमा", "subject": "विषय", "message": "संदेश" },
+    "fields": {
+      "name": "नाम",
+      "deadline": "समय सीमा",
+      "subject": "विषय",
+      "message": "संदेश"
+    },
     "messages": {
       "loading": "असाइनमेंट लोड हो रहा है...",
       "saved": "असाइनमेंट सफलतापूर्वक सहेजा गया",
       "uploadTitle": "📁 असाइनमेंट फ़ाइल अपलोड करें",
-      "uploadSubtitle": "फ़ाइल चुनने के लिए क्लिक करें या ड्रैग और ड्रॉप करें",
-      "submissionsTitle": { "student": "📋 मेरी सबमिशन और शिक्षक की प्रतिक्रिया", "teacher": "📋 सभी छात्र सबमिशन" },
+      "uploadSubtitle": "फ़ाइल चुनने के लिए क्लिक करें या ड्रैग करें",
+      "submissionsTitle": {
+        "student": "📋 मेरी प्रस्तुतियाँ और शिक्षक प्रतिक्रिया",
+        "teacher": "📋 सभी छात्र प्रस्तुतियाँ"
+      },
       "submissionsSubtitle": {
-        "student": "अपना सबमिट किया हुआ काम और शिक्षक की टिप्पणियाँ देखें",
-        "teacher": "छात्रों की सबमिशन की समीक्षा और अंक दें"
+        "student": "अपनी प्रस्तुत की गई कार्य और शिक्षक की टिप्पणियाँ देखें",
+        "teacher": "छात्र प्रस्तुतियों की समीक्षा करें और ग्रेड करें"
       },
       "table": {
-        "studentId": "👤 छात्र ID",
-        "submittedFile": "📄 सबमिट की गई फ़ाइल",
-        "submissionDate": "📅 सबमिशन तिथि",
-        "download": "👁️ डाउनलोड",
+        "studentId": "👤 छात्र आईडी",
+        "submittedFile": "📄 प्रस्तुत की गई फ़ाइल",
+        "submissionDate": "📅 प्रस्तुति तिथि",
+        "download": "👁️ डाउनलोड करें",
         "status": "⭐ स्थिति",
         "feedback": "💬 प्रतिक्रिया",
-        "actions": "🔧 क्रियाएँ"
+        "actions": "🔧 कार्य"
       },
-      "download": "डाउनलोड",
+      "download": "डाउनलोड करें",
       "downloadAssignment": "असाइनमेंट डाउनलोड करें",
       "pending": "लंबित",
-      "na": "N/A",
+      "na": "उपलब्ध नहीं",
       "noFeedbackYet": "अभी तक कोई प्रतिक्रिया नहीं",
       "enterFeedback": "प्रतिक्रिया दर्ज करें",
       "accept": "स्वीकार करें",
       "reject": "अस्वीकार करें",
-      "deleteConfirmation": "क्या आप वाकई इस सबमिशन को हटाना चाहते हैं?",
+      "deleteConfirmation": "क्या आप वाकई इस प्रस्तुति को हटाना चाहते हैं?",
       "toast": {
-        "submissionUpdated": "सबमिशन अपडेट किया गया",
-        "submissionUpdateFailed": "सबमिशन अपडेट करने में विफल",
-        "submissionDeleted": "सबमिशन हटाया गया",
-        "submissionDeleteFailed": "सबमिशन हटाने में विफल"
+        "submissionUpdated": "प्रस्तुति अपडेट की गई",
+        "submissionUpdateFailed": "प्रस्तुति अपडेट करने में विफल",
+        "submissionDeleted": "प्रस्तुति हटा दी गई",
+        "submissionDeleteFailed": "प्रस्तुति हटाने में विफल"
       },
       "empty": {
-        "student": "आपने अभी तक इस असाइनमेंट के लिए कोई काम सबमिट नहीं किया है।",
-        "teacher": "इस असाइनमेंट के लिए कोई छात्र सबमिशन नहीं मिला।"
+        "student": "आपने इस असाइनमेंट के लिए अभी तक कोई काम प्रस्तुत नहीं किया है।",
+        "teacher": "इस असाइनमेंट के लिए कोई छात्र प्रस्तुति नहीं मिली।"
       }
     }
   },
   "division": {
-    "title": { "add": "डिविजन जोड़ें", "edit": "डिविजन संपादित करें" },
-    "fields": { "name": "डिविजन का नाम", "code": "डिविजन कोड" },
+    "title": { "add": "विभाग जोड़ें", "edit": "विभाग संपादित करें" },
+    "fields": { "name": "विभाग का नाम", "code": "विभाग कोड" },
     "messages": {
-      "loading": "डिविजन लोड हो रहा है...",
-      "saved": "डिविजन सफलतापूर्वक सहेजा गया",
+      "loading": "विभाग लोड हो रहा है...",
+      "saved": "विभाग सफलतापूर्वक सहेजा गया",
       "saveLabel": "सहेजें",
       "updateLabel": "अपडेट करें"
     }
   },
-  "attendance": {
-    "title": { "add": "उपस्थिति जोड़ें", "edit": "उपस्थिति संपादित करें" },
-    "fields": { "date": "तिथि", "class": "कक्षा", "division": "प्रभाग", "subject": "विषय" },
+  "class": {
+    "title": { "add": "कक्षा जोड़ें", "edit": "कक्षा संपादित करें" },
+    "fields": {
+      "name": "कक्षा का नाम",
+      "school": "स्कूल",
+      "institute": "संस्थान"
+    },
     "messages": {
-      "selectPlaceholder": "कक्षा, विभाजन और विषय चुनें",
-      "updated": "हाज़िरी सफलतापूर्वक अपडेट हुई"
+      "loading": "कक्षा लोड हो रही है...",
+      "savedAdd": "कक्षा सफलतापूर्वक जोड़ी गई!",
+      "savedUpdate": "कक्षा सफलतापूर्वक अपडेट की गई!",
+      "duplicate": "चयनित स्कूल के लिए यह कक्षा नाम पहले से मौजूद है।",
+      "instituteRequired": "संस्थान आवश्यक है",
+      "schoolRequired": "स्कूल आवश्यक है",
+      "saveLabel": "सहेजें",
+      "updateLabel": "अपडेट करें",
+      "unexpectedError": "एक अप्रत्याशित त्रुटि हुई। कृपया पुन: प्रयास करें।",
+      "saveFailed": "कक्षा सहेजने में विफल। कृपया पुन: प्रयास करें।"
+    }
+  },
+  "attendance": {
+    "title": { "add": "उपस्थिती जोड़ें", "edit": "उपस्थिती संपादित करें" },
+    "fields": {
+      "date": "तारीख",
+      "class": "कक्षा",
+      "division": "विभाग",
+      "subject": "विषय"
+    },
+    "messages": {
+      "selectPlaceholder": "कक्षा, विभाग और विषय चुनें",
+      "updated": "उपस्थिती सफलतापूर्वक अपडेट की गई"
     }
   },
   "exam": {
@@ -353,39 +360,39 @@
       "examName": "परीक्षा का नाम",
       "academicYear": "शैक्षणिक वर्ष",
       "examType": "परीक्षा का प्रकार",
-      "startDate": "प्रारम्भ तिथि",
+      "startDate": "प्रारंभ तिथि",
       "endDate": "समाप्ति तिथि",
       "subject": "विषय",
       "quiz": "क्विज़",
       "maxMarks": "अधिकतम अंक",
       "passingMarks": "उत्तीर्ण अंक",
       "duration": "अवधि (मिनट)",
-      "examDateTime": "परीक्षा की तिथि और समय",
+      "examDateTime": "परीक्षा तिथि और समय",
       "totalMarks": "कुल अंक"
     },
     "headings": {
-      "examSubjects": "परीक्षा के विषय"
+      "examSubjects": "परीक्षा विषय"
     },
     "validation": {
       "schoolRequired": "स्कूल आवश्यक है",
       "classRequired": "कक्षा आवश्यक है",
       "divisionRequired": "विभाग आवश्यक है",
-      "examNameRequired": "परीक्षा नाम आवश्यक है",
+      "examNameRequired": "परीक्षा का नाम आवश्यक है",
       "academicYearRequired": "शैक्षणिक वर्ष आवश्यक है",
       "examTypeRequired": "परीक्षा का प्रकार आवश्यक है",
-      "startDateRequired": "प्रारम्भ तिथि आवश्यक है",
+      "startDateRequired": "प्रारंभ तिथि आवश्यक है",
       "endDateRequired": "समाप्ति तिथि आवश्यक है",
       "subjectRequired": "विषय आवश्यक है",
       "quizRequired": "क्विज़ आवश्यक है",
-      "maxMarksNumber": "अधिकतम अंक एक संख्या होनी चाहिए",
-      "maxMarksRequired": "अधिकतम अंक आवश्यक हैं",
+      "maxMarksNumber": "अधिकतम अंक एक संख्या होना चाहिए",
+      "maxMarksRequired": "अधिकतम अंक आवश्यक है",
       "minOne": "कम से कम 1 होना चाहिए",
-      "passingMarksNumber": "उत्तीर्ण अंक एक संख्या होनी चाहिए",
-      "passingMarksRequired": "उत्तीर्ण अंक आवश्यक हैं",
+      "passingMarksNumber": "उत्तीर्ण अंक एक संख्या होना चाहिए",
+      "passingMarksRequired": "उत्तीर्ण अंक आवश्यक है",
       "minZero": "कम से कम 0 होना चाहिए",
-      "durationNumber": "अवधि एक संख्या होनी चाहिए",
+      "durationNumber": "अवधि एक संख्या होना चाहिए",
       "durationRequired": "अवधि आवश्यक है",
-      "examDateTimeRequired": "परीक्षा की तिथि और समय आवश्यक हैं",
+      "examDateTimeRequired": "परीक्षा तिथि और समय आवश्यक है",
       "atLeastOne": "कम से कम एक विषय आवश्यक है"
     },
     "messages": {
@@ -393,20 +400,25 @@
       "fetchError": "परीक्षा विवरण प्राप्त करने में विफल।",
       "created": "परीक्षा सफलतापूर्वक बनाई गई!",
       "createFailed": "परीक्षा बनाने में विफल।",
-      "updated": "परीक्षा सफलतापूर्वक अपडेट हुई!",
+      "updated": "परीक्षा सफलतापूर्वक अपडेट की गई!",
       "updateFailed": "परीक्षा अपडेट करने में विफल।",
-      "createLabel": "परीक्षा बनाएं",
+      "createLabel": "परीक्षा बनाएँ",
       "updateLabel": "परीक्षा अपडेट करें"
     }
   },
   "timetable": {
     "title": { "add": "समय सारणी जोड़ें", "edit": "समय सारणी संपादित करें" },
-    "fields": { "school": "स्कूल", "class": "कक्षा", "division": "प्रभाग", "dayTimeTable": "दिन की समय सारणी" }
+    "fields": {
+      "school": "स्कूल",
+      "class": "कक्षा",
+      "division": "विभाग",
+      "dayTimeTable": "दिन की समय सारणी"
+    }
   },
   "institute": {
     "title": { "add": "संस्थान जोड़ें", "edit": "संस्थान संपादित करें" },
     "fields": {
-      "id": "ID",
+      "id": "आईडी",
       "name": "संस्थान का नाम",
       "address": "पता",
       "addressLine2": "पता पंक्ति 2",
@@ -424,14 +436,14 @@
       "nameExists": "यह संस्थान नाम पहले से मौजूद है।",
       "createSuccess": "संस्थान सफलतापूर्वक बनाया गया!",
       "updateSuccess": "संस्थान सफलतापूर्वक अपडेट किया गया!",
-      "saveFailed": "संस्थान सहेजने में विफल। कृपया पुनः प्रयास करें।",
-      "updateLabel": "अपडेट"
+      "saveFailed": "संस्थान सहेजने में विफल। कृपया पुन: प्रयास करें।",
+      "updateLabel": "अपडेट करें"
     },
     "validation": {
-      "addressRequired": "पता आवश्यक है",
+      "addressRequired": "पता पंक्ति 1 आवश्यक है",
       "cityRequired": "शहर आवश्यक है",
       "stateRequired": "राज्य आवश्यक है",
-      "zipCodeInvalid": "एक मान्य पिन कोड होना चाहिए",
+      "zipCodeInvalid": "मान्य पिन कोड होना चाहिए",
       "zipCodeRequired": "पिन कोड आवश्यक है",
       "mobileInvalid": "मोबाइल नंबर 10 अंकों का होना चाहिए",
       "mobileRequired": "मोबाइल नंबर आवश्यक है",
@@ -445,17 +457,17 @@
   },
   "notifications": {
     "title": { "create": "सूचना बनाएँ", "edit": "सूचना संपादित करें" },
-    "fields": { "title": "शीर्षक", "message": "संदेश", "sendTo": "को भेजें" }
+    "fields": { "title": "शीर्षक", "message": "संदेश", "sendTo": "भेजें" }
   },
   "common": {
     "absent": "अनुपस्थित",
     "present": "उपस्थित",
     "save": "सहेजें",
     "cancel": "रद्द करें",
-    "delete": "हटाएँ",
+    "delete": "हटाएं",
     "loading": "लोड हो रहा है...",
     "required": "यह फ़ील्ड आवश्यक है",
-    "invalidEmail": "एक वैध ईमेल होना चाहिए",
-    "dateInFuture": "तिथि भविष्य की नहीं हो सकती"
+    "invalidEmail": "मान्य ईमेल होना चाहिए",
+    "dateInFuture": "तारीख भविष्य में नहीं हो सकती"
   }
 }
