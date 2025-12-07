@@ -30,14 +30,14 @@ const TeacherQuickActionsCard: React.FC = () => {
 
     // Map the web actions to React Native screens
     const actions = [
-        {
-            label: t('teacher.addNewAssignment'), 
-            iconName: 'assignment',
-            color: '#1976d2', // Primary
-            bgColor: '#e3f2fd', // Primary Light
-            route: 'AddAssignmentScreen'
-        },
-        {
+        // {
+        //     label: t('teacher.addNewAssignment'), 
+        //     iconName: 'assignment',
+        //     color: '#1976d2', // Primary
+        //     bgColor: '#e3f2fd', // Primary Light
+        //     route: 'AddAssignmentScreen'
+        // },
+         {
             label: t('teacher.takeAttendance'), 
             iconName: 'check-circle-outline', 
             color: '#4CAF50', // Success
@@ -45,20 +45,20 @@ const TeacherQuickActionsCard: React.FC = () => {
             route: 'AddAttendance'
         },
         
-        {
-            label: t('teacher.createQuiz'),
-            iconName: 'quiz',
-            color: '#FF9800', // Warning
-            bgColor: '#fff8e1', // Warning Light
-            route: 'CreateQuizScreen'
-        },
-        {
-            label: t('teacher.gradeAssignments'), 
-            iconName: 'grading', 
-            color: '#9C27B0', // Secondary
-            bgColor: '#f3e5f5', // Secondary Light
-            route: 'GradeAssignmentsScreen'
-        },
+        // {
+        //     label: t('teacher.createQuiz'),
+        //     iconName: 'quiz',
+        //     color: '#FF9800', // Warning
+        //     bgColor: '#fff8e1', // Warning Light
+        //     route: 'CreateQuizScreen'
+        // },
+        // {
+        //     label: t('teacher.gradeAssignments'), 
+        //     iconName: 'grading', 
+        //     color: '#9C27B0', // Secondary
+        //     bgColor: '#f3e5f5', // Secondary Light
+        //     route: 'GradeAssignmentsScreen'
+        // },
     ];
 
     const handleAction = (screenName: string) => {

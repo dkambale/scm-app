@@ -18,7 +18,7 @@ const NEW_SCHOOL_INITIAL_VALUES = {
   state: "",
   zipCode: "",
   mobileNumber: "",
-  telephoneNumber: "",
+  // telephoneNumber: "",
   email: "",
   code: "",
 };
@@ -66,17 +66,18 @@ const SCHOOL_FIELDS: FormField[] = [
   {
     name: "mobileNumber",
     label: "Mobile Number",
+
     type: "tel",
     required: true,
     widthMultiplier: 0.5,
   },
-  {
-    name: "telephoneNumber",
-    label: "Telephone Number",
-    type: "tel",
-    required: true,
-    widthMultiplier: 0.5,
-  },
+  // {
+  //   name: "telephoneNumber",
+  //   label: "Telephone Number",
+  //   type: "tel",
+  //   required: true,
+  //   widthMultiplier: 0.5,
+  // },
   {
     name: "email",
     label: "Email",
@@ -89,7 +90,7 @@ const SCHOOL_FIELDS: FormField[] = [
 // Define validation schema based on the web component
 const SchoolValidationSchema = Yup.object().shape({
   name: Yup.string().max(255).required("School Name is required"),
-  instituteId: Yup.string().required("Institute is required"),
+  instituteId: Yup.number().required("Institute is required"),
   address: Yup.string().required("Address Line 1 is required"),
   city: Yup.string().required("City is required"),
   state: Yup.string().required("State is required"),
@@ -100,12 +101,12 @@ const SchoolValidationSchema = Yup.object().shape({
     // Using a simple 10 digit check for RN, similar to the provided web validation
     .matches(/^[0-9]{10}$/, "Mobile number must be 10 digits")
     .required("Mobile Number is required"),
-  telephoneNumber: Yup.string()
-    .matches(
-      /^[0-9]\d{2,4}-\d{6,8}$/,
-      "Telephone number format is invalid (e.g. 022-12345678)"
-    )
-    .required("Telephone Number is required"),
+  // telephoneNumber: Yup.string()
+  //   .matches(
+  //     /^[0-9]\d{2,4}-\d{6,8}$/,
+  //     "Telephone number format is invalid (e.g. 022-12345678)"
+  //   )
+  //   .required("Telephone Number is required"),
   email: Yup.string()
     .email("Must be a valid email")
     .max(255)
@@ -123,6 +124,16 @@ const AddEditSchool = () => {
   );
   const [loading, setLoading] = useState(!!id);
 
+  // Transform function to extract ID from select - though now it's just the ID already
+  const transformForSubmit = (values: any, isUpdate?: boolean) => {
+    return {
+      ...values,
+      id: isUpdate ? id : undefined,
+      // instituteId is now already just the ID value from the select picker
+      instituteId: Number(values.instituteId),
+    };
+  };
+
   // Fetch data for edit mode
   useEffect(() => {
     if (id) {
@@ -136,8 +147,8 @@ const AddEditSchool = () => {
           setInitialData({
             ...NEW_SCHOOL_INITIAL_VALUES,
             ...data,
-            // Ensure ID fields are strings for consistency with TextInput field handling
-            instituteId: String(data.instituteId || ""),
+            // Ensure ID fields are numbers for consistency with validation
+            instituteId: Number(data.instituteId || ""),
             id: data.id,
           });
         } catch (error) {
@@ -152,48 +163,6 @@ const AddEditSchool = () => {
     }
   }, [id, navigation]);
 
-  const handleSubmit = async (values: any, { setSubmitting }: any) => {
-    setSubmitting(true);
-    const isUpdate = !!id;
-    const schoolPayload = {
-      ...values,
-      id: isUpdate ? id : undefined,
-      //   accountId: 'MOCK_ACCOUNT_ID',
-      // Convert select IDs back to number for API, as they were handled as strings in Formik
-      instituteId: Number(values.instituteId),
-    };
-
-    try {
-      const url = isUpdate
-        ? `/api/schoolBranches/update`
-        : `/api/schoolBranches/save`;
-      const method = isUpdate ? api.put : api.post;
-
-      await method(url, schoolPayload);
-
-      Alert.alert(
-        "Success",
-        isUpdate
-          ? "School updated successfully!"
-          : "School created successfully!"
-      );
-      Alert.alert(
-        "Success",
-        isUpdate
-          ? "School updated successfully!"
-          : "School created successfully!"
-      );
-
-      // Navigate to the drawer's School list screen. AddEditSchool is within the
-      // Stack navigator, so navigate into the MainDrawer and target the SCHOOL route.
-    } catch (error) {
-      console.error("Submission Error:", error);
-      Alert.alert("Error", "Failed to save school. Please try again.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
   if (loading || !initialData) {
     return <LoadingSpinner />;
   }
@@ -204,7 +173,7 @@ const AddEditSchool = () => {
       fields={SCHOOL_FIELDS}
       initialValues={initialData}
       validationSchema={SchoolValidationSchema}
-      // onSubmit={handleSubmit}
+      transformForSubmit={transformForSubmit}
       saveUrl="api/schoolBranches/save"
       updateUrl="api/schoolBranches/update"
       onSuccessRoute={{ name: "MainDrawer", params: { screen: "SCHOOL" } }}

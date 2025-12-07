@@ -96,6 +96,7 @@ export const AttendanceEdit: React.FC = () => {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showSubjectModal, setShowSubjectModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false); // Prevent duplicate submissions
 
   const showToast = (message: string) => {
     setSnackbarMessage(message);
@@ -318,6 +319,11 @@ export const AttendanceEdit: React.FC = () => {
   };
 
   const onHandleClickSubmit = async () => {
+    // Prevent duplicate submissions
+    if (isSubmitting || loading) {
+      return;
+    }
+
     if (
       !reqData.schoolId ||
       !reqData.classId ||
@@ -332,6 +338,7 @@ export const AttendanceEdit: React.FC = () => {
       return;
     }
 
+    setIsSubmitting(true);
     setLoading(true);
 
     const { subjectId, date } = reqData;
@@ -429,8 +436,8 @@ export const AttendanceEdit: React.FC = () => {
       const reconciled = reconcile();
 
       const payload = {
-        // Use full ISO timestamp the backend expects
-        attendanceDate: dayjs(date).toISOString(),
+        // Send date in YYYY-MM-DD format to avoid timezone issues causing double creation
+        attendanceDate: date, // Already in YYYY-MM-DD format from reqData.date
         studentAttendanceMappings: students.map((s) => {
           const sx: any = s as any;
           const studentId = Number(sx.studentId ?? sx.id ?? null) || null;
@@ -477,7 +484,8 @@ export const AttendanceEdit: React.FC = () => {
             t("attendance.messages.saveSuccess") ||
             "Attendance saved successfully."
         );
-        navigation.goBack();
+        // Navigate to MainDrawer, then to ATTENDANCE screen inside the drawer
+        (navigation as any).navigate("MainDrawer", { screen: "ATTENDANCE" });
       } catch (err: any) {
         // Improved error diagnostics
         try {
@@ -503,6 +511,7 @@ export const AttendanceEdit: React.FC = () => {
         }
       } finally {
         setLoading(false);
+        setIsSubmitting(false);
       }
     } catch (err) {
       console.error("Error preparing/saving attendance:", err);
@@ -510,6 +519,7 @@ export const AttendanceEdit: React.FC = () => {
         t("attendance.messages.saveFailed") || "Failed to save attendance."
       );
       setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -778,7 +788,7 @@ export const AttendanceEdit: React.FC = () => {
               mode="contained"
               onPress={onHandleClickSubmit}
               loading={loading}
-              disabled={loading}
+              disabled={loading || isSubmitting}
               style={styles.saveButton}
               buttonColor={ACCENT_BLUE}
             >
