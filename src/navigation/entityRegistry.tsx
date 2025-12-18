@@ -9,6 +9,7 @@ import { AnnouncementsScreen } from "../screens/common/AnnouncementsScreen";
 import { ProfileScreen } from "../screens/common/ProfileScreen";
 import { FeesScreen as StudentFeesScreen } from "../screens/student/FeesScreen";
 import TeacherDashboardScreen from "../screens/teacher/TeacherDashboardScreen";
+import AdminDashboardScreen from "../screens/admin/AdminDashboardScreen";
 import { StudentDashboardScreen } from "../dashboard/studentDashboard/StudentDashboardScreen";
 import StudentExamResultScreen from "../screens/admin/exam/StudentExamResult";
 import StudentExamListScreen from "../screens/admin/exam/StudentExamListScreen";
@@ -118,6 +119,7 @@ const entityRegistry: Record<
     component: TeacherDashboardScreen,
     icon: "view-dashboard",
   },
+  
   STUDENT_DASHBOARD: {
     id: "STUDENT_DASHBOARD",
     title: "Student Dashboard",

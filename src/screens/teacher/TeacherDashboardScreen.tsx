@@ -125,9 +125,9 @@ const TeacherDashboardScreen: React.FC = () => {
                 <View style={styles.componentWrapper}>
                     <TeacherAssignmentChart />
                 </View>
-                <View style={styles.componentWrapper}>
+                {/* <View style={styles.componentWrapper}>
                     <LatestNotifications />
-                </View>
+                </View> */}
             </View>
 
             {/* Right Column (Quick Actions, Birthdays) */}

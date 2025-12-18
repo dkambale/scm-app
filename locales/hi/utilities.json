@@ -1,35 +1,5 @@
 {
   "menu": {
-    "dashboards": {
-      "groupTitle": "डैशबोर्ड",
-      "adminDashboard": "व्यवस्थापक डैशबोर्ड",
-      "teacherDashboard": "शिक्षक डैशबोर्ड",
-      "studentDashboard": "छात्र डैशबोर्ड"
-    },
-    "administration": {
-      "groupTitle": "प्रशासन",
-      "institutes": "संस्थान",
-      "schools": "स्कूल",
-      "classes": "कक्षाएं",
-      "divisions": "विभाग",
-      "subjects": "विषय",
-      "roles": "भूमिकाएँ"
-    },
-    "people": {
-      "groupTitle": "लोग",
-      "students": "छात्र",
-      "teachers": "शिक्षक",
-      "users": "उपयोगकर्ता"
-    },
-    "academics": {
-      "groupTitle": "शिक्षा और संचालन",
-      "timetables": "समय सारणी",
-      "assignments": "असाइनमेंट",
-      "attendance": "उपस्थिति",
-      "exams": "परीक्षाएँ",
-      "examsTeacherView": "शिक्षक दृश्य",
-      "examsStudentView": "छात्र दृश्य"
-    },
     "masters": {
       "groupTitle": "मास्टर्स",
       "users": "उपयोगकर्ता",
@@ -59,40 +29,8 @@
       "quizTests": "क्विज़ और टेस्ट",
       "manageQuizzes": "क्विज़ प्रबंधित करें",
       "availableQuizzes": "उपलब्ध क्विझ",
-      "idCardManagement": "आईडी कार्ड प्रबंधन",
-      "leavingCertificateManagement": "छोड़ने का प्रमाणपत्र प्रबंधन"
-    },
-    "actions": {
-      "add": "जोड़ें",
-      "edit": "संपादित करें",
-      "delete": "हटाएं",
-      "view": "देखें",
-      "save": "सहेजें",
-      "cancel": "रद्द करें",
-      "submit": "जमा करें",
-      "download": "डाउनलोड करें",
-      "upload": "अपलोड करें",
-      "refresh": "रीफ्रेश करें",
-      "search": "खोजें",
-      "filter": "फिल्टर करें",
-      "export": "निर्यात करें",
-      "import": "आयात करें"
-    },
-    "common": {
-      "ok": "ठीक है",
-      "yes": "हाँ",
-      "no": "नहीं",
-      "close": "बंद करें",
-      "loading": "लोड हो रहा है...",
-      "error": "त्रुटि",
-      "success": "सफलता",
-      "warning": "चेतावनी",
-      "info": "जानकारी",
-      "noData": "कोई डेटा उपलब्ध नहीं",
-      "back": "वापस",
-      "next": "अगला",
-      "previous": "पिछला",
-      "finish": "समाप्त करें"
+            "leavingCertificateManagement": "छोड़ने का प्रमाणपत्र प्रबंधन"
+
     }
   }
 }

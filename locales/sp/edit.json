@@ -141,7 +141,11 @@
   },
   "role": {
     "title": { "add": "Anadır Rol", "edit": "Editar Rol" },
-    "fields": { "name": "Nombre del Rol", "permissions": "Permisos", "school": "Escuela" },
+    "fields": {
+      "name": "Nombre del Rol",
+      "permissions": "Permisos",
+      "school": "Escuela"
+    },
     "messages": {
       "fetchFailed": "Fallo al obtener los datos iniciales.",
       "createSuccess": "Rol creado exitosamente!",
@@ -151,7 +155,12 @@
       "updateLabel": "Actualizar"
     },
     "table": { "entity": "Entidad" },
-    "actions": { "add": "Anadır", "edit": "Editar", "view": "Ver", "delete": "Eliminar" },
+    "actions": {
+      "add": "Anadır",
+      "edit": "Editar",
+      "view": "Ver",
+      "delete": "Eliminar"
+    },
     "headings": { "configurePermissions": "Configurar Permisos" }
   },
   "documentManager": {
@@ -188,7 +197,11 @@
   },
   "course": {
     "title": { "add": "Anadır Curso", "edit": "Editar Curso" },
-    "fields": { "name": "Nombre del Curso", "description": "Descripcion", "school": "Escuela" }
+    "fields": {
+      "name": "Nombre del Curso",
+      "description": "Descripcion",
+      "school": "Escuela"
+    }
   },
   "school": {
     "title": {
@@ -310,7 +323,10 @@
   },
   "division": {
     "title": { "add": "Anadır Division", "edit": "Editar Division" },
-    "fields": { "name": "Nombre de la Division", "code": "Codigo de la Division" },
+    "fields": {
+      "name": "Nombre de la Division",
+      "code": "Codigo de la Division"
+    },
     "messages": {
       "loading": "Cargando division...",
       "saved": "Division guardada exitosamente",
@@ -452,8 +468,15 @@
     }
   },
   "studentParent": {
-    "title": { "add": "Anadır Estudiante/Padre", "edit": "Editar Estudiante/Padre" },
-    "fields": { "name": "Nombre", "mobile": "Numero de Movil", "email": "Correo Electronico" }
+    "title": {
+      "add": "Anadır Estudiante/Padre",
+      "edit": "Editar Estudiante/Padre"
+    },
+    "fields": {
+      "name": "Nombre",
+      "mobile": "Numero de Movil",
+      "email": "Correo Electronico"
+    }
   },
   "notifications": {
     "title": { "create": "Crear Notificacion", "edit": "Editar Notificacion" },

@@ -1,35 +1,5 @@
 {
   "menu": {
-    "dashboards": {
-      "groupTitle": "डॅशबोर्ड्स",
-      "adminDashboard": "प्रशासन डॅशबोर्ड",
-      "teacherDashboard": "शिक्षक डॅशबोर्ड",
-      "studentDashboard": "विद्यार्थी डॅशबोर्ड"
-    },
-    "administration": {
-      "groupTitle": "प्रशासन",
-      "institutes": "संस्था",
-      "schools": "शाळा",
-      "classes": "वर्ग",
-      "divisions": "विभाग",
-      "subjects": "विषय",
-      "roles": "भूमिका"
-    },
-    "people": {
-      "groupTitle": "लोक",
-      "students": "विद्यार्थी",
-      "teachers": "शिक्षक",
-      "users": "वापरकर्ते"
-    },
-    "academics": {
-      "groupTitle": "शिक्षा आणि ऑपरेशन्स",
-      "timetables": "वेळापत्रक",
-      "assignments": "असाइनमेंट्स",
-      "attendance": "उपस्थिती",
-      "exams": "परीक्षा",
-      "examsTeacherView": "शिक्षक दृश्य",
-      "examsStudentView": "विद्यार्थी दृश्य"
-    },
     "masters": {
       "groupTitle": "मास्टर्स",
       "users": "वापरकर्ते",
@@ -59,40 +29,8 @@
       "quizTests": "क्विझ आणि चाचण्या",
       "manageQuizzes": "क्विझ व्यवस्थापित करा",
       "availableQuizzes": "उपलब्ध क्विझ",
-      "idCardManagement": "आयडी कार्ड व्यवस्थापन",
-      "leavingCertificateManagement": "विदाई प्रमाणपत्र व्यवस्थापन"
-    },
-    "actions": {
-      "add": "जोडा",
-      "edit": "संपादित करा",
-      "delete": "हटवा",
-      "view": "पाहा",
-      "save": "सहेजा",
-      "cancel": "रद्द करा",
-      "submit": "सबमिट करा",
-      "download": "डाउनलोड करा",
-      "upload": "अपलोड करा",
-      "refresh": "रीफ्रेश करा",
-      "search": "शोधा",
-      "filter": "फिल्टर करा",
-      "export": "निर्यात करा",
-      "import": "आयात करा"
-    },
-    "common": {
-      "ok": "ठीक आहे",
-      "yes": "हो",
-      "no": "नाही",
-      "close": "बंद करा",
-      "loading": "लोड हो रहे...",
-      "error": "त्रुटी",
-      "success": "यश",
-      "warning": "चेतावणी",
-      "info": "माहिती",
-      "noData": "कोणी डेटा उपलब्ध नाही",
-      "back": "मागे",
-      "next": "पुढे",
-      "previous": "मागील",
-      "finish": "समाप्त करा"
+          "leavingCertificateManagement": "विदाई प्रमाणपत्र व्यवस्थापन"
+
     }
   }
 }

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { View, TouchableOpacity, Text, Image, Alert } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import {
@@ -95,6 +96,7 @@ const transformTeacherData = (data: any, isUpdate: boolean) => {
 };
 
 export const AddEditTeacher: React.FC = () => {
+  const { t } = useTranslation("edit");
   const navigation = useNavigation();
   const route = useRoute();
   const { id } = (route.params as { id?: string }) || {};
@@ -145,24 +147,63 @@ export const AddEditTeacher: React.FC = () => {
   }, [isEditMode, id]);
 
   const teacherFormFields: FormField[] = [
-    { name: "userName", label: "User Name", type: "text", required: true },
+    {
+      name: "userName",
+      label: t("teacher.fields.userName"),
+      type: "text",
+      required: true,
+    },
     {
       name: "password",
-      label: "Password",
+      label: t("teacher.fields.password"),
       type: "password",
       disabled: isEditMode,
     },
-    { name: "firstName", label: "First Name", type: "text", required: true },
-    { name: "middleName", label: "Middle Name", type: "text" },
-    { name: "lastName", label: "Last Name", type: "text", required: true },
-    { name: "mobile", label: "Mobile", type: "tel", required: true },
-    { name: "email", label: "Email", type: "email", required: true },
-    { name: "dob", label: "Date of Birth", type: "date", required: true },
-    { name: "subject", label: "Subject", type: "text" },
-    { name: "address", label: "Address", type: "textarea", multiline: true },
+    {
+      name: "firstName",
+      label: t("teacher.fields.firstName"),
+      type: "text",
+      required: true,
+    },
+    { name: "middleName", label: t("teacher.fields.middleName"), type: "text" },
+    {
+      name: "lastName",
+      label: t("teacher.fields.lastName"),
+      type: "text",
+      required: true,
+    },
+    {
+      name: "mobile",
+      label: t("teacher.fields.mobile"),
+      type: "tel",
+      required: true,
+    },
+    {
+      name: "email",
+      label: t("teacher.fields.email"),
+      type: "email",
+      required: true,
+    },
+    {
+      name: "dob",
+      label: t("teacher.fields.dob"),
+      type: "date",
+      required: true,
+    },
+    {
+      name: "subject",
+      label: t("teacher.fields.subject", "Subject"),
+      type: "text",
+    },
+    {
+      name: "address",
+      label: t("teacher.fields.address"),
+      type: "textarea",
+      multiline: true,
+    },
     {
       name: "role",
-      label: "Role",
+      label: t("teacher.fields.role"),
       type: "select",
       required: true,
       options: roles,
@@ -171,24 +212,24 @@ export const AddEditTeacher: React.FC = () => {
     },
     {
       name: "gender",
-      label: "Gender",
+      label: t("teacher.fields.gender"),
       type: "select",
       options: [
-        { id: "MALE", name: "Male" },
-        { id: "FEMALE", name: "Female" },
+        { id: "MALE", name: t("teacher.genderOptions.male", "Male") },
+        { id: "FEMALE", name: t("teacher.genderOptions.female", "Female") },
       ],
       optionsLabelKey: "name",
       optionsValueKey: "id",
     },
     {
       name: "type",
-      label: "Type",
+      label: t("teacher.fields.type"),
       type: "select",
       required: true,
       options: [
-        { id: "TEACHER", name: "Teacher" },
-        { id: "ADMIN", name: "Admin" },
-        { id: "STAFF", name: "Staff" },
+        { id: "TEACHER", name: t("teacher.typeOptions.teacher", "Teacher") },
+        { id: "ADMIN", name: t("teacher.typeOptions.admin", "Admin") },
+        { id: "STAFF", name: t("teacher.typeOptions.staff", "Staff") },
       ],
       optionsLabelKey: "name",
       optionsValueKey: "id",
@@ -258,17 +299,33 @@ export const AddEditTeacher: React.FC = () => {
         };
 
   const validationSchema = Yup.object().shape({
-    userName: Yup.string().required("Required"),
-    firstName: Yup.string().required("Required"),
-    lastName: Yup.string().required("Required"),
-    email: Yup.string().email("Invalid email").required("Required"),
-    mobile: Yup.string().required("Required"),
-    dob: Yup.string().required("Required"),
-    role: Yup.mixed().required("Required"),
-    type: Yup.string().required("Required"),
+    userName: Yup.string().required(
+      t("teacher.validation.userNameRequired", "Required")
+    ),
+    firstName: Yup.string().required(
+      t("teacher.validation.firstNameRequired", "Required")
+    ),
+    lastName: Yup.string().required(
+      t("teacher.validation.lastNameRequired", "Required")
+    ),
+    email: Yup.string()
+      .email(t("teacher.validation.emailInvalid", "Invalid email"))
+      .required(t("teacher.validation.emailRequired", "Required")),
+    mobile: Yup.string().required(
+      t("teacher.validation.mobileRequired", "Required")
+    ),
+    dob: Yup.string().required(t("teacher.validation.dobRequired", "Required")),
+    role: Yup.mixed().required(
+      t("teacher.validation.roleRequired", "Required")
+    ),
+    type: Yup.string().required(
+      t("teacher.validation.typeRequired", "Required")
+    ),
     password: isEditMode
       ? Yup.string().notRequired()
-      : Yup.string().required("Required"),
+      : Yup.string().required(
+          t("teacher.validation.passwordRequired", "Required")
+        ),
   });
 
   const onSubmit = async (values: any) => {
@@ -286,18 +343,23 @@ export const AddEditTeacher: React.FC = () => {
       }
 
       Alert.alert(
-        "Success",
-        `Teacher ${isEditMode ? "updated" : "created"} successfully!`,
+        t("teacher.title." + (isEditMode ? "edit" : "add")),
+        isEditMode
+          ? t("teacher.messages.updateSuccess")
+          : t("teacher.messages.createSuccess"),
         [
           {
-            text: "OK",
+            text: t("common.ok", "OK"),
             onPress: () => navigation.navigate("TeacherList" as never),
           },
         ]
       );
     } catch (err: any) {
       console.error(err);
-      Alert.alert("Error", err?.response?.data?.message || "Action failed.");
+      Alert.alert(
+        t("common.error", "Error"),
+        err?.response?.data?.message || t("teacher.messages.saveError")
+      );
     }
   };
 
@@ -349,10 +411,12 @@ export const AddEditTeacher: React.FC = () => {
             }}
           />
         ) : (
-          <Text style={{ marginBottom: 10 }}>No Image Selected</Text>
+          <Text style={{ marginBottom: 10 }}>
+            {t("teacher.media.noImageSelected", "No Image Selected")}
+          </Text>
         )}
         <Button mode="outlined" onPress={pickImage}>
-          Select Image
+          {t("teacher.media.selectImage", "Select Image")}
         </Button>
         <Button
           mode="contained"
@@ -360,7 +424,7 @@ export const AddEditTeacher: React.FC = () => {
           disabled={!image}
           style={{ marginTop: 10 }}
         >
-          Upload
+          {t("teacher.media.upload", "Upload")}
         </Button>
       </View>
     );
@@ -378,25 +442,29 @@ export const AddEditTeacher: React.FC = () => {
           paddingTop: 10,
         }}
       >
-        {["Details", "Documents", "Profile Image"].map((t, i) => (
+        {[
+          t("teacher.tabs.basic"),
+          t("teacher.tabs.documents"),
+          t("teacher.tabs.profileImage", "Profile Image"),
+        ].map((tabLabel, idx) => (
           <TouchableOpacity
-            key={i}
+            key={idx}
             style={{
               flex: 1,
               padding: 15,
               alignItems: "center",
-              borderBottomWidth: activeTab === i ? 2 : 0,
+              borderBottomWidth: activeTab === idx ? 2 : 0,
               borderColor: "#007AFF",
             }}
-            onPress={() => setActiveTab(i)}
+            onPress={() => setActiveTab(idx)}
           >
             <Text
               style={{
-                color: activeTab === i ? "#007AFF" : "#666",
+                color: activeTab === idx ? "#007AFF" : "#666",
                 fontWeight: "600",
               }}
             >
-              {t}
+              {tabLabel}
             </Text>
           </TouchableOpacity>
         ))}
@@ -413,7 +481,7 @@ export const AddEditTeacher: React.FC = () => {
               padding: 40,
             }}
           >
-            <Text>Loading teacher data...</Text>
+            <Text>{t("teacher.messages.loading")}</Text>
           </View>
         ) : (
           <ReusableForm
@@ -424,6 +492,7 @@ export const AddEditTeacher: React.FC = () => {
             onSubmit={onSubmit}
             isEditMode={isEditMode}
             showSCDSelector={true}
+            tNamespace="teacher"
           />
         ))}
 
@@ -434,7 +503,7 @@ export const AddEditTeacher: React.FC = () => {
             <UserDocumentManager userId={id} userType="TEACHER" />
           ) : (
             <Text style={{ textAlign: "center" }}>
-              Please save teacher first.
+              {t("teacher.messages.saveFirst", "Please save teacher first.")}
             </Text>
           )}
         </View>
@@ -447,7 +516,7 @@ export const AddEditTeacher: React.FC = () => {
             <ProfileImageContent />
           ) : (
             <Text style={{ textAlign: "center" }}>
-              Please save teacher first.
+              {t("teacher.messages.saveFirst", "Please save teacher first.")}
             </Text>
           )}
         </View>

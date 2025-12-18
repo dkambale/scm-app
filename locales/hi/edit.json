@@ -141,7 +141,11 @@
   },
   "role": {
     "title": { "add": "भूमिका जोड़ें", "edit": "भूमिका संपादित करें" },
-    "fields": { "name": "भूमिका नाम", "permissions": "अनुमतियाँ", "school": "स्कूल" },
+    "fields": {
+      "name": "भूमिका नाम",
+      "permissions": "अनुमतियाँ",
+      "school": "स्कूल"
+    },
     "messages": {
       "fetchFailed": "प्रारंभिक डेटा लाने में विफल।",
       "createSuccess": "भूमिका सफलतापूर्वक बनाई गई!",
@@ -151,7 +155,12 @@
       "updateLabel": "अपडेट करें"
     },
     "table": { "entity": "इकाई" },
-    "actions": { "add": "जोड़ें", "edit": "संपादित करें", "view": "देखें", "delete": "हटाएँ" },
+    "actions": {
+      "add": "जोड़ें",
+      "edit": "संपादित करें",
+      "view": "देखें",
+      "delete": "हटाएँ"
+    },
     "headings": { "configurePermissions": "अनुमतियाँ कॉन्फ़िगर करें" }
   },
   "documentManager": {
@@ -188,7 +197,11 @@
   },
   "course": {
     "title": { "add": "कोर्स जोड़ें", "edit": "कोर्स संपादित करें" },
-    "fields": { "name": "कोर्स का नाम", "description": "विवरण", "school": "स्कूल" }
+    "fields": {
+      "name": "कोर्स का नाम",
+      "description": "विवरण",
+      "school": "स्कूल"
+    }
   },
   "school": {
     "title": {
@@ -452,7 +465,10 @@
     }
   },
   "studentParent": {
-    "title": { "add": "छात्र/अभिभावक जोड़ें", "edit": "छात्र/अभिभावक संपादित करें" },
+    "title": {
+      "add": "छात्र/अभिभावक जोड़ें",
+      "edit": "छात्र/अभिभावक संपादित करें"
+    },
     "fields": { "name": "नाम", "mobile": "मोबाइल नंबर", "email": "ईमेल" }
   },
   "notifications": {

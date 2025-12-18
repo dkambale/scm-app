@@ -94,6 +94,10 @@ const { t } = useTranslation('dashboard'); // <-- ADDED HOOK
         } catch (err) {
           console.error('Error fetching attendance trend:', err);
         }
+        finally{
+          // console.log('Dummy Attendance Data:', dummyAttendance);
+          // setLoading(false);
+        }
 
         setData({
           totalStudents: studentCount,
@@ -185,7 +189,7 @@ return <ReusableLoader message={t('admin.loadingDashboard')} ></ReusableLoader>;
 
         {/* Latest Notifications Section */}
         <Grid item xs={12}>
-        <MainCard title={t('admin.latestNotifications')}>
+        {/* <MainCard title={t('admin.latestNotifications')}>
             {data.latestNotifications.length > 0 ? (
               <List>
                 {data.latestNotifications.map((notification) => (
@@ -213,7 +217,7 @@ return <ReusableLoader message={t('admin.loadingDashboard')} ></ReusableLoader>;
                 {t('admin.viewAllNotifications')}
               </Button>
             </Box>
-          </MainCard>
+          </MainCard> */}
         </Grid>
       </Grid>
     </Box>

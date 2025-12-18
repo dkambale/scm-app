@@ -68,23 +68,40 @@ export const ProfileScreen: React.FC = () => {
       Alert.alert("Required", "Please enter your current password.");
       return;
     }
+    if (!passwords.new) {
+      Alert.alert("Required", "Please enter a new password.");
+      return;
+    }
+    if (!passwords.confirm) {
+      Alert.alert("Required", "Please confirm your new password.");
+      return;
+    }
     if (passwords.new !== passwords.confirm) {
       Alert.alert("Mismatch", "New passwords do not match.");
       return;
     }
-    if (passwords.new.length < 3) {
-      Alert.alert("Invalid", "New password is too short.");
+    if (passwords.new.length < 6) {
+      Alert.alert("Invalid", "New password must be at least 6 characters.");
+      return;
+    }
+    if (passwords.old === passwords.new) {
+      Alert.alert(
+        "Invalid",
+        "New password must be different from old password."
+      );
       return;
     }
 
     setLoading(true);
     try {
       // Call the API with the specific structure required
-      await apiService.changePassword(accountId, {
+      const response = await apiService.changePassword(accountId, {
         userId: user?.id || 0,
         oldPassword: passwords.old,
         newPassword: passwords.new,
       });
+      console.log("Password change response:", response);
+
       // update local context + storage copy of password
       try {
         if (typeof changePassword === "function") {
@@ -97,9 +114,14 @@ export const ProfileScreen: React.FC = () => {
       Alert.alert("Success", "Password changed successfully!");
       setModalVisible(false);
       setPasswords({ old: "", new: "", confirm: "" });
+      setShowPass({ old: false, new: false, confirm: false });
     } catch (error: any) {
+      console.error("Password change error:", error);
       const msg =
-        error?.response?.data?.message || "Failed to change password.";
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        error?.message ||
+        "Failed to change password. Please check your current password and try again.";
       Alert.alert("Error", msg);
     } finally {
       setLoading(false);
@@ -143,7 +165,7 @@ export const ProfileScreen: React.FC = () => {
           <Card.Content>
             <View style={styles.row}>
               <Text style={styles.label}>Username:</Text>
-              <Text style={styles.value}>{user?.email}</Text>
+              <Text style={styles.value}>{user?.userName}</Text>
             </View>
             <Divider style={styles.divider} />
 
@@ -162,7 +184,7 @@ export const ProfileScreen: React.FC = () => {
             <View style={styles.row}>
               <Text style={styles.label}>Password:</Text>
               <View style={styles.passwordRow}>
-                <Text style={styles.value}>{user?.password}</Text>
+                <Text style={styles.value}>••••••••</Text>
                 <Button
                   mode="text"
                   compact

@@ -70,7 +70,7 @@ export const SignupScreen: React.FC = () => {
       // 1. API call to register the user
       const payload = { ...values };
       const response = await apiService.signup(payload);
-
+      
       // 2. Extract necessary data for automatic login
       const accountId = response.user?.accountId;
       const type = response.user?.type?.toUpperCase() as

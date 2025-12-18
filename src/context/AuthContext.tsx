@@ -74,6 +74,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
           if (data) {
             const mappedUser: User = {
               id: data.id,
+              userName: data.userName || "",
               email: data.email || data.userName || "",
               firstName: data.firstName || "",
               lastName: data.lastName || "",
@@ -117,6 +118,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         const data = response.data?.data || {};
         const mappedUser: User = {
           id: data.id,
+          userName: data.userName || userName,
           email: data.email || userName,
           firstName: data.firstName || "",
           lastName: data.lastName || "",

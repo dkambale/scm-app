@@ -1,35 +1,5 @@
 {
   "menu": {
-    "dashboards": {
-      "groupTitle": "Paneles",
-      "adminDashboard": "Panel de Administrador",
-      "teacherDashboard": "Panel del Profesor",
-      "studentDashboard": "Panel del Estudiante"
-    },
-    "administration": {
-      "groupTitle": "Administracion",
-      "institutes": "Institutos",
-      "schools": "Escuelas",
-      "classes": "Clases",
-      "divisions": "Divisiones",
-      "subjects": "Asignaturas",
-      "roles": "Roles"
-    },
-    "people": {
-      "groupTitle": "Personas",
-      "students": "Estudiantes",
-      "teachers": "Profesores",
-      "users": "Usuarios"
-    },
-    "academics": {
-      "groupTitle": "Educacion y Operaciones",
-      "timetables": "Horarios",
-      "assignments": "Tareas",
-      "attendance": "Asistencia",
-      "exams": "Examenes",
-      "examsTeacherView": "Vista del Profesor",
-      "examsStudentView": "Vista del Estudiante"
-    },
     "masters": {
       "groupTitle": "Maestros",
       "users": "Usuarios",
@@ -45,13 +15,13 @@
       "studentAttendance": "Asistencia de Estudiantes",
       "assignments": "Tareas",
       "roles": "Roles",
-      "exams": "Examenes",
+      "exams": "Exámenes",
       "examsTeacherView": "Vista del Profesor",
       "examsStudentView": "Vista del Estudiante",
       "timetables": "Horarios",
-      "idCards": "Tarjetas de Identificacion",
+      "idCards": "Tarjetas de Identificación",
       "lms": "LMS",
-      "feeManagement": "Gestion de Tarifas",
+      "feeManagement": "Gestión de Tarifas",
       "adminFeeDashboard": "Panel de Tarifas de Administrador",
       "myFees": "Mis Tarifas",
       "documentHub": "Centro de Documentos",
@@ -59,40 +29,7 @@
       "quizTests": "Cuestionarios y Pruebas",
       "manageQuizzes": "Administrar Cuestionarios",
       "availableQuizzes": "Cuestionarios Disponibles",
-      "idCardManagement": "Gestion de Tarjetas de Identificacion",
-      "leavingCertificateManagement": "Gestion de Certificados de Baja"
-    },
-    "actions": {
-      "add": "Anadir",
-      "edit": "Editar",
-      "delete": "Eliminar",
-      "view": "Ver",
-      "save": "Guardar",
-      "cancel": "Cancelar",
-      "submit": "Enviar",
-      "download": "Descargar",
-      "upload": "Cargar",
-      "refresh": "Actualizar",
-      "search": "Buscar",
-      "filter": "Filtrar",
-      "export": "Exportar",
-      "import": "Importar"
-    },
-    "common": {
-      "ok": "Aceptar",
-      "yes": "Si",
-      "no": "No",
-      "close": "Cerrar",
-      "loading": "Cargando...",
-      "error": "Error",
-      "success": "Exito",
-      "warning": "Advertencia",
-      "info": "Informacion",
-      "noData": "Sin datos disponibles",
-      "back": "Atras",
-      "next": "Siguiente",
-      "previous": "Anterior",
-      "finish": "Finalizar"
+      "leavingCertificateManagement": "Gestión de Certificados de Baja"
     }
   }
 }

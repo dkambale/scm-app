@@ -1,35 +1,5 @@
 {
   "menu": {
-    "dashboards": {
-      "groupTitle": "Dashboards",
-      "adminDashboard": "Admin Dashboard",
-      "teacherDashboard": "Teacher Dashboard",
-      "studentDashboard": "Student Dashboard"
-    },
-    "administration": {
-      "groupTitle": "Administration",
-      "institutes": "Institutes",
-      "schools": "Schools",
-      "classes": "Classes",
-      "divisions": "Divisions",
-      "subjects": "Subjects",
-      "roles": "Roles"
-    },
-    "people": {
-      "groupTitle": "People",
-      "students": "Students",
-      "teachers": "Teachers",
-      "users": "Users"
-    },
-    "academics": {
-      "groupTitle": "Academics & Operations",
-      "timetables": "Timetables",
-      "assignments": "Assignments",
-      "attendance": "Attendance",
-      "exams": "Exams",
-      "examsTeacherView": "Teacher View",
-      "examsStudentView": "Student View"
-    },
     "masters": {
       "groupTitle": "Masters",
       "users": "Users",
@@ -61,38 +31,6 @@
       "availableQuizzes": "Available Quizzes",
       "idCardManagement": "ID Card Management",
       "leavingCertificateManagement": "Leaving Certificate Management"
-    },
-    "actions": {
-      "add": "Add",
-      "edit": "Edit",
-      "delete": "Delete",
-      "view": "View",
-      "save": "Save",
-      "cancel": "Cancel",
-      "submit": "Submit",
-      "download": "Download",
-      "upload": "Upload",
-      "refresh": "Refresh",
-      "search": "Search",
-      "filter": "Filter",
-      "export": "Export",
-      "import": "Import"
-    },
-    "common": {
-      "ok": "OK",
-      "yes": "Yes",
-      "no": "No",
-      "close": "Close",
-      "loading": "Loading...",
-      "error": "Error",
-      "success": "Success",
-      "warning": "Warning",
-      "info": "Information",
-      "noData": "No data available",
-      "back": "Back",
-      "next": "Next",
-      "previous": "Previous",
-      "finish": "Finish"
     }
   }
 }

@@ -43,6 +43,22 @@ export function AdminNavigation() {
   const canViewStudents = useHasPermission(permFrom("STUDENT", "view"));
   const canViewTeachers = useHasPermission(permFrom("TEACHER", "view"));
   const canViewTimetables = useHasPermission(permFrom("TIMETABLE", "view"));
+
+  const label = (key: string) => {
+    const map: Record<string, string> = {
+      Dashboard: t("menu.dashboards.adminDashboard"),
+      Students: t("menu.people.students"),
+      Teachers: t("menu.people.teachers"),
+      Classes: t("menu.administration.classes"),
+      Fees: t("menu.masters.feeManagement", "Fees"),
+      Assignments: t("menu.academics.assignments"),
+      Attendance: t("menu.academics.attendance"),
+      Announcements: t("menu.masters.notifications", "Announcements"),
+      Profile: t("menu.masters.users", "Profile"),
+      Timetables: t("menu.academics.timetables"),
+    };
+    return map[key] ?? key;
+  };
   return (
     <Drawer.Navigator initialRouteName="Dashboard">
       <Drawer.Screen

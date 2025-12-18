@@ -190,7 +190,28 @@ const TeacherExamView: React.FC = () => {
   }, [selectedExamId, selectedSchoolId, selectedClassId, selectedDivisionId]);
 
   const handleMarksChange = (studentId, subjectId, value) => {
-    setMarks((p) => ({ ...p, [`${studentId}-${subjectId}`]: value }));
+    // allow clearing
+    if (value === "" || value === null || value === undefined) {
+      setMarks((p) => ({ ...p, [`${studentId}-${subjectId}`]: "" }));
+      return;
+    }
+
+    const parsed = Number(value);
+    if (Number.isNaN(parsed)) return; // ignore non-numeric
+
+    const subject = subjects.find(
+      (s) => String(s.subjectId) === String(subjectId)
+    );
+    const maxRaw =
+      subject?.maxMarksSubject ?? subject?.maxMarks ?? subject?.totalMarks;
+    const max =
+      maxRaw !== undefined && maxRaw !== null ? Number(maxRaw) : undefined;
+
+    let clamped = parsed;
+    if (Number.isFinite(max)) clamped = Math.min(clamped, max);
+    clamped = Math.max(0, clamped);
+
+    setMarks((p) => ({ ...p, [`${studentId}-${subjectId}`]: clamped }));
   };
 
   const handleSaveMarks = async (studentId) => {
@@ -264,7 +285,6 @@ const TeacherExamView: React.FC = () => {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
       style={{ flex: 1 }}
     >
-     
       <FlatList
         data={students}
         keyExtractor={(it) => String(it.studentId)}
@@ -436,7 +456,12 @@ const styles = StyleSheet.create({
     color: "#ffffffff",
     fontSize: 13,
   },
-  subjectLabel: { flex: 1, fontWeight: "700", color: "#ffffffff", fontSize: 15 },
+  subjectLabel: {
+    flex: 1,
+    fontWeight: "700",
+    color: "#ffffffff",
+    fontSize: 15,
+  },
   noticeText: { color: "#ffffffff", fontWeight: "700", textAlign: "center" },
   sectionTitle: { marginBottom: 8, color: "#ffffffff", fontWeight: "700" },
   noStudentsText: { color: "#333", fontSize: 15, textAlign: "center" },
