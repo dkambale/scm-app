@@ -41,7 +41,7 @@ export const ClassList: React.FC = () => {
         isPostRequest={true}
         addActionUrl="AddEditClasses"
         editUrl="AddEditClasses"
-        deleteUrl="/api/users/delete"
+        deleteUrl="/api/schoolClasses/delete"
         entityName="Class"
         searchPlaceholder="Search classes..."
         transformData={transformClassData}

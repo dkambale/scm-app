@@ -45,7 +45,7 @@ export const SchoolList: React.FC = () => {
         isPostRequest={true}
         addActionUrl="AddEditSchool"
         editUrl="AddEditSchool"
-        deleteUrl="/api/schoolBranches//delete"
+        deleteUrl="/api/schoolBranches/delete"
         entityName="School"
         searchPlaceholder="Search schools..."
         transformData={transformSchoolData}

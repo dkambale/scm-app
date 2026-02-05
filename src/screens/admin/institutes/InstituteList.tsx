@@ -70,7 +70,7 @@ export const InstituteList: React.FC = () => {
         isPostRequest={true}
         addActionUrl="AddEditInstitute"
         editUrl="AddEditInstitute"
-        deleteUrl="/api/users/delete"
+        deleteUrl="/api/institutes/delete"
         entityName="Institute"
         searchPlaceholder="Search institutees..."
         transformData={transformInstituteData}

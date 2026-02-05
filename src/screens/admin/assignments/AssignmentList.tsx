@@ -48,7 +48,7 @@ export const AssignmentList: React.FC = () => {
         isPostRequest={true}
         // addActionUrl="AddAssignment"
         // editUrl="EditAssignment"
-        deleteUrl="/api/users/delete"
+        deleteUrl="/api/assignments/delete"
         entityName="Assignment"
         searchPlaceholder="Search assignments..."
         transformData={transformAssignmentData}

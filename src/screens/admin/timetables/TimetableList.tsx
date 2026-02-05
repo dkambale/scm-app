@@ -42,7 +42,7 @@ export const TimetableList: React.FC = () => {
         addActionUrl="AddEditTimetable"
         editUrl="AddEditTimetable"
         viewUrl="ViewTimetable"
-        deleteUrl="/api/users/delete"
+        deleteUrl="/api/timetable/delete"
         
         entityName="Timetable"
         searchPlaceholder="Search timetables..."

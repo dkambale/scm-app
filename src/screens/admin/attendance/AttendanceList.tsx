@@ -46,7 +46,7 @@ export const AttendanceList: React.FC = () => {
         isPostRequest={true}
         addActionUrl="AddAttendance"
         editUrl="EditAttendance"
-        deleteUrl="/api/users/delete"
+        deleteUrl="/api/attendance/delete"
         entityName="Attendance"
         searchPlaceholder="Search attendances..."
         transformData={transformAttendanceData}
